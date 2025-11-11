@@ -1,54 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img alt="Ski Shop" src="public/images/shop/hero.png" width="0" height="0" style="display:none"/>
 
-## Getting Started
+# Ski Shop
 
-First, run the development server:
+A modern e‑commerce demo built with Next.js App Router, TypeScript, Tailwind, Radix UI, next-intl, Auth.js (NextAuth), TanStack Query, and MSW.
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local` (minimal):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+NEXT_PUBLIC_BASE_URL=http://localhost:3000/api
+AUTH_SECRET=replace-with-strong-random
+```
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+Comprehensive docs live in the `docs/` directory:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Overview: docs/index.md
+- Setup: docs/setup.md
+- Architecture: docs/architecture.md
+- Directory Structure: docs/directory-structure.md
+- Environment: docs/environment.md
+- Running & Scripts: docs/running-and-scripts.md
+- Deployment: docs/deployment.md
+- Testing: docs/testing.md
+- i18n: docs/i18n.md
+- Authentication: docs/authentication.md
+- Data Fetching: docs/data-fetching.md
+- Styling: docs/styling.md
+- Routing & Middleware: docs/routing-and-middleware.md
+- Components: docs/components.md
+- Modules: docs/modules.md
+- Conventions: docs/conventions.md
+- Troubleshooting: docs/troubleshooting.md
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
+- Next.js 15 App Router, React 19, TypeScript
+- Tailwind CSS 4, Radix UI
+- Auth.js (NextAuth) with JWT sessions
+- next-intl for i18n with locale-prefixed routes
+- TanStack Query for data fetching
+- MSW for mocks; Storybook for component docs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `package.json` or docs/running-and-scripts.md for the full list.
 
-## Google Maps Setup
-
-This project uses Google Maps for the contact page. To set up Google Maps:
-
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the following APIs:
-   - Maps JavaScript API
-   - Places API
-4. Create credentials (API Key) for the project
-5. Create a `.env.local` file in the root directory and add:
-   ```
-   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
-   ```
-6. Replace `your_google_maps_api_key_here` with your actual API key
-
-**Important**: Make sure to restrict your API key to your domain for security.
+## Google Maps (optional)
+If using the contact page map, set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env.local`.

@@ -169,7 +169,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login/password`, {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, {
             email,
             password,
           });

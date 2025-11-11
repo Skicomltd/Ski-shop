@@ -2,8 +2,8 @@
 
 import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import SkiButton from "@/components/shared/button";
-import { ComponentGuard } from "@/lib/routes/component-guard";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -22,7 +22,17 @@ type Slide = {
 
 const slidePositions = ["center", "left", "right"];
 
-const HeroSlide = ({ slide, position, t }: { slide: Slide; position: string; t: (key: string) => string }) => {
+const HeroSlide = ({
+  slide,
+  position,
+  t,
+  isAuthenticated,
+}: {
+  slide: Slide;
+  position: string;
+  t: (key: string) => string;
+  isAuthenticated: boolean;
+}) => {
   return (
     <div className="relative min-h-[700px] w-full">
       <BlurImage
@@ -73,13 +83,11 @@ const HeroSlide = ({ slide, position, t }: { slide: Slide; position: string; t: 
             >
               {position === "center" ? t("shopNow") : position === "left" ? t("subscribeNow") : t("joinNow")}
             </SkiButton>
-            <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
-              {position === "center" && (
-                <SkiButton href={`/signup/vendor`} size={`xl`} className={cn("w-[220px] text-white")} variant="outline">
-                  {t("becomeSeller")}
-                </SkiButton>
-              )}
-            </ComponentGuard>
+            {!isAuthenticated && (
+              <SkiButton href={`/signup/vendor`} size={`xl`} className={cn("w-[220px] text-white")} variant="outline">
+                {t("becomeSeller")}
+              </SkiButton>
+            )}
           </div>
         </div>
       </section>
@@ -91,9 +99,11 @@ export const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWindowLoaded, setIsWindowLoaded] = useState(false);
   const [loadedImages, setLoadedImages] = useState(0);
+  const { status } = useSession();
   const t = useTranslations("home.hero");
   const slides = t.raw("slides");
   const isReady = isWindowLoaded && loadedImages >= heroImages.length;
+  const isAuthenticated = status === "authenticated";
 
   useEffect(() => {
     const handleLoad = () => setIsWindowLoaded(true);
@@ -142,7 +152,7 @@ export const Hero = () => {
 
     const interval = setInterval(() => {
       setCurrentImageIndex((previous) => (previous + 1) % heroImages.length);
-    }, 7000);
+    }, 50_000);
 
     return () => clearInterval(interval);
   }, [isReady]);
@@ -162,6 +172,7 @@ export const Hero = () => {
             slide={{ ...slide, image: heroImages[index], position: index }}
             position={slidePositions[index]}
             t={t}
+            isAuthenticated={isAuthenticated}
           />
         ))}
       </div>
