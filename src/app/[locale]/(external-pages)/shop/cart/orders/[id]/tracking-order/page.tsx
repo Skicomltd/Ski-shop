@@ -175,7 +175,7 @@ export default function TrackingPage({ params }: TrackingPageProperties) {
         </div>
       </Wrapper> */}
 
-      <Wrapper className="mx-auto px-0 py-4">
+      <Wrapper className="mx-auto px-0">
         <OrderTracking
           trackingData={trackingData}
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}

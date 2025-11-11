@@ -1,4 +1,5 @@
 import { AddToCartButton } from "@/components/shared/add-to-cart-button";
+import SkiButton from "@/components/shared/button";
 import { LocaleLink } from "@/components/shared/locale-link";
 import { Ratings } from "@/components/shared/ratings";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +8,11 @@ import { formatCurrency } from "@/lib/i18n/utils";
 import { ComponentGuard } from "@/lib/routes/component-guard";
 import { cn } from "@/lib/utils";
 import { useSaveProduct } from "@/mocks/handlers/products/use-save-product";
+import { ShoppingCart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { HTMLAttributes } from "react";
 import { PiHeart, PiHeartFill } from "react-icons/pi";
 
@@ -67,6 +70,7 @@ export const ShopCard = ({
   // Don't render save button if no ID
   const shouldShowSaveButton = showSaveButton && id;
   const { status } = useSession();
+  const router = useRouter();
 
   return (
     <LocaleLink
@@ -154,13 +158,30 @@ export const ShopCard = ({
             </p>
           )}
         </div>
-        <ComponentGuard requireAuth={status === "authenticated"} allowedRoles={["CUSTOMER"]}>
-          {id && (
-            <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              <AddToCartButton isIconVisible={false} className={``} productId={id} fullWidth stopEventPropagation />
-            </div>
-          )}
-        </ComponentGuard>
+        {id && (
+          <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            {status === "authenticated" ? (
+              <ComponentGuard requireAuth={true} allowedRoles={["CUSTOMER"]}>
+                <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
+              </ComponentGuard>
+            ) : (
+              <SkiButton
+                variant="primary"
+                size="lg"
+                className="flex w-full items-center gap-2"
+                isLeftIconVisible={true}
+                icon={<ShoppingCart size={20} />}
+                onClick={(event_) => {
+                  event_.preventDefault();
+                  event_.stopPropagation();
+                  router.push(`/${locale}/login`);
+                }}
+              >
+                Add to Cart
+              </SkiButton>
+            )}
+          </div>
+        )}
       </div>
     </LocaleLink>
   );

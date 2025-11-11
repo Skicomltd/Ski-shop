@@ -3,7 +3,6 @@
 import SkiButton from "@/components/shared/button";
 import { FormField } from "@/components/shared/inputs/FormFields";
 import { LocaleLink } from "@/components/shared/locale-link";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createLoginSchema, LoginFormData } from "@/schemas/auth-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -118,8 +117,8 @@ export const LoginForm = () => {
             </div>
           </section>
 
-          <section className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+          <section className="mt-[-1rem] flex items-center justify-end">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox id="remember" />
               <label
                 htmlFor="remember"
@@ -127,7 +126,7 @@ export const LoginForm = () => {
               >
                 {tAuth("rememberMe")}
               </label>
-            </div>
+            </div> */}
             <LocaleLink href="/forgot-password">
               <p className="!text-destructive !text-xs hover:underline md:!text-sm">{tAuth("forgotPassword")}</p>
             </LocaleLink>

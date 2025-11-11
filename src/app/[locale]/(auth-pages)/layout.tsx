@@ -1,6 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/shared/logo";
+import { DeveloperInfo } from "@/lib/dev/developer-info";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -51,9 +52,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Footer */}
-          <p className="!text-primary mt-auto px-4 pt-4 pb-6 text-center !text-xs md:block lg:pb-8 lg:!text-sm">
-            {tFooter("copyright", { year: new Date().getFullYear() })}
-          </p>
+          <DeveloperInfo>
+            <p className="!text-primary mt-auto px-4 pt-4 pb-6 text-center !text-xs md:block lg:pb-8 lg:!text-sm">
+              {tFooter("copyright", { year: new Date().getFullYear() })}
+            </p>
+          </DeveloperInfo>
         </div>
       </section>
 

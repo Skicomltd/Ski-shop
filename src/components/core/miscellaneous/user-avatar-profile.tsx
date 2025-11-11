@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ComponentGuard } from "@/lib/routes/component-guard";
 import { useAppService } from "@/services/externals/app/use-app-service";
-import { Box, ListOrdered, LogOut, Users } from "lucide-react";
+import { Box, ListOrdered, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -95,12 +95,12 @@ export function UserAvatarProfile({ className, showInfo = false }: UserAvatarPro
             </DropdownMenuItem>
           </LocaleLink>
         </ComponentGuard>
-        <LocaleLink href={`/earn`}>
+        {/* <LocaleLink href={`#`}>
           <DropdownMenuItem className="cursor-pointer">
             <Users className="mr-2 h-4 w-4" />
             <span>{t("investEarn")}</span>
           </DropdownMenuItem>
-        </LocaleLink>
+        </LocaleLink> */}
         <ComponentGuard requireAuth allowedRoles={["VENDOR", "ADMIN"]}>
           <LocaleLink href={`/dashboard/home`}>
             <DropdownMenuItem className="cursor-pointer">

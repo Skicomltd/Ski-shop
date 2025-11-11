@@ -19,7 +19,7 @@ const SavedItems = ({ headerStyle }: { title: string; headerStyle?: string; hasA
   return (
     <section className="min-h-[480px] pt-18 lg:pt-[10rem]">
       <ProductBreadcrumb productTitle={`Saved Items`} />
-      <Wrapper className={`py-16`}>
+      <Wrapper>
         <div className={cn(`mb-8 flex items-baseline justify-between`, headerStyle)}>
           <h2 className={cn("!text-lg lg:!text-3xl", headerStyle)}>Saved Items</h2>
         </div>
