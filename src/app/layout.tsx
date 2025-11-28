@@ -16,6 +16,9 @@ import { SessionProvider } from "next-auth/react";
 export const metadata: Metadata = {
   title: "Ski Shop",
   description: "Shop Smart and Save More with Ski-Shop",
+  verification: {
+    google: "NYP_VSutVkmN6e0k7TVhVahnJ8sl1MKval_R-R8zUKU",
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
