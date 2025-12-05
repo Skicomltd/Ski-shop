@@ -81,10 +81,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, {
-            email,
-            password,
-          });
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`,
+            {
+              email,
+              password,
+            },
+            {
+              headers: {
+                "x-client-type": "web",
+              },
+            },
+          );
 
           if (response.status === 200) {
             return {

@@ -5,6 +5,7 @@ import { FormField } from "@/components/shared/inputs/FormFields";
 import { LocaleLink } from "@/components/shared/locale-link";
 import { createLoginSchema, LoginFormData } from "@/schemas/auth-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { signIn } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -91,7 +92,12 @@ export const LoginForm = () => {
 
   const handleGoogleSignIn = () => {
     startGoogleTransition(async () => {
-      router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
+      // router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
+      await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`, {
+        headers: {
+          "x-client-type": "web",
+        },
+      });
     });
   };
 

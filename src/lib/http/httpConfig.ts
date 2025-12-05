@@ -84,6 +84,10 @@ http.interceptors.request.use(
       }
     }
 
+    // Add client type header to all requests
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>)["x-client-type"] = "web";
+
     // If sending FormData, ensure Content-Type is not preset so browser can add the correct multipart boundary
     if (config.data instanceof FormData && config.headers) {
       // Remove any preset Content-Type to allow Axios/browser to set it correctly
