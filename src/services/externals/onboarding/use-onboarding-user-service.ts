@@ -1,5 +1,6 @@
 import { createServiceHooks } from "@/lib/react-query/use-service-query";
 import { dependencies } from "@/lib/tools/dependencies";
+import { BankPayoutFormData, BusinessInfoFormData, StoreFormData } from "@/schemas";
 
 import { OnboardingUserService } from "./onboarding-user.service";
 
@@ -10,7 +11,7 @@ export const useOnboardingUserService = () => {
 
   const useResendOTP = () => useServiceMutation((service, data: { email: string }) => service.resendOTP(data));
 
-  const useVerifyOTP = () => useServiceMutation((service, data: { code: number }) => service.verifyOTP(data));
+  const useVerifyOTP = () => useServiceMutation((service, data: { code: string }) => service.verifyOTP(data));
 
   // Mutations
   const useUpdateBusinessInfo = () =>

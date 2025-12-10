@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { MdEmail, MdRefresh, MdVerified } from "react-icons/md";
+import { MdPhone, MdRefresh, MdVerified } from "react-icons/md";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -21,14 +21,16 @@ const FormSchema = z.object({
   }),
 });
 
-export const VerifyEmailComponent = () => {
-  const email = useDecodedSearchParameters("email");
+export const VerifyPhoneComponent = () => {
+  const phoneNumber = useDecodedSearchParameters("phone");
+  const token = useDecodedSearchParameters("token");
   const locale = useLocale();
   const router = useRouter();
-  const { useVerifyOTP } = useOnboardingUserService();
-  const { mutateAsync: verifyOTP, isPending: isSubmitting } = useVerifyOTP();
+  //   const { useVerifyPhoneOTP } = useOnboardingUserService();
+  //   const { mutateAsync: verifyPhoneOTP, isPending: isSubmitting } = useVerifyPhoneOTP();
   const { handleResendEmail, isResending } = useResendEmail();
   const pathname = usePathname();
+
   // Initialize the form
   const methods = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -43,21 +45,23 @@ export const VerifyEmailComponent = () => {
   } = methods;
 
   const handleSubmitForm = async (data: z.infer<typeof FormSchema>) => {
-    await verifyOTP(
-      { code: data.code },
-      {
-        onSuccess: (response) => {
-          if (response?.success && response?.data?.token) {
-            if (pathname.includes("/vendor")) {
-              toast.success("Email verified successfully");
-              router.push(`/${locale}/onboarding/vendor/phone-input?token=${response?.data?.token}`);
-            } else {
-              router.push(`/${locale}/shop`);
-            }
-          }
-        },
-      },
-    );
+    // await verifyPhoneOTP(
+    //   { code: data.code },
+    //   {
+    //     onSuccess: (response) => {
+    //       if (response?.success && response?.data?.token) {
+    //         toast.success("Phone number verified successfully");
+    //         router.push(`/${locale}/onboarding/vendor/business-info?token=${response?.data?.token}`);
+    //       }
+    //     },
+    //   },
+    // );
+  };
+
+  const handleResendCode = async () => {
+    // Implement resend phone OTP logic here
+    toast.info("Resending verification code...");
+    // You'll need to add this to your service
   };
 
   return (
@@ -65,18 +69,18 @@ export const VerifyEmailComponent = () => {
       {/* Header Section */}
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="space-y-2">
-          <h2 className="text-foreground !text-2xl font-semibold">Verify Your Email</h2>
+          <h2 className="text-foreground !text-2xl font-semibold">Verify Your Phone Number</h2>
           <p className="text-muted-foreground max-w-sm text-sm">
-            We&apos;ve sent a verification code to your email address to complete your registration.
+            We&apos;ve sent a verification code to your phone number to continue your registration.
           </p>
         </div>
       </div>
 
-      {/* Email Display */}
-      {email && (
+      {/* Phone Display */}
+      {phoneNumber && (
         <div className="bg-muted/50 flex items-center space-x-2 rounded-lg px-4 py-3">
-          <MdEmail className="text-muted-foreground h-5 w-5" />
-          <span className="text-foreground text-sm font-medium">{email}</span>
+          <MdPhone className="text-muted-foreground h-5 w-5" />
+          <span className="text-foreground text-sm font-medium">{phoneNumber}</span>
         </div>
       )}
 
@@ -121,52 +125,49 @@ export const VerifyEmailComponent = () => {
                     </InputOTP>
                   </div>
                 </FormControl>
-                <FormDescription className="text-muted-foreground text-center text-xs">
-                  Enter the 6-digit code sent to your email
+                <FormDescription className="text-center text-sm">
+                  Please enter the 6-digit code sent to your phone.
                 </FormDescription>
                 <FormMessage className="text-center" />
               </FormItem>
             )}
           />
 
-          {/* Action Buttons */}
-          <div className="flex flex-col space-y-3">
+          {/* Submit Button */}
+          <div className="space-y-4">
             <SkiButton
               type="submit"
-              className="w-full font-medium transition-all duration-200 hover:shadow-md"
-              variant={`primary`}
-              isDisabled={!isValid || isSubmitting}
-              isLoading={isSubmitting}
-              isLeftIconVisible
-              icon={<MdVerified />}
+              className="!bg-primary hover:!bg-primary/90 !h-12 w-full rounded-lg !font-semibold !text-white shadow-sm transition-colors"
+              //   disabled={!isValid || isSubmitting}
+              //   isLoading={isSubmitting}
             >
-              {isSubmitting ? "Verifying..." : "Verify Email"}
-            </SkiButton>
-
-            <SkiButton
-              type="button"
-              variant="outline"
-              onClick={(event) => {
-                event.preventDefault();
-                handleResendEmail();
-              }}
-              isDisabled={isResending}
-              className="hover:bg-muted/50 w-full font-medium transition-all duration-200"
-              isLeftIconVisible
-              icon={<MdRefresh />}
-              isLoading={isResending}
-            >
-              {isResending ? "Sending..." : "Resend Code"}
+              {/* {isSubmitting ? (
+                <div className="flex items-center space-x-2">
+                  <MdVerified className="h-5 w-5 animate-spin" />
+                  <span>Verifying...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <MdVerified className="h-5 w-5" />
+                  <span>Verify Phone Number</span>
+                </div>
+              )} */}
             </SkiButton>
           </div>
         </form>
       </FormProvider>
 
-      {/* Footer Note */}
-      <div className="text-center">
-        <p className="text-muted-foreground text-xs">
-          Didn&apos;t receive the code? Check your spam folder or try resending.
-        </p>
+      {/* Resend Code Section */}
+      <div className="flex flex-col items-center space-y-3">
+        <p className="text-muted-foreground text-sm">Didn&apos;t receive the code?</p>
+        <button
+          onClick={handleResendCode}
+          disabled={isResending}
+          className="text-primary hover:text-primary/80 flex items-center space-x-2 text-sm font-medium transition-colors disabled:opacity-50"
+        >
+          <MdRefresh className={`h-4 w-4 ${isResending ? "animate-spin" : ""}`} />
+          <span>{isResending ? "Resending..." : "Resend Code"}</span>
+        </button>
       </div>
     </div>
   );

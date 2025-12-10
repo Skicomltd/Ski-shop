@@ -5,7 +5,7 @@ import { OnboardingLayout } from "../_components/onboarding-layout";
 
 const BusinessInfoPage = () => {
   return (
-    <OnboardingLayout currentStep={2}>
+    <OnboardingLayout currentStep={4}>
       <BusinessInfoForm />
     </OnboardingLayout>
   );

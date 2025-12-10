@@ -1,6 +1,6 @@
 import { OnboardingHttpAdapter } from "@/lib/http/onboarding-http-adapter";
 import { tryCatchWrapper } from "@/lib/tools/tryCatchFunction";
-import { StoreFormData } from "@/schemas";
+import { BankPayoutFormData, BusinessInfoFormData, StoreFormData } from "@/schemas";
 import { isAxiosError } from "axios";
 
 export class OnboardingUserService {
@@ -28,7 +28,7 @@ export class OnboardingUserService {
     );
   }
 
-  async verifyOTP(data: { code: number }) {
+  async verifyOTP(data: { code: string }) {
     return tryCatchWrapper(
       async () => {
         const response = await this.http.post<ShortTokenResponse>("/auth/verifyemail", data);

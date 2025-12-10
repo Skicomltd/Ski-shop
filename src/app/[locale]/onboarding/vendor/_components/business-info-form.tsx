@@ -138,7 +138,7 @@ export const BusinessInfoForm = () => {
           placeholder="Select country"
           searchPlaceholder="Search countries..."
           emptyMessage="No country found."
-          className="bg-mid-grey-III text-mid-grey-II h-14 w-full rounded-lg shadow-none"
+          className="text-mid-grey-II h-14 w-full rounded-lg shadow-none"
         />
         {methods.formState.errors.country && (
           <p className="text-sm text-red-500">{methods.formState.errors.country.message}</p>

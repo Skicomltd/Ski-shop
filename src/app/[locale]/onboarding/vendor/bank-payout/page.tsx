@@ -5,10 +5,9 @@ import { OnboardingLayout } from "../_components/onboarding-layout";
 
 const BankPayoutPage = () => {
   return (
-    <OnboardingLayout currentStep={4}>
+    <OnboardingLayout currentStep={6}>
       <BankPayoutForm />
     </OnboardingLayout>
   );
 };
-
 export default BankPayoutPage;

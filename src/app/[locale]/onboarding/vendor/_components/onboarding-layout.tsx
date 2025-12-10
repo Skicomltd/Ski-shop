@@ -13,9 +13,11 @@ interface OnboardingLayoutProperties {
 
 const steps = [
   { id: "verify-email", title: "Email Verification", step: 1 },
-  { id: "business-info", title: "Business Info", step: 2 },
-  { id: "store-setup", title: "Store Setup", step: 3 },
-  { id: "bank-payout", title: "Bank & Payout", step: 4 },
+  { id: "phone-input", title: "Phone Number", step: 2 },
+  { id: "verify-phone", title: "Phone Verification", step: 3 },
+  { id: "business-info", title: "Business Info", step: 4 },
+  { id: "store-setup", title: "Store Setup", step: 5 },
+  { id: "bank-payout", title: "Bank & Payout", step: 6 },
 ];
 
 export const OnboardingLayout = ({ children, currentStep, showProgress = true }: OnboardingLayoutProperties) => {
@@ -26,7 +28,7 @@ export const OnboardingLayout = ({ children, currentStep, showProgress = true }:
       </div>
       {showProgress && currentStep && (
         <div className="mx-auto px-4 py-4">
-          <ProgressIndicator currentStep={currentStep} totalSteps={4} steps={steps} />
+          <ProgressIndicator currentStep={currentStep} totalSteps={6} steps={steps} />
         </div>
       )}
       {/* Content */}
