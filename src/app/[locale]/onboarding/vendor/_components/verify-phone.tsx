@@ -3,12 +3,12 @@
 import SkiButton from "@/components/shared/button";
 import { FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { useResendEmail } from "@/hooks/use-resend-email";
 import { useDecodedSearchParameters } from "@/hooks/use-search-parameters";
-import { useOnboardingUserService } from "@/services/externals/onboarding/use-onboarding-user-service";
+import { usePhoneVerificationService } from "@/services/externals/onboarding/use-onboarding-user-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { MdPhone, MdRefresh, MdVerified } from "react-icons/md";
 import { toast } from "sonner";
@@ -23,13 +23,24 @@ const FormSchema = z.object({
 
 export const VerifyPhoneComponent = () => {
   const phoneNumber = useDecodedSearchParameters("phone");
-  const token = useDecodedSearchParameters("token");
+  // const token = useDecodedSearchParameters("token");
   const locale = useLocale();
   const router = useRouter();
-  //   const { useVerifyPhoneOTP } = useOnboardingUserService();
-  //   const { mutateAsync: verifyPhoneOTP, isPending: isSubmitting } = useVerifyPhoneOTP();
-  const { handleResendEmail, isResending } = useResendEmail();
-  const pathname = usePathname();
+  const { phoneService } = usePhoneVerificationService();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  // Check if we have a confirmation result when component mounts
+  useEffect(() => {
+    // console.log("📱 VerifyPhoneComponent mounted");
+    // console.log("📞 Phone number from URL:", phoneNumber);
+    const hasConfirmation = phoneService.hasConfirmationResult();
+    // console.log("✅ Has confirmation result:", hasConfirmation);
+
+    if (!hasConfirmation) {
+      // console.warn("⚠️ No confirmation result found! User may need to resend code.");
+    }
+  }, [phoneService, phoneNumber]);
 
   // Initialize the form
   const methods = useForm<z.infer<typeof FormSchema>>({
@@ -45,23 +56,57 @@ export const VerifyPhoneComponent = () => {
   } = methods;
 
   const handleSubmitForm = async (data: z.infer<typeof FormSchema>) => {
-    // await verifyPhoneOTP(
-    //   { code: data.code },
-    //   {
-    //     onSuccess: (response) => {
-    //       if (response?.success && response?.data?.token) {
-    //         toast.success("Phone number verified successfully");
-    //         router.push(`/${locale}/onboarding/vendor/business-info?token=${response?.data?.token}`);
-    //       }
-    //     },
-    //   },
-    // );
+    setIsSubmitting(true);
+
+    try {
+      const response = await phoneService.verifyPhoneOTP(data.code);
+
+      if (response?.success && response?.data?.token) {
+        toast.success("Phone number verified successfully");
+
+        const currentPath = window.location.pathname;
+        const isVendorFlow = currentPath.includes("/vendor");
+
+        const redirectPath = isVendorFlow
+          ? `/${locale}/onboarding/vendor/business-info?token=${response?.data?.token}`
+          : `/${locale}/login`;
+
+        router.push(redirectPath);
+      } else {
+        toast.error("Phone verification failed. Please try again.");
+      }
+    } catch (error) {
+      // console.error("Error verifying OTP:", error);
+      const errorMessage = error instanceof Error ? error.message : "Verification failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleResendCode = async () => {
-    // Implement resend phone OTP logic here
-    toast.info("Resending verification code...");
-    // You'll need to add this to your service
+    if (!phoneNumber) {
+      toast.error("Phone number not found. Please go back and try again.");
+      return;
+    }
+
+    setIsResending(true);
+
+    try {
+      const result = await phoneService.resendPhoneOTP(phoneNumber);
+
+      if (result?.success) {
+        toast.success("Verification code resent successfully");
+      } else {
+        toast.error("Failed to resend code. Please try again.");
+      }
+    } catch (error) {
+      // console.error("Error resending OTP:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to resend code";
+      toast.error(errorMessage);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -138,20 +183,12 @@ export const VerifyPhoneComponent = () => {
             <SkiButton
               type="submit"
               className="!bg-primary hover:!bg-primary/90 !h-12 w-full rounded-lg !font-semibold !text-white shadow-sm transition-colors"
-              //   disabled={!isValid || isSubmitting}
-              //   isLoading={isSubmitting}
+              isDisabled={!isValid || isSubmitting}
+              isLoading={isSubmitting}
+              isLeftIconVisible
+              icon={<MdVerified />}
             >
-              {/* {isSubmitting ? (
-                <div className="flex items-center space-x-2">
-                  <MdVerified className="h-5 w-5 animate-spin" />
-                  <span>Verifying...</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <MdVerified className="h-5 w-5" />
-                  <span>Verify Phone Number</span>
-                </div>
-              )} */}
+              {isSubmitting ? "Verifying..." : "Verify Phone Number"}
             </SkiButton>
           </div>
         </form>

@@ -147,7 +147,7 @@ export const BaseSignupForm = () => {
   );
 
   const renderSignupForm = () => (
-    <section>
+    <section className="px-1">
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(handleSubmitForm)}>
           {renderFormFields()}

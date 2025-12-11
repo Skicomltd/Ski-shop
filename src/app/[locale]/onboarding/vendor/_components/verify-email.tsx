@@ -52,7 +52,7 @@ export const VerifyEmailComponent = () => {
               toast.success("Email verified successfully");
               router.push(`/${locale}/onboarding/vendor/phone-input?token=${response?.data?.token}`);
             } else {
-              router.push(`/${locale}/shop`);
+              router.push(`/${locale}/onboarding/phone-input?token=${response?.data?.token}`);
             }
           }
         },

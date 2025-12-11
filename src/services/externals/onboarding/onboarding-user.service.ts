@@ -46,6 +46,43 @@ export class OnboardingUserService {
     );
   }
 
+  // Phone verification without Firebase - direct backend approach
+  async sendPhoneOTP(data: { phoneNumber: string }) {
+    return tryCatchWrapper(
+      async () => {
+        const response = await this.http.post<ShortTokenResponse>("/auth/sendphoneotp", data);
+        if (response?.status === 200 || response?.status === 201) {
+          return response.data;
+        }
+        throw new Error("Failed to send phone OTP");
+      },
+      (error: unknown) => {
+        if (isAxiosError(error)) {
+          return new Error(error.response?.data?.message || "Failed to send phone OTP");
+        }
+        return new Error("Unknown error during phone OTP send");
+      },
+    );
+  }
+
+  async verifyPhoneOTP(data: { code: string }) {
+    return tryCatchWrapper(
+      async () => {
+        const response = await this.http.post<ShortTokenResponse>("/auth/verifyphonenumber", data);
+        if (response?.status === 200 || response?.status === 201) {
+          return response.data;
+        }
+        throw new Error("Phone OTP verification failed");
+      },
+      (error: unknown) => {
+        if (isAxiosError(error)) {
+          return new Error(error.response?.data?.message || "Phone OTP verification failed");
+        }
+        return new Error("Unknown error during phone OTP verification");
+      },
+    );
+  }
+
   async updateBusinessInfo(businessInfo: BusinessInfoFormData) {
     return tryCatchWrapper(async () => {
       const response = await this.http.post<ShortTokenResponse>("/auth/business", businessInfo);
