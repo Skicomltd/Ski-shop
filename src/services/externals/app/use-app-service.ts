@@ -26,6 +26,14 @@ export const useAppService = () => {
     });
   };
 
+  const useGetSimilarProducts = (productId: string, filters: Filters, options?: any) => {
+    return useServiceQuery(
+      [...queryKeys.product.similar(productId, filters)],
+      (service) => service.getSimilarProducts(productId, filters),
+      { staleTime: 0, ...options },
+    );
+  };
+
   const useGetSingleProduct = (id: string, options?: any) =>
     useServiceQuery([...queryKeys.product.details(id)], (service) => service.getSingleProduct(id), options);
 
@@ -162,6 +170,7 @@ export const useAppService = () => {
     // Product Queries
     useGetAllProducts,
     useGetAllhandPickedProducts,
+    useGetSimilarProducts,
     useGetSingleProduct,
     useGetAllProductCategory,
     useGetSavedProducts,

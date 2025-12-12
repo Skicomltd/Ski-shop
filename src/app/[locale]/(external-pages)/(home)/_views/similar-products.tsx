@@ -4,18 +4,18 @@ import { ShopCard } from "../_components/shop-card/shop-card";
 import { ShopCardSkeleton } from "../../_components/shop-card-skeleton";
 
 interface SimilarProductsProperties {
-  currentProductId: number;
+  currentProductId: string;
   category: string;
 }
 
-export const SimilarProducts = ({ category }: SimilarProductsProperties) => {
-  const { useGetAllProducts } = useAppService();
-  const { isLoading, data } = useGetAllProducts({ flag: "similar" });
+export const SimilarProducts = ({ currentProductId, category }: SimilarProductsProperties) => {
+  const { useGetSimilarProducts } = useAppService();
+  const { isLoading, data } = useGetSimilarProducts(currentProductId, {});
   const similarProducts = data?.data?.items?.filter((product) => product.category === category).slice(0, 4);
 
   return (
     <div className="space-y-6">
-      <h2 className="!text-2xl font-semibold">Similar Products</h2>
+      <h2 className="!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]">Similar Products</h2>
       <div className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-4">
         {isLoading &&
           Array.from({ length: 12 }).map((_, index: number) => {

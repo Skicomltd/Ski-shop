@@ -16,6 +16,7 @@ export const queryKeys = {
     details: (id: string) => ["products", "details", id] as const,
     categories: () => ["products", "categories"] as const,
     saved: () => ["products", "saved"] as const,
+    similar: (productId: string, filters: Filters) => ["products", "similar", productId, filters] as const,
   },
   review: {
     list: (filters: Filters) => ["review", "list", filters?.productId] as const,
