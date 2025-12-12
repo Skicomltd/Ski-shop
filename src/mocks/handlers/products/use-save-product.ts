@@ -1,24 +1,19 @@
 import { queryClient } from "@/lib/react-query/query-client";
 import { queryKeys } from "@/lib/react-query/query-keys";
 import { useAppService } from "@/services/externals/app/use-app-service";
-import { useCallback, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 
 export const useSaveProduct = (productId: string, product?: Product) => {
   const { useGetSavedProducts, useSaveProduct, useRemoveFromFavorites } = useAppService();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
 
-  // Get saved products to check if current product is saved
-  const { data: savedProductsData } = useGetSavedProducts();
+  // Get saved products to check if current product is saved - only when authenticated
+  const { data: savedProductsData } = useGetSavedProducts({ enabled: isAuthenticated });
   const savedProductIds = savedProductsData?.data?.items?.map((product: Product) => product.id) || [];
   const isSaved = productId ? savedProductIds.includes(productId) : false;
-
-  // Local state for optimistic updates
-  const [localIsSaved, setLocalIsSaved] = useState(isSaved);
-
-  // Update local state when server state changes
-  useEffect(() => {
-    setLocalIsSaved(isSaved);
-  }, [isSaved]);
 
   // Save product mutation
   const { mutate: saveProduct, isPending: isSaving } = useSaveProduct({
@@ -26,7 +21,6 @@ export const useSaveProduct = (productId: string, product?: Product) => {
       toast.success("Product saved successfully");
     },
     onError: () => {
-      setLocalIsSaved(false); // Revert optimistic update
       // Revert query data
       if (product) {
         queryClient.setQueryData(
@@ -58,7 +52,6 @@ export const useSaveProduct = (productId: string, product?: Product) => {
       toast.success("Product removed from favorites");
     },
     onError: () => {
-      setLocalIsSaved(true); // Revert optimistic update
       // Revert query data
       if (product) {
         queryClient.setQueryData(
@@ -93,10 +86,7 @@ export const useSaveProduct = (productId: string, product?: Product) => {
       return;
     }
 
-    const newIsSaved = !localIsSaved;
-
-    // Optimistic update for local state
-    setLocalIsSaved(newIsSaved);
+    const newIsSaved = !isSaved;
 
     // Optimistic update for query data
     if (newIsSaved) {
@@ -146,10 +136,10 @@ export const useSaveProduct = (productId: string, product?: Product) => {
       );
       removeFromFavorites(productId);
     }
-  }, [productId, localIsSaved, product, saveProduct, removeFromFavorites]);
+  }, [productId, isSaved, product, saveProduct, removeFromFavorites]);
 
   return {
-    isSaved: localIsSaved,
+    isSaved,
     isPending: isSaving || isRemoving,
     toggleSave,
   };

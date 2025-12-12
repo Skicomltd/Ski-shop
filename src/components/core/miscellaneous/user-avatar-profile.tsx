@@ -30,8 +30,9 @@ export function UserAvatarProfile({ className, showInfo = false }: UserAvatarPro
   const t = useTranslations("userProfile");
 
   // Fetch saved products and orders data
-  const { data: savedProductsResponse } = useGetSavedProducts();
-  const { data: ordersResponse } = useGetOrders();
+  const { status } = useSession();
+  const { data: savedProductsResponse } = useGetSavedProducts({ enabled: status === "authenticated" });
+  const { data: ordersResponse } = useGetOrders({ enabled: status === "authenticated" });
 
   // Get counts
   const savedItemsCount = savedProductsResponse?.data?.metadata?.total || 0;

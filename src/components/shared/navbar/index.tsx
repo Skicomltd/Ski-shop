@@ -74,17 +74,19 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
   ) => {
     const pathname = usePathname();
     const locale = useLocale();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const { isScrolled, scrollDirection } = useScrollBehavior();
     const { useGetCart, useGetSavedProducts, useGetOrders } = useAppService();
     const t = useTranslations("navbar");
 
-    // Fetch cart data
-    const { data: cartResponse } = useGetCart();
+    const isAuthenticated = status === "authenticated";
+
+    // Fetch cart data - only when authenticated
+    const { data: cartResponse } = useGetCart({ enabled: isAuthenticated });
     const cartItemCount = cartResponse?.data?.metadata?.total || 0;
-    // Fetch orders and saved products data
-    const { data: ordersResponse } = useGetOrders();
-    const { data: savedProductsResponse } = useGetSavedProducts();
+    // Fetch orders and saved products data - only when authenticated
+    const { data: ordersResponse } = useGetOrders({ enabled: isAuthenticated });
+    const { data: savedProductsResponse } = useGetSavedProducts({ enabled: isAuthenticated });
     const ordersCount = ordersResponse?.data?.metadata?.total || 0;
     const savedItemsCount = savedProductsResponse?.data?.metadata?.total || 0;
     const [drawerOpen, setDrawerOpen] = useState(false);

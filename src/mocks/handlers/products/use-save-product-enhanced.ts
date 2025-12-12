@@ -3,11 +3,14 @@
 /* eslint-disable unicorn/no-array-for-each */
 import { useSavedProductsStorage } from "@/mocks/handlers/products/use-saved-products-storage";
 import { useAppService } from "@/services/externals/app/use-app-service";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const useSaveProductEnhanced = (productId: string, product?: Product) => {
   const { useGetSavedProducts, useSaveProduct, useRemoveFromFavorites } = useAppService();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   const {
     savedProducts,
     isLoaded: isStorageLoaded,
@@ -16,8 +19,8 @@ export const useSaveProductEnhanced = (productId: string, product?: Product) => 
     removeSavedProduct,
   } = useSavedProductsStorage();
 
-  // Get saved products from API to check if current product is saved
-  const { data: savedProductsData } = useGetSavedProducts();
+  // Get saved products from API to check if current product is saved - only when authenticated
+  const { data: savedProductsData } = useGetSavedProducts({ enabled: isAuthenticated });
   const savedProductIds = savedProductsData?.data?.items?.map((product: Product) => product.id) || [];
   const isSavedInAPI = productId ? savedProductIds.includes(productId) : false;
 

@@ -5,13 +5,15 @@ import SkiButton from "@/components/shared/button";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
+import { useSession } from "next-auth/react";
 
 import { ProductBreadcrumb } from "../../../(home)/_components/product-breadcrumb";
 import { ShopCard } from "../../../(home)/_components/shop-card/shop-card";
 
 const SavedItems = ({ headerStyle }: { title: string; headerStyle?: string; hasAction?: boolean }) => {
   const { useGetSavedProducts } = useAppService();
-  const { isLoading, isError, data, refetch } = useGetSavedProducts();
+  const { status } = useSession();
+  const { isLoading, isError, data, refetch } = useGetSavedProducts({ enabled: status === "authenticated" });
 
   // Handle empty state
   const hasSavedItems = data?.data?.items && data.data.items.length > 0;
