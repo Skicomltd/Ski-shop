@@ -119,11 +119,20 @@ export class AppService {
     // });
   }
 
-  async checkoutCart() {
+  async checkoutCart(payload: {
+    paymentMethod: "paystack" | "paymentOnDelivery";
+    shippingFee: number;
+    shippingAddress?: {
+      address: string;
+      email?: string;
+      name: string;
+      phoneNumber: string;
+      state: string;
+    };
+    voucherId?: string;
+  }) {
     // return tryCatchWrapper(async () => {
-    const response = await this.http.post<CheckoutApiResponse>("/carts/checkout", {
-      paymentMethod: "paystack",
-    });
+    const response = await this.http.post<CheckoutApiResponse>("/carts/checkout", payload);
 
     if (response?.status === 201) {
       return response.data;

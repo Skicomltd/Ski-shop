@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Wrapper } from "@/components/core/layout/wrapper";
@@ -9,6 +10,7 @@ import { formatCurrency } from "@/lib/i18n/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronRight, Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
@@ -55,6 +57,8 @@ const addressSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   isDefault: z.boolean().default(false),
 });
+
+const DEFAULT_PHONE = "081234567890";
 
 // Pickup stations data
 const pickupStations = [
@@ -126,7 +130,8 @@ const mockAddresses: Address[] = [
 
 const CheckoutPage = () => {
   const locale = useLocale();
-  const [paymentMethod, setPaymentMethod] = useState<"bank" | "paystack">("bank");
+  const { data: session } = useSession();
+  const [paymentMethod, setPaymentMethod] = useState<"paystack" | "paymentOnDelivery">("paystack");
   const [deliveryMethod, setDeliveryMethod] = useState<"station" | "door">("station");
   const [showPickupModal, setShowPickupModal] = useState(false);
   const [showAddressBookModal, setShowAddressBookModal] = useState(false);
@@ -160,7 +165,7 @@ const CheckoutPage = () => {
   const { data: cartData, isLoading: isCartLoading, error: cartError } = useGetCart();
 
   // Calculate shipping fee based on delivery method
-  const shippingFee = deliveryMethod === "door" ? 5000 : 2000;
+  const shippingFee = deliveryMethod === "door" ? 300 : selectedStation.price;
 
   // Calculate totals
   const subtotal =
@@ -171,17 +176,59 @@ const CheckoutPage = () => {
 
   const total = subtotal + shippingFee;
 
-  const handleCheckout = () => {
-    const checkoutData = {
-      deliveryMethod,
-      paymentMethod,
-    };
+  // Compute dynamic delivery windows: one week in advance
+  const now = new Date();
+  const addDays = (d: Date, days: number) => {
+    const copy = new Date(d);
+    copy.setDate(copy.getDate() + days);
+    return copy;
+  };
+  const formatDate = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "short" });
 
+  const nextWeekStart = addDays(now, 7);
+  // Pick-up station window: start to +2 days
+  const pickupStartLabel = formatDate(nextWeekStart);
+  const pickupEndLabel = formatDate(addDays(nextWeekStart, 2));
+  // Door delivery window: start+2 to +4 days
+  const doorStartLabel = formatDate(addDays(nextWeekStart, 2));
+  const doorEndLabel = formatDate(addDays(nextWeekStart, 4));
+
+  const handleCheckout = () => {
     if (!deliveryMethod || !paymentMethod) {
       toast.error("Please select both delivery and payment methods");
       return;
-    } else if (paymentMethod === "paystack") {
-      checkout(checkoutData, {
+    }
+
+    // Build shippingAddress for both delivery types
+    const userEmail = session?.user?.email ?? "";
+    const userPhone = (session as any)?.user?.phoneNumber ?? DEFAULT_PHONE;
+    const shippingAddress =
+      deliveryMethod === "door"
+        ? selectedAddress
+          ? {
+              address: `${selectedAddress.streetAddress}${selectedAddress.townCity ? ", " + selectedAddress.townCity : ""}, ${selectedAddress.state}`,
+              email: userEmail,
+              name: selectedAddress.receiverName,
+              phoneNumber: selectedAddress.phone || userPhone || DEFAULT_PHONE,
+              state: selectedAddress.state,
+            }
+          : undefined
+        : {
+            address: `${selectedStation.place}, ${selectedStation.address}`,
+            email: userEmail,
+            name: selectedStation.place,
+            phoneNumber: userPhone || DEFAULT_PHONE,
+            state: selectedStation.state,
+          };
+
+    const payload = {
+      paymentMethod,
+      shippingFee,
+      shippingAddress,
+    };
+
+    if (paymentMethod === "paystack") {
+      checkout(payload, {
         onSuccess: (response) => {
           if (response?.data?.checkoutUrl) {
             toast.success("Checkout successful");
@@ -194,8 +241,17 @@ const CheckoutPage = () => {
           });
         },
       });
-    } else if (paymentMethod === "bank") {
-      toast.success("Bank transfer selected. Please follow the instructions to complete your payment.");
+    } else if (paymentMethod === "paymentOnDelivery") {
+      checkout(payload, {
+        onSuccess: () => {
+          toast.success("Payment on delivery selected. Order placed successfully.");
+        },
+        onError: (error) => {
+          toast.error("Checkout failed", {
+            description: error.message,
+          });
+        },
+      });
     }
   };
 
@@ -238,16 +294,16 @@ const CheckoutPage = () => {
   };
 
   return (
-    <section className="pt-18 lg:pt-[10rem]">
+    <section className="pt-18 lg:pt-[8rem]">
       <ProductBreadcrumb productTitle={`checkout`} />
       <Wrapper>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Delivery and Payment Section */}
           <div>
             <h4 className="!text-lg md:!text-xl">Delivery Method</h4>
 
             <form onSubmit={handleFormSubmit}>
-              <div className="space-y-20">
+              <div className="space-y-10">
                 <label className="block cursor-pointer">
                   <div className={`flex items-start space-y-2`}>
                     <input
@@ -261,7 +317,7 @@ const CheckoutPage = () => {
                     <p className={`!text-base font-semibold md:!text-lg`}>Pick-up Station</p>
                   </div>
                   <p className={`my-4 !text-sm md:!text-base`}>
-                    Delivery Between <strong>10 May</strong> and <strong>12 May</strong>
+                    Delivery Between <strong>{pickupStartLabel}</strong> and <strong>{pickupEndLabel}</strong>
                   </p>
                   <div className="overflow-hidden rounded-lg border">
                     <button
@@ -297,7 +353,7 @@ const CheckoutPage = () => {
                     <p className={`!text-base font-semibold md:!text-lg`}>Door Delivery</p>
                   </div>
                   <p className={`my-4 !text-sm md:!text-base`}>
-                    Delivery Between <strong>12 May</strong> and <strong>14 May</strong>
+                    Delivery Between <strong>{doorStartLabel}</strong> and <strong>{doorEndLabel}</strong>
                   </p>
                   {deliveryMethod === "door" && (
                     <div className="mt-4 space-y-4">
@@ -339,27 +395,45 @@ const CheckoutPage = () => {
               </div>
 
               {/* Payment Method */}
-              <div className="mt-8">
+              <div className="mt-6 rounded-lg border p-4">
                 <h4 className="!text-lg md:!text-xl">Payment Method</h4>
-                <div className="space-y-4">
-                  <label className="flex cursor-pointer items-center py-4">
+                <div className="mt-2 space-y-2">
+                  <label className="flex cursor-pointer items-center gap-3 py-2">
                     <input
                       type="radio"
                       name="payment"
                       value="paystack"
                       checked={paymentMethod === "paystack"}
                       onChange={() => setPaymentMethod("paystack")}
-                      className="mr-2 p-0"
+                      className="h-4 w-4"
                     />
-                    <Image
-                      src="/images/paystack-logo.svg"
-                      alt="Paystack"
-                      width={100}
-                      height={10}
-                      className="ml-2 h-6"
+                    <Image src="/images/paystack-logo.svg" alt="Paystack" width={100} height={10} className="h-6" />
+                    <span className="!text-sm text-gray-600">Secure online payment</span>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 py-2">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="paymentOnDelivery"
+                      checked={paymentMethod === "paymentOnDelivery"}
+                      onChange={() => setPaymentMethod("paymentOnDelivery")}
+                      className="mt-1 h-4 w-4"
                     />
+                    <div>
+                      <p className="!text-sm font-semibold md:!text-base">Pay on Delivery</p>
+                      <p className="!text-xs text-gray-600 md:!text-sm">
+                        Pay when your order arrives at your door or pickup station.
+                      </p>
+                    </div>
                   </label>
                 </div>
+
+                {paymentMethod === "paymentOnDelivery" && (
+                  <div className="mt-3 rounded bg-yellow-50 p-3 !text-xs text-yellow-800 md:!text-sm">
+                    Cash or transfer on delivery. Please ensure your contact details are correct.
+                  </div>
+                )}
               </div>
 
               <SkiButton
@@ -373,7 +447,7 @@ const CheckoutPage = () => {
                   (deliveryMethod === "door" && !selectedAddress)
                 }
                 variant={`primary`}
-                className={`mt-8 w-full`}
+                className={`mt-6 w-full`}
               >
                 Proceed to Checkout
               </SkiButton>

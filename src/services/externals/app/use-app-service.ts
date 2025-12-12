@@ -101,13 +101,30 @@ export const useAppService = () => {
     });
 
   const useCheckoutCart = (options?: any) =>
-    useServiceMutation((service) => service.checkoutCart(), {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.cart.list() });
-        queryClient.removeQueries({ queryKey: queryKeys.cart.list() });
+    useServiceMutation(
+      (
+        service,
+        data: {
+          paymentMethod: "paystack" | "paymentOnDelivery";
+          shippingFee: number;
+          shippingAddress?: {
+            address: string;
+            email?: string;
+            name: string;
+            phoneNumber: string;
+            state: string;
+          };
+          voucherId?: string;
+        },
+      ) => service.checkoutCart(data),
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.cart.list() });
+          queryClient.removeQueries({ queryKey: queryKeys.cart.list() });
+        },
+        ...options,
       },
-      ...options,
-    });
+    );
 
   const useGetOrders = (options?: any) =>
     useServiceQuery([...queryKeys.order.list()], (service) => service.order(), {
