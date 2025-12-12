@@ -60,32 +60,31 @@ declare global {
   /** Vendor profile entity */
   interface VendorProfile {
     id: string;
-    store: {
-      id: string;
-      name: string;
-      description: string;
-      category: string;
-      logo?: string;
-    };
-    user: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone?: string;
-    };
+    name: string;
+    description: string;
+    logo: string;
     business: {
-      type: string;
-      businessRegNumber?: string;
+      id: string;
+      type: "individual" | "corporation" | "partnership" | "llc";
       name: string;
+      businessRegNumber: string;
+      contactNumber: string;
+      address: string;
       country: string;
       state: string;
-      address: string;
+      kycVerificationType: "passport" | "drivers_license" | "national_id" | "other";
+      identificationNumber: string;
+      kycStatus: "pending" | "verified" | "rejected";
     };
+    vendor: {
+      id: string;
+      name: string;
+    };
+    rating: number;
     createdAt: string;
     updatedAt: string;
+    type: "basic" | "premium" | "enterprise";
   }
-
   /** Business information */
   interface BusinessInfo {
     type: string;

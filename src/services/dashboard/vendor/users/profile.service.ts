@@ -25,7 +25,7 @@ export class DashboardProfileService {
   //get vendor profile
   async getVendorProfile() {
     return tryCatchWrapper(async () => {
-      const response = await this.http.get<VendorProfileApiResponse>(`/vendors/profile`);
+      const response = await this.http.get<VendorProfileApiResponse>(`/stores/current`);
       if (response?.status === 200) {
         return response.data;
       }
@@ -36,26 +36,27 @@ export class DashboardProfileService {
   async updateVendorProfile(data: Partial<VendorProfileFormData>) {
     const formData = new FormData();
 
-    // Add store information
-    if (data.store?.name) formData.append("store[name]", data.store.name);
-    if (data.store?.description) formData.append("store[description]", data.store.description);
-    if (data.store?.category) formData.append("store[category]", data.store.category);
+    // Add store information (now at top level)
+    if (data.name) formData.append("name", data.name);
+    if (data.description) formData.append("description", data.description);
+    if (data.type) formData.append("type", data.type);
 
-    // Add user information
-    if (data.user?.firstName) formData.append("user[firstName]", data.user.firstName);
-    if (data.user?.lastName) formData.append("user[lastName]", data.user.lastName);
-    // API expects phoneNumber
-    if (data.user?.phone) formData.append("user[phoneNumber]", data.user.phone);
+    // Add vendor information
+    if (data.vendor?.name) formData.append("vendor[name]", data.vendor.name);
 
     // Add business information
     if (data.business?.type) formData.append("business[type]", data.business.type);
     if (data.business?.businessRegNumber)
       formData.append("business[businessRegNumber]", data.business.businessRegNumber);
-    // API expects business[name]
     if (data.business?.name) formData.append("business[name]", data.business.name);
+    if (data.business?.contactNumber) formData.append("business[contactNumber]", data.business.contactNumber);
     if (data.business?.country) formData.append("business[country]", data.business.country);
     if (data.business?.state) formData.append("business[state]", data.business.state);
     if (data.business?.address) formData.append("business[address]", data.business.address);
+    if (data.business?.kycVerificationType)
+      formData.append("business[kycVerificationType]", data.business.kycVerificationType);
+    if (data.business?.identificationNumber)
+      formData.append("business[identificationNumber]", data.business.identificationNumber);
 
     return tryCatchWrapper(async () => {
       const response = await this.http.patch<VendorProfileApiResponse>(`/vendors/profile`, formData);

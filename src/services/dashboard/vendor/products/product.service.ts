@@ -49,6 +49,8 @@ export class DashboardProductService {
     formData.append("description", data.description);
     formData.append("storeId", storeID);
     formData.append("status", data.status || "published");
+    formData.append("weight", data.weight.toString());
+    formData.append("fragile", data.fragile.toString());
 
     if (data.discountPrice) {
       formData.append("discountPrice", data.discountPrice.toString());
@@ -92,6 +94,8 @@ export class DashboardProductService {
     if (data.stockCount !== undefined) formData.append("stockCount", data.stockCount.toString());
     if (data.description !== undefined) formData.append("description", data.description);
     if (data.status !== undefined) formData.append("status", data.status);
+    // if (data.weight !== undefined) formData.append("weight", data.weight.toString());
+    // if (data.fragile !== undefined) formData.append("fragile", data.fragile.toString());
 
     if (data.discountPrice !== undefined && data.discountPrice !== null) {
       formData.append("discountPrice", data.discountPrice.toString());

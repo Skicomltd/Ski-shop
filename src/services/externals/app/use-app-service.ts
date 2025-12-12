@@ -19,6 +19,13 @@ export const useAppService = () => {
     );
   };
 
+  const useGetAllhandPickedProducts = (filters: Filters, options?: any) => {
+    return useServiceQuery([...queryKeys.product.list()], (service) => service.getAllhandPickedProducts(filters), {
+      staleTime: 0,
+      ...options,
+    });
+  };
+
   const useGetSingleProduct = (id: string, options?: any) =>
     useServiceQuery([...queryKeys.product.details(id)], (service) => service.getSingleProduct(id), options);
 
@@ -154,6 +161,7 @@ export const useAppService = () => {
   return {
     // Product Queries
     useGetAllProducts,
+    useGetAllhandPickedProducts,
     useGetSingleProduct,
     useGetAllProductCategory,
     useGetSavedProducts,

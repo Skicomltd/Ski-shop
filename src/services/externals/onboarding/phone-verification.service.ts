@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth } from "@/lib/firebase/config";
 import { OnboardingHttpAdapter } from "@/lib/http/onboarding-http-adapter";
 import { tryCatchWrapper } from "@/lib/tools/tryCatchFunction";
@@ -11,51 +12,28 @@ export class PhoneVerificationService {
 
   constructor() {
     this.http = new OnboardingHttpAdapter();
-    console.log("🏗️ PhoneVerificationService constructor called");
   }
 
   // Getter and setter to persist confirmationResult
   get confirmationResult(): ConfirmationResult | null {
-    if (!this._confirmationResult && typeof window !== "undefined") {
-      // Try to restore from sessionStorage
-      const stored = window.sessionStorage.getItem("firebase_confirmation_result");
-      if (stored) {
-        console.log("🔄 Attempting to restore confirmationResult from sessionStorage");
-        try {
-          const parsed = JSON.parse(stored);
-          // Note: We can't fully restore ConfirmationResult object, but we store the verificationId
-          console.log("📦 Found stored verification data:", parsed);
-        } catch (e) {
-          console.error("❌ Failed to parse stored confirmation:", e);
-        }
-      }
-    }
     return this._confirmationResult;
   }
 
   set confirmationResult(value: ConfirmationResult | null) {
-    console.log("💾 Setting confirmationResult:", !!value);
     this._confirmationResult = value;
 
     // Store reference in sessionStorage
     if (typeof window !== "undefined") {
       if (value) {
-        try {
-          // Store the verificationId which we can use to track state
-          window.sessionStorage.setItem(
-            "firebase_confirmation_result",
-            JSON.stringify({
-              verificationId: (value as any).verificationId,
-              timestamp: Date.now(),
-            }),
-          );
-          console.log("✅ Stored confirmation result in sessionStorage");
-        } catch (e) {
-          console.error("❌ Failed to store confirmation:", e);
-        }
+        window.sessionStorage.setItem(
+          "firebase_confirmation_result",
+          JSON.stringify({
+            verificationId: (value as any).verificationId,
+            timestamp: Date.now(),
+          }),
+        );
       } else {
         window.sessionStorage.removeItem("firebase_confirmation_result");
-        console.log("🗑️ Cleared confirmation result from sessionStorage");
       }
     }
   }
@@ -67,40 +45,32 @@ export class PhoneVerificationService {
   initializeRecaptcha(containerId: string): RecaptchaVerifier | null {
     try {
       if (typeof window === "undefined" || !auth) {
-        console.error("❌ Firebase auth is not initialized");
         return null;
       }
 
       // Clean up existing verifier if any
       if (this.recaptchaVerifier) {
-        console.log("🧹 Cleaning up existing recaptcha verifier");
         try {
           this.recaptchaVerifier.clear();
-        } catch (e) {
-          console.warn("Could not clear recaptcha:", e);
+        } catch {
+          // Silent fail
         }
         this.recaptchaVerifier = null;
       }
 
-      console.log("🔧 Initializing RecaptchaVerifier with container:", containerId);
-
       // Use invisible for automatic verification
       this.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
         size: "invisible",
-        callback: (response: any) => {
+        callback: () => {
           // reCAPTCHA solved, allow signInWithPhoneNumber
-          console.log("✅ reCAPTCHA verified successfully", response);
         },
         "expired-callback": () => {
           // Reset reCAPTCHA if it expires
-          console.log("⚠️ reCAPTCHA expired");
         },
       });
 
-      console.log("✅ RecaptchaVerifier created successfully");
       return this.recaptchaVerifier;
-    } catch (error) {
-      console.error("❌ Failed to initialize reCAPTCHA:", error);
+    } catch {
       return null;
     }
   }
@@ -112,43 +82,33 @@ export class PhoneVerificationService {
    */
   async sendPhoneOTP(phoneNumber: string): Promise<{ success: boolean; message?: string }> {
     try {
-      console.log("📞 Starting sendPhoneOTP for:", phoneNumber);
-
       if (!auth) {
         throw new Error("Firebase authentication is not initialized");
       }
 
       // Ensure phone number is in E.164 format
       const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+${phoneNumber}`;
-      console.log("📱 Formatted phone:", formattedPhone);
 
       // Check if this is a test phone number
       const testNumbers = ["+2349020551592", "+2348100792853"];
-      const isTestNumber = testNumbers.includes(formattedPhone.replace(/\s/g, ""));
-
-      if (isTestNumber) {
-        console.log("🧪 Test phone number detected:", formattedPhone);
-        console.log("💡 Use verification code from Firebase Console: 123456 or 123098");
-      }
+      const isTestNumber = testNumbers.includes(formattedPhone.replaceAll(/\s/g, ""));
 
       // Check if recaptcha verifier exists
       if (!this.recaptchaVerifier) {
-        console.log("⚠️ No recaptcha verifier found, initializing...");
         const verifier = this.initializeRecaptcha("recaptcha-container");
         if (!verifier) {
           throw new Error("Failed to initialize reCAPTCHA. Please refresh the page.");
         }
-
-        // Render the reCAPTCHA widget
-        try {
-          await this.recaptchaVerifier.render();
-          console.log("✅ reCAPTCHA widget rendered");
-        } catch (renderError) {
-          console.warn("⚠️ reCAPTCHA already rendered or error:", renderError);
-        }
       }
 
-      console.log("🔄 Calling signInWithPhoneNumber...");
+      // Render the reCAPTCHA widget
+      if (this.recaptchaVerifier) {
+        try {
+          await this.recaptchaVerifier.render();
+        } catch {
+          // Silent fail - already rendered
+        }
+      }
 
       // Send OTP via Firebase
       this.confirmationResult = await signInWithPhoneNumber(
@@ -156,10 +116,6 @@ export class PhoneVerificationService {
         formattedPhone,
         this.recaptchaVerifier as ApplicationVerifier,
       );
-
-      console.log("✅ signInWithPhoneNumber successful!");
-      console.log("✅ Confirmation result:", this.confirmationResult);
-      console.log("✅ ConfirmationResult verificationId:", this.confirmationResult?.verificationId);
 
       // Double check it was actually set
       if (!this.confirmationResult) {
@@ -170,7 +126,6 @@ export class PhoneVerificationService {
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem("phone_verification_pending", "true");
         window.sessionStorage.setItem("phone_number", formattedPhone);
-        console.log("💾 Stored verification state in sessionStorage");
       }
 
       return {
@@ -180,27 +135,36 @@ export class PhoneVerificationService {
           : "Verification code sent successfully",
       };
     } catch (error: any) {
-      console.error("❌ Error in sendPhoneOTP:", error);
-      console.error("Error code:", error?.code);
-      console.error("Error message:", error?.message);
-
       // Format error message
-      let errorMsg = "Failed to send verification code";
+      let errorMessage = "Failed to send verification code";
 
-      if (error?.code === "auth/invalid-phone-number") {
-        errorMsg = "Invalid phone number. Use format: +2348012345678";
-      } else if (error?.code === "auth/too-many-requests") {
-        errorMsg = "Too many requests. Please wait a few minutes.";
-      } else if (error?.code === "auth/quota-exceeded") {
-        errorMsg = "SMS quota exceeded. Please try again later.";
-      } else if (error?.message?.includes("billing") || error?.message?.includes("BILLING")) {
-        errorMsg =
-          "Firebase billing not enabled. Phone auth requires Blaze plan. Note: Test numbers also require billing to be enabled in Firebase.";
-      } else if (error?.message) {
-        errorMsg = error.message;
+      switch (error?.code) {
+        case "auth/invalid-phone-number": {
+          errorMessage = "Invalid phone number. Use format: +2348012345678";
+
+          break;
+        }
+        case "auth/too-many-requests": {
+          errorMessage = "Too many requests. Please wait a few minutes.";
+
+          break;
+        }
+        case "auth/quota-exceeded": {
+          errorMessage = "SMS quota exceeded. Please try again later.";
+
+          break;
+        }
+        default: {
+          if (error?.message?.includes("billing") || error?.message?.includes("BILLING")) {
+            errorMessage =
+              "Firebase billing not enabled. Phone auth requires Blaze plan. Note: Test numbers also require billing to be enabled in Firebase.";
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+        }
       }
 
-      throw new Error(errorMsg);
+      throw new Error(errorMessage);
     }
   }
 
@@ -216,29 +180,12 @@ export class PhoneVerificationService {
   async verifyPhoneOTP(code: string): Promise<ShortTokenResponse> {
     const result = await tryCatchWrapper(
       async () => {
-        console.log("🔍 Checking confirmationResult:", !!this.confirmationResult);
-        console.log("🔍 ConfirmationResult object:", this.confirmationResult);
-
-        // Check sessionStorage for verification state
-        if (typeof window !== "undefined") {
-          const hasPendingVerification = window.sessionStorage.getItem("phone_verification_pending");
-          const storedPhone = window.sessionStorage.getItem("phone_number");
-          console.log("💾 SessionStorage check - pending:", hasPendingVerification, "phone:", storedPhone);
-        }
-
         if (!this.confirmationResult) {
-          console.error("❌ No confirmationResult found!");
-          console.error("❌ This means signInWithPhoneNumber was never successful or billing is not enabled");
-          throw new Error(
-            "No verification in progress. Please go back and resend the code. Make sure Firebase billing is enabled.",
-          );
+          throw new Error("No verification in progress. Please go back and resend the code.");
         }
-
-        console.log("✅ ConfirmationResult exists, verifying code:", code);
 
         // Verify the code with Firebase
         const userCredential = await this.confirmationResult.confirm(code);
-        console.log("✅ Firebase code verified successfully:", userCredential);
 
         // Get the Firebase ID token
         const idToken = await userCredential.user.getIdToken();
@@ -257,7 +204,6 @@ export class PhoneVerificationService {
         throw new Error("Phone verification failed on backend");
       },
       (error: unknown) => {
-        console.error("Error verifying OTP:", error);
         if (isAxiosError(error)) {
           return new Error(error.response?.data?.message || "Phone verification failed");
         }
@@ -307,9 +253,6 @@ export class PhoneVerificationService {
    * Check if verification is in progress (for debugging)
    */
   hasConfirmationResult(): boolean {
-    console.log("🔍 Checking service state:");
-    console.log("  - Has recaptchaVerifier:", !!this.recaptchaVerifier);
-    console.log("  - Has confirmationResult:", !!this.confirmationResult);
     return !!this.confirmationResult;
   }
 
@@ -317,7 +260,6 @@ export class PhoneVerificationService {
    * Clean up reCAPTCHA verifier
    */
   cleanup() {
-    console.log("🧹 Cleaning up PhoneVerificationService");
     if (this.recaptchaVerifier) {
       this.recaptchaVerifier.clear();
       this.recaptchaVerifier = null;

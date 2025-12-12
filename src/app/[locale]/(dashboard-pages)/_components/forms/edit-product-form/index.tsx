@@ -43,6 +43,14 @@ const productSchema = z.object({
   stockCount: z.number().min(0, "Stock count must be positive").optional(),
   images: z.array(z.any()).optional(),
   status: z.enum(["published", "draft"]).default("published").optional(),
+  weight: z.number().min(0, "Weight must be positive").optional(),
+  fragile: z
+    .union([z.boolean(), z.string()])
+    .transform((value) => {
+      if (typeof value === "string") return value === "true";
+      return value;
+    })
+    .optional(),
   replaceIndices: z.array(z.number()).optional(),
 });
 
@@ -171,6 +179,7 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
 
   const methods = useForm<EditProductFormData>({
     resolver: zodResolver(productSchema),
+    mode: "onChange",
     defaultValues: {
       name: product.name,
       price: product.price,
@@ -180,6 +189,8 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
       discountPrice: product.discountPrice || 0,
       description: product.description || "",
       status: product.status || "published",
+      // weight: product.weight || 1,
+      // fragile: product.fragile !== undefined ? String(product.fragile) : "false",
     },
   });
 
@@ -249,6 +260,8 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
         discountPrice: product.discountPrice || 0,
         description: product.description || "",
         status: product.status || "published",
+        // weight: product.weight || 1,
+        // fragile: product.fragile !== undefined ? String(product.fragile) : "false",
       });
     }
   }, [product, reset]);
@@ -538,6 +551,28 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
                 label="Stock Quantity"
                 name="stockCount"
                 type="number"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                placeholder="1"
+                className="h-14 w-full"
+                label="Weight (kg)"
+                name="weight"
+                type="number"
+                disabled
+              />
+              <FormField
+                placeholder="Select"
+                className="!h-14 w-full"
+                label="Fragile"
+                name="fragile"
+                type="select"
+                disabled
+                options={[
+                  { value: "false", label: "No" },
+                  { value: "true", label: "Yes" },
+                ]}
               />
             </div>
             <div className="space-y-2">

@@ -3,7 +3,7 @@
 import { Wrapper } from "@/components/core/layout/wrapper";
 import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import { UniversalSwiper } from "@/components/shared/carousel";
-import { EmptyState, ErrorState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/empty-state";
 import { Ratings } from "@/components/shared/ratings";
 import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
@@ -19,8 +19,9 @@ export const TopVendors = () => {
     return <ErrorState className={`mx-auto mb-10 max-w-[1240px]`} retryText={"retry"} onRetry={() => refetch()} />;
   }
 
-  if (!products?.length) {
-    return <EmptyState className={`mx-auto mb-10 max-w-[1240px]`} />;
+  if (products.length === 0) {
+    return null;
+    // return <EmptyState className={`mx-auto mb-10 max-w-[1240px]`} />;
   }
 
   return (

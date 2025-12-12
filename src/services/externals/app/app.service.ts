@@ -18,6 +18,19 @@ export class AppService {
     // });
   }
 
+  async getAllhandPickedProducts(filters: Filters) {
+    // return tryCatchWrapper(async () => {
+    // const queryParameters = this.buildQueryParameters(filters);
+    const response = await this.http.get<ProductApiResponse>(`/products/hand-picked`, {
+      ...filters,
+    });
+    if (response?.status === 200) {
+      return response.data;
+    }
+    // throw new Error("Failed to fetch products");
+    // });
+  }
+
   async getSingleProduct(id: string) {
     // return tryCatchWrapper(async () => {
     const response = await this.http.get<{ success: boolean; data: Product }>(`/products/${id}`);

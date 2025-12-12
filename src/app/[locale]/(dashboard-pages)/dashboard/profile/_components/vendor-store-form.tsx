@@ -35,11 +35,9 @@ export const VendorStoreForm = ({
   const methods = useForm<VendorStoreFormData>({
     resolver: zodResolver(vendorStoreSchema),
     defaultValues: {
-      store: {
-        name: "",
-        description: "",
-        // category: "",
-      },
+      name: "",
+      description: "",
+      type: "basic",
       logo: null,
     },
   });
@@ -58,15 +56,13 @@ export const VendorStoreForm = ({
     const fetchedProfile = profileResponse?.data;
     if (fetchedProfile) {
       reset({
-        store: {
-          name: fetchedProfile.store.name ?? "",
-          description: fetchedProfile.store.description ?? "",
-        },
-        // Ensure we never send a non-file logo value
+        name: fetchedProfile.name ?? "",
+        description: fetchedProfile.description ?? "",
+        type: fetchedProfile.type ?? "basic",
         logo: null,
       });
-      if (typeof fetchedProfile.store.logo === "string" && fetchedProfile.store.logo) {
-        setPreviewImage(fetchedProfile.store.logo);
+      if (typeof fetchedProfile.logo === "string" && fetchedProfile.logo) {
+        setPreviewImage(fetchedProfile.logo);
       }
     }
   }, [initialData, reset, profileResponse]);
@@ -92,10 +88,9 @@ export const VendorStoreForm = ({
         // Update store information first
         await updateProfileMutation.mutateAsync({
           data: {
-            store: {
-              name: data.store.name,
-              description: data.store.description,
-            },
+            name: data.name,
+            description: data.description,
+            type: data.type,
           },
         });
 
@@ -150,13 +145,25 @@ export const VendorStoreForm = ({
 
           {/* Store Information Fields */}
           <div className="space-y-4">
-            <FormField label="Store Name" name="store.name" placeholder="Enter store name" className="h-12 w-full" />
+            <FormField label="Store Name" name="name" placeholder="Enter store name" className="h-12 w-full" />
             <FormField
               label="Store Description"
-              name="store.description"
+              name="description"
               type="textarea"
-              placeholder="Enter store description"
-              className="w-full"
+              placeholder="Describe your store and what you offer"
+              className="min-h-[100px] w-full"
+            />
+            <FormField
+              label="Store Type"
+              name="type"
+              type="select"
+              options={[
+                { value: "basic", label: "Basic" },
+                { value: "premium", label: "Premium" },
+                { value: "enterprise", label: "Enterprise" },
+              ]}
+              placeholder="Select store type"
+              className="h-12 w-full"
             />
           </div>
 

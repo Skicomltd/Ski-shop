@@ -10,24 +10,22 @@ import { useTranslations } from "next-intl";
 
 import { ShopCard } from "../_components/shop-card/shop-card";
 
-export const SkicomProducts = ({
+export const HandpickedProducts = ({
   title,
   headerStyle,
   hasAction = true,
-  flag,
-  storeId,
+  // storeId,
 }: {
   title: string;
   fullList?: string;
   headerStyle?: string;
   hasAction?: boolean;
   flag?: string;
-  storeId?: string;
+  // storeId?: string;
 }) => {
-  const { useGetAllProducts } = useAppService();
-  const { isLoading, isError, data, refetch } = useGetAllProducts({
-    ...(storeId && { storeId }),
-    flag,
+  const { useGetAllhandPickedProducts } = useAppService();
+  const { isLoading, isError, data, refetch } = useGetAllhandPickedProducts({
+    // ...(storeId && { storeId }),
     limit: 4,
   });
   const t = useTranslations("home.popularProducts");
@@ -35,7 +33,7 @@ export const SkicomProducts = ({
   const products = data?.data?.items || [];
 
   const renderLoadingSkeletons = () => (
-    <div className="xs:grid-cols-2 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4">
       {Array.from({ length: 4 }).map((_, index) => (
         <ShopCardSkeleton key={index} />
       ))}
@@ -55,7 +53,6 @@ export const SkicomProducts = ({
           discount={product.discountPrice || 0}
           image={product.images[0]}
           name={product.store.name || "Skicom"}
-          isStarSeller
         />
       ))}
     </div>
@@ -68,31 +65,28 @@ export const SkicomProducts = ({
   );
 
   const renderProductsGrid = () => {
-    if (isLoading || storeId === undefined) {
+    if (isLoading) {
       return renderLoadingSkeletons();
     }
     if (isError) {
       return renderErrorState();
     }
-    if (products.length === 0) {
+    if (!isLoading && products.length === 0) {
       return null;
     }
     return renderProductCards();
   };
-
+  // If not loading and there are no products, render nothing (hide title/actions too)
   if (!isLoading && products.length === 0) {
     return null;
   }
 
   return (
-    <Wrapper className="gap-6 py-0">
+    <Wrapper className="min-h-[480px] gap-6 py-0">
       <div className={cn(`flex items-baseline justify-between`, headerStyle)}>
         <h2 className={cn("!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]", headerStyle)}>{title}</h2>
         {hasAction && (
-          <LocaleLink
-            href={storeId ? `/shop?storeId=${storeId}` : "/shop"}
-            className="text-primary font-medium lg:text-2xl"
-          >
+          <LocaleLink href={`/shop`} className="text-primary font-medium lg:text-2xl">
             {t("seeAll")}
           </LocaleLink>
         )}
@@ -104,7 +98,7 @@ export const SkicomProducts = ({
 
 export const ShopCardSkeleton = () => (
   <div className="border-border animate-pulse space-y-3 rounded-lg border p-4">
-    <Skeleton className="h-72 rounded-md"></Skeleton>
+    <Skeleton className="h-40 rounded-md"></Skeleton>
     <Skeleton className="h-4 rounded" />
     <Skeleton className="h-4 w-3/4 rounded"></Skeleton>
     <Skeleton className="h-4 w-1/2 rounded"></Skeleton>

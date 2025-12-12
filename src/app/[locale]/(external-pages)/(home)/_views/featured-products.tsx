@@ -1,7 +1,7 @@
 "use client";
 
 import { Wrapper } from "@/components/core/layout/wrapper";
-import { EmptyState, ErrorState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/empty-state";
 import { Ratings } from "@/components/shared/ratings";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -140,7 +140,7 @@ export const FeaturedProducts = memo(() => {
     </Wrapper>
   );
 
-  const renderEmptyState = () => <EmptyState />;
+  // const renderEmptyState = () => <EmptyState />;
 
   const renderErrorState = () => <ErrorState retryText={"retry"} onRetry={() => refetch()} />;
 
@@ -150,7 +150,7 @@ export const FeaturedProducts = memo(() => {
     }
 
     if (!featuredProducts?.data?.items || featuredProducts.data.items.length === 0) {
-      return renderEmptyState();
+      return null;
     }
 
     if (isError) {

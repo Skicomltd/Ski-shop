@@ -55,6 +55,14 @@ export const simpleProductSchema = z.object({
   stockCount: z.number().min(0, "Stock count must be positive"),
   images: z.array(z.any()).min(1, "At least one image is required").max(4, "Maximum 4 images allowed"),
   status: z.enum(["published", "draft"]).default("published"),
+  weight: z.number().min(0, "Weight must be positive").default(1),
+  fragile: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => {
+      if (typeof val === "string") return val === "true";
+      return val;
+    })
+    .default(false),
 });
 
 export const withdrawalSchema = z.object({
@@ -186,55 +194,51 @@ export const storeSchema = z.object({
 
 // Separate schemas for individual vendor form sections
 export const vendorStoreSchema = z.object({
-  store: z.object({
-    name: z.string().min(1, "Store name is required"),
-    description: z.string().optional(),
-    category: z.string().optional(),
-  }),
+  name: z.string().min(1, "Store name is required"),
+  description: z.string().min(1, "Store description is required"),
+  type: z.enum(["basic", "premium", "enterprise"]).default("basic"),
   logo: z.any().optional(),
 });
 
 export const vendorPersonalSchema = z.object({
-  user: z.object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
+  vendor: z.object({
+    name: z.string().min(1, "Vendor name is required"),
   }),
 });
 
 export const vendorBusinessSchema = z.object({
   business: z.object({
-    type: z.string().min(1, "Business type is required"),
+    type: z.enum(["individual", "corporation", "partnership", "llc"]),
     businessRegNumber: z.string().optional(),
-    name: z.string().min(1, "Business name is required"),
+    name: z.string().optional(),
+    contactNumber: z.string().min(1, "Contact number is required"),
     country: z.string().min(1, "Country is required"),
     state: z.string().min(1, "State is required"),
     address: z.string().min(1, "Address is required"),
+    kycVerificationType: z.enum(["passport", "drivers_license", "national_id", "other"]),
+    identificationNumber: z.string().min(1, "Identification number is required"),
   }),
 });
 
-// Combined schema (existing)
+// Combined schema (for complete profile updates)
 export const vendorProfileSchema = z.object({
-  store: z.object({
-    name: z.string().min(1, "Store name is required"),
-    description: z.string().optional(),
-    category: z.string().optional(),
-  }),
+  name: z.string().min(1, "Store name is required"),
+  description: z.string().min(1, "Store description is required"),
+  type: z.enum(["basic", "premium", "enterprise"]).default("basic"),
   logo: z.any().optional(),
-  user: z.object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
+  vendor: z.object({
+    name: z.string().min(1, "Vendor name is required"),
   }),
   business: z.object({
-    type: z.string().min(1, "Business type is required"),
+    type: z.enum(["individual", "corporation", "partnership", "llc"]),
     businessRegNumber: z.string().optional(),
-    name: z.string().min(1, "Business name is required"),
+    name: z.string().optional(),
+    contactNumber: z.string().min(1, "Contact number is required"),
     country: z.string().min(1, "Country is required"),
     state: z.string().min(1, "State is required"),
     address: z.string().min(1, "Address is required"),
+    kycVerificationType: z.enum(["passport", "drivers_license", "national_id", "other"]),
+    identificationNumber: z.string().min(1, "Identification number is required"),
   }),
 });
 

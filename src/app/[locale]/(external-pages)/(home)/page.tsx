@@ -16,8 +16,7 @@ import { Testimonial } from "./_components/testimonial/testimonial";
 import { Categories } from "./_views/categories";
 import { FeaturedProducts } from "./_views/featured-products";
 import { Hero } from "./_views/hero";
-import { PopularProducts } from "./_views/popular-products";
-import { SkicomProducts } from "./_views/skicom-products";
+import { ProductGrid } from "./_views/popular-products";
 import { TopVendors } from "./_views/top-vendors";
 
 const Page = () => {
@@ -28,8 +27,8 @@ const Page = () => {
   return (
     <>
       <Hero />
-      <SkicomProducts title={t("skicomProducts")} storeId={skishop?.id} />
-      <PopularProducts title={t("topSellers")} hasAction={false} flag="top" />
+      <ProductGrid title={t("skicomProducts")} storeId={skishop?.id} />
+      <ProductGrid title={t("topSellers")} hasAction={false} flag="top" />
       <PlayToWinBanner />
       <Categories />
       <FeaturedProducts />
@@ -48,8 +47,8 @@ const Page = () => {
         className={`relative bg-[#E2F4FF]`}
       />
 
-      <PopularProducts title={t("featuredProducts")} flag="featured" />
-      <PopularProducts title={t("handPickedForYou")} hasAction={false} flag="handpicked" />
+      <ProductGrid title={t("featuredProducts")} flag="featured" />
+      <ProductGrid title={t("handPickedForYou")} dataSource="handpicked" hasAction />
       <TopVendors />
       <ReusableBanner
         action={
@@ -90,9 +89,9 @@ const Page = () => {
           </div>
         </div>
       </BlackFridayReusableBanner>
-      <PopularProducts
-        headerStyle={`bg-black !text-white rounded-se-lg rounded-ss-lg px-[10px]`}
+      <ProductGrid
         title={t("blackFridayDeals")}
+        headerStyle="bg-black !text-white rounded-se-lg rounded-ss-lg px-[10px]"
         hasAction={false}
         flag="blackFriday"
       />

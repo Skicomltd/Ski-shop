@@ -131,6 +131,7 @@ export const AddProductForm = () => {
   const { data: storeInfo, isLoading: storeInfoLoading } = useGetStoreInfo();
   const methods = useForm<SimpleProductFormData>({
     resolver: zodResolver(simpleProductSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       price: 0,
@@ -140,6 +141,8 @@ export const AddProductForm = () => {
       discountPrice: 0,
       description: "",
       status: "published",
+      weight: 1,
+      fragile: false,
     },
   });
 
@@ -409,6 +412,27 @@ export const AddProductForm = () => {
                 name="stockCount"
                 type="number"
                 required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                placeholder="1"
+                className="h-14 w-full"
+                label="Weight (kg)"
+                name="weight"
+                type="number"
+                required
+              />
+              <FormField
+                placeholder="Select"
+                className="!h-14 w-full"
+                label="Fragile"
+                name="fragile"
+                type="select"
+                options={[
+                  { value: "false", label: "No" },
+                  { value: "true", label: "Yes" },
+                ]}
               />
             </div>
             <div className="space-y-2">

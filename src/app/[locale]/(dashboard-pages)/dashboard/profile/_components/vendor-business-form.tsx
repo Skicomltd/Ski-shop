@@ -10,12 +10,18 @@ import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-// Sample data for dropdowns
 const businessTypes = [
   { value: "individual", label: "Individual" },
   { value: "corporation", label: "Corporation" },
   { value: "partnership", label: "Partnership" },
   { value: "llc", label: "LLC" },
+];
+
+const kycTypes = [
+  { value: "passport", label: "Passport" },
+  { value: "drivers_license", label: "Driver's License" },
+  { value: "national_id", label: "National ID" },
+  { value: "other", label: "Other" },
 ];
 
 const countries = [
@@ -52,12 +58,15 @@ export const VendorBusinessForm = ({
     resolver: zodResolver(vendorBusinessSchema),
     defaultValues: {
       business: {
-        type: initialData?.business?.type || "",
-        businessRegNumber: initialData?.business?.businessRegNumber || "",
-        name: initialData?.business?.name || "",
-        country: initialData?.business?.country || "",
-        state: initialData?.business?.state || "",
-        address: initialData?.business?.address || "",
+        type: "individual",
+        businessRegNumber: "",
+        name: "",
+        contactNumber: "",
+        country: "",
+        state: "",
+        address: "",
+        kycVerificationType: "passport",
+        identificationNumber: "",
       },
     },
   });
@@ -70,15 +79,18 @@ export const VendorBusinessForm = ({
 
   useEffect(() => {
     const fetchedProfile = profileResponse?.data;
-    if (fetchedProfile) {
+    if (fetchedProfile?.business) {
       reset({
         business: {
-          type: fetchedProfile.business.type ?? "",
+          type: fetchedProfile.business.type ?? "individual",
           businessRegNumber: fetchedProfile.business.businessRegNumber ?? "",
           name: fetchedProfile.business.name ?? "",
+          contactNumber: fetchedProfile.business.contactNumber ?? "",
           country: fetchedProfile.business.country ?? "",
           state: fetchedProfile.business.state ?? "",
           address: fetchedProfile.business.address ?? "",
+          kycVerificationType: fetchedProfile.business.kycVerificationType ?? "passport",
+          identificationNumber: fetchedProfile.business.identificationNumber ?? "",
         },
       });
     }
@@ -94,9 +106,12 @@ export const VendorBusinessForm = ({
                 type: data.business.type,
                 businessRegNumber: data.business.businessRegNumber,
                 name: data.business.name,
+                contactNumber: data.business.contactNumber,
                 country: data.business.country,
                 state: data.business.state,
                 address: data.business.address,
+                kycVerificationType: data.business.kycVerificationType,
+                identificationNumber: data.business.identificationNumber,
               },
             },
           }));
@@ -123,15 +138,21 @@ export const VendorBusinessForm = ({
               className="!h-12 w-full"
             />
             <FormField
-              label="Business Registration Number (optional)"
-              name="business.businessRegNumber"
-              placeholder="CAC: 1920384"
+              label="Business Name"
+              name="business.name"
+              placeholder="Enter business name (optional for individuals)"
               className="!h-12 w-full"
             />
             <FormField
-              label="Business Name"
-              name="business.name"
-              placeholder="Enter business name"
+              label="Business Registration Number"
+              name="business.businessRegNumber"
+              placeholder="e.g., CAC: 1920384"
+              className="!h-12 w-full"
+            />
+            <FormField
+              label="Contact Number"
+              name="business.contactNumber"
+              placeholder="+234810..."
               className="!h-12 w-full"
             />
             <FormField
@@ -151,9 +172,23 @@ export const VendorBusinessForm = ({
               className="!h-12 w-full"
             />
             <FormField
-              label="Store Address"
+              label="Business Address"
               name="business.address"
-              placeholder="43 Yaba Street, Lagos."
+              placeholder="e.g., 43 Yaba Street, Lagos"
+              className="col-span-2 !h-12 w-full"
+            />
+            <FormField
+              label="KYC Verification Type"
+              name="business.kycVerificationType"
+              type="select"
+              options={kycTypes}
+              placeholder="Select verification type"
+              className="!h-12 w-full"
+            />
+            <FormField
+              label="Identification Number"
+              name="business.identificationNumber"
+              placeholder="Enter ID number"
               className="!h-12 w-full"
             />
           </div>

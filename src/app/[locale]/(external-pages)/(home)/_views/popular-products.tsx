@@ -1,49 +1,88 @@
 "use client";
 
 import { Wrapper } from "@/components/core/layout/wrapper";
-import { EmptyState, ErrorState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/empty-state";
 import { LocaleLink } from "@/components/shared/locale-link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { useTranslations } from "next-intl";
+import { ReactNode } from "react";
 
 import { ShopCard } from "../_components/shop-card/shop-card";
 
-export const PopularProducts = ({
+interface ProductGridProperties {
+  title?: string | ReactNode;
+  headerStyle?: string;
+  hasAction?: boolean;
+  actionText?: string;
+  actionHref?: string;
+  wrapperClassName?: string;
+  gridClassName?: string;
+  limit?: number;
+  // Data fetching options
+  dataSource?: "products" | "handpicked";
+  flag?: string;
+  storeId?: string;
+  // Custom rendering
+  customHeader?: ReactNode;
+  hideIfEmpty?: boolean;
+}
+
+export const ProductGrid = ({
   title,
   headerStyle,
   hasAction = true,
+  actionText,
+  actionHref = "/shop",
+  wrapperClassName,
+  gridClassName,
+  limit = 4,
+  dataSource = "products",
   flag,
-  // storeId,
-}: {
-  title: string;
-  fullList?: string;
-  headerStyle?: string;
-  hasAction?: boolean;
-  flag?: string;
-  // storeId?: string;
-}) => {
-  const { useGetAllProducts } = useAppService();
-  const { isLoading, isError, data, refetch } = useGetAllProducts({
-    // ...(storeId && { storeId }),
-    flag,
-    limit: 4,
-  });
+  storeId,
+  customHeader,
+  hideIfEmpty = true,
+}: ProductGridProperties) => {
+  const { useGetAllProducts, useGetAllhandPickedProducts } = useAppService();
   const t = useTranslations("home.popularProducts");
+
+  // Conditionally use the appropriate hook based on dataSource
+  const productsQuery = useGetAllProducts(
+    {
+      ...(storeId && { storeId }),
+      flag,
+      limit,
+    },
+    { enabled: dataSource === "products" },
+  );
+
+  const handpickedQuery = useGetAllhandPickedProducts({ limit }, { enabled: dataSource === "handpicked" });
+
+  const { isLoading, isError, data, refetch } = dataSource === "handpicked" ? handpickedQuery : productsQuery;
 
   const products = data?.data?.items || [];
 
   const renderLoadingSkeletons = () => (
-    <div className="xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4">
-      {Array.from({ length: 4 }).map((_, index) => (
+    <div
+      className={cn(
+        "xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4",
+        gridClassName,
+      )}
+    >
+      {Array.from({ length: limit }).map((_, index) => (
         <ShopCardSkeleton key={index} />
       ))}
     </div>
   );
 
   const renderProductCards = () => (
-    <div className="xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4">
+    <div
+      className={cn(
+        "xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4",
+        gridClassName,
+      )}
+    >
       {products.map((product: Product) => (
         <ShopCard
           key={product.id.toString()}
@@ -54,13 +93,11 @@ export const PopularProducts = ({
           price={product.price}
           discount={product.discountPrice || 0}
           image={product.images[0]}
-          name={product.store.name || "Skicom"}
+          name={product.store?.name || "Skicom"}
         />
       ))}
     </div>
   );
-
-  const renderEmptyState = () => <EmptyState />;
 
   const renderErrorState = () => (
     <ErrorState description={t("failedToLoad")} retryText={t("retry")} onRetry={() => refetch()} />
@@ -73,22 +110,35 @@ export const PopularProducts = ({
     if (isError) {
       return renderErrorState();
     }
-    if (products.length === 0) {
-      return renderEmptyState();
+    if (!isLoading && products.length === 0) {
+      return null;
     }
     return renderProductCards();
   };
 
+  // If hideIfEmpty is true and there are no products, render nothing
+  if (hideIfEmpty && !isLoading && products.length === 0) {
+    return null;
+  }
+
   return (
-    <Wrapper className="min-h-[480px] gap-6 py-0">
-      <div className={cn(`flex items-baseline justify-between`, headerStyle)}>
-        <h2 className={cn("!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]", headerStyle)}>{title}</h2>
-        {hasAction && (
-          <LocaleLink href={`/shop`} className="text-primary font-medium lg:text-2xl">
-            {t("seeAll")}
-          </LocaleLink>
-        )}
-      </div>
+    <Wrapper className={cn("min-h-[480px] gap-6 py-0", wrapperClassName)}>
+      {customHeader ?? (
+        <div className={cn("flex items-baseline justify-between", headerStyle)}>
+          {typeof title === "string" ? (
+            <h2 className={cn("!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]", headerStyle)}>
+              {title}
+            </h2>
+          ) : (
+            title
+          )}
+          {hasAction && (
+            <LocaleLink href={actionHref} className="text-primary font-medium lg:text-2xl">
+              {actionText || t("seeAll")}
+            </LocaleLink>
+          )}
+        </div>
+      )}
       {renderProductsGrid()}
     </Wrapper>
   );
@@ -102,3 +152,6 @@ export const ShopCardSkeleton = () => (
     <Skeleton className="h-4 w-1/2 rounded"></Skeleton>
   </div>
 );
+
+// Export legacy component name for backward compatibility
+export const PopularProducts = ProductGrid;
