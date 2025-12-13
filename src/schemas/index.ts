@@ -196,7 +196,6 @@ export const storeSchema = z.object({
 export const vendorStoreSchema = z.object({
   name: z.string().min(1, "Store name is required"),
   description: z.string().min(1, "Store description is required"),
-  type: z.enum(["basic", "premium", "enterprise"]).default("basic"),
   logo: z.any().optional(),
 });
 
@@ -210,13 +209,9 @@ export const vendorBusinessSchema = z.object({
   business: z.object({
     type: z.enum(["individual", "corporation", "partnership", "llc"]),
     businessRegNumber: z.string().optional(),
-    name: z.string().optional(),
-    contactNumber: z.string().min(1, "Contact number is required"),
     country: z.string().min(1, "Country is required"),
     state: z.string().min(1, "State is required"),
     address: z.string().min(1, "Address is required"),
-    kycVerificationType: z.enum(["passport", "drivers_license", "national_id", "other"]),
-    identificationNumber: z.string().min(1, "Identification number is required"),
   }),
 });
 
@@ -224,7 +219,6 @@ export const vendorBusinessSchema = z.object({
 export const vendorProfileSchema = z.object({
   name: z.string().min(1, "Store name is required"),
   description: z.string().min(1, "Store description is required"),
-  type: z.enum(["basic", "premium", "enterprise"]).default("basic"),
   logo: z.any().optional(),
   vendor: z.object({
     name: z.string().min(1, "Vendor name is required"),

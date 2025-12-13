@@ -60,13 +60,9 @@ export const VendorBusinessForm = ({
       business: {
         type: "individual",
         businessRegNumber: "",
-        name: "",
-        contactNumber: "",
         country: "",
         state: "",
         address: "",
-        kycVerificationType: "passport",
-        identificationNumber: "",
       },
     },
   });
@@ -84,13 +80,9 @@ export const VendorBusinessForm = ({
         business: {
           type: fetchedProfile.business.type ?? "individual",
           businessRegNumber: fetchedProfile.business.businessRegNumber ?? "",
-          name: fetchedProfile.business.name ?? "",
-          contactNumber: fetchedProfile.business.contactNumber ?? "",
           country: fetchedProfile.business.country ?? "",
           state: fetchedProfile.business.state ?? "",
           address: fetchedProfile.business.address ?? "",
-          kycVerificationType: fetchedProfile.business.kycVerificationType ?? "passport",
-          identificationNumber: fetchedProfile.business.identificationNumber ?? "",
         },
       });
     }
@@ -105,13 +97,9 @@ export const VendorBusinessForm = ({
               business: {
                 type: data.business.type,
                 businessRegNumber: data.business.businessRegNumber,
-                name: data.business.name,
-                contactNumber: data.business.contactNumber,
                 country: data.business.country,
                 state: data.business.state,
                 address: data.business.address,
-                kycVerificationType: data.business.kycVerificationType,
-                identificationNumber: data.business.identificationNumber,
               },
             },
           }));
@@ -138,21 +126,9 @@ export const VendorBusinessForm = ({
               className="!h-12 w-full"
             />
             <FormField
-              label="Business Name"
-              name="business.name"
-              placeholder="Enter business name (optional for individuals)"
-              className="!h-12 w-full"
-            />
-            <FormField
               label="Business Registration Number"
               name="business.businessRegNumber"
               placeholder="e.g., CAC: 1920384"
-              className="!h-12 w-full"
-            />
-            <FormField
-              label="Contact Number"
-              name="business.contactNumber"
-              placeholder="+234810..."
               className="!h-12 w-full"
             />
             <FormField
@@ -176,20 +152,6 @@ export const VendorBusinessForm = ({
               name="business.address"
               placeholder="e.g., 43 Yaba Street, Lagos"
               className="col-span-2 !h-12 w-full"
-            />
-            <FormField
-              label="KYC Verification Type"
-              name="business.kycVerificationType"
-              type="select"
-              options={kycTypes}
-              placeholder="Select verification type"
-              className="!h-12 w-full"
-            />
-            <FormField
-              label="Identification Number"
-              name="business.identificationNumber"
-              placeholder="Enter ID number"
-              className="!h-12 w-full"
             />
           </div>
 

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 import { ProductOrderDetail } from "./_views/product-order-detail";
 
@@ -25,10 +26,16 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const router = useRouter();
   const { useGetOrderById } = useAppService();
-  const { data: orderResponse, isLoading, isError } = useGetOrderById(params.id);
+  // Unwrap params if it's a Promise (Next.js latest behavior)
+  const unwrappedParameters =
+    typeof (params as any)?.then === "function"
+      ? React.use(params as Promise<{ id: string }>)
+      : (params as { id: string });
+  const orderId = unwrappedParameters?.id;
+  const { data: orderResponse, isLoading, isError } = useGetOrderById(orderId);
 
   useEffect(() => {
     if (!isLoading && isError) {
@@ -39,5 +46,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (isLoading) return <LoadingSkeleton />;
   if (!orderResponse?.data) return null;
 
-  return <ProductOrderDetail order={orderResponse.data} />;
+  // Ensure shape passed to ProductOrderDetail matches expected order object
+  const order = orderResponse.data as any;
+  return <ProductOrderDetail order={order} />;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Wrapper } from "@/components/core/layout/wrapper";
@@ -7,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
 
 import { ProductBreadcrumb } from "../../../(home)/_components/product-breadcrumb";
-import { OrderCard } from "../../../(home)/_components/shop-card/order-card";
 
 const Orders = ({ headerStyle }: { title: string; headerStyle?: string; hasAction?: boolean }) => {
   const { useGetOrders } = useAppService();
@@ -49,19 +49,127 @@ const Orders = ({ headerStyle }: { title: string; headerStyle?: string; hasActio
           ))}
 
         {/* Orders Grid */}
-        {!isLoading && !isError && orderData?.data.items && orderData.data.items.length > 0 && (
-          <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 md:gap-4">
-            {orderData.data.items.map((product) => {
+        {!isLoading && !isError && orderData?.data?.items && orderData.data.items.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 lg:gap-6">
+            {(orderData.data.items as any[]).map((order: any) => {
+              const firstImage = order.items?.[0]?.product?.images?.[0] as string | undefined;
+              const itemsCount = Array.isArray(order.items)
+                ? order.items.reduce((sum: number, it: any) => sum + (it?.quantity ?? 0), 0)
+                : 0;
+              const paid = order?.status === "paid";
               return (
-                <OrderCard
-                  key={product.id.toString()}
-                  id={product.id.toString()}
-                  title={product.products[0].name}
-                  rating={product.products[0].rating}
-                  // discount={product.products[0].price ? formatCurrency(product.products[0].price) : 0}
-                  image={product.products[0].images[0]}
-                  status={product.status}
-                />
+                <div key={String(order?.id)} className="flex flex-col gap-4 rounded-lg border p-4 lg:flex-row">
+                  {/* Thumbnail */}
+                  <div className="bg-muted relative aspect-square w-full max-w-[140px] overflow-hidden rounded-lg">
+                    {firstImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={firstImage}
+                        alt={order?.items?.[0]?.product?.name ?? "Order thumbnail"}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gray-200" />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex w-full flex-col gap-3">
+                    {/* Header */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground text-sm">Reference</span>
+                        <span className="text-sm font-medium">{order?.reference ?? "—"}</span>
+                      </div>
+                      <div className={cn("inline-flex items-center gap-2")}>
+                        <span
+                          className={cn(
+                            "rounded-full px-3 py-1 text-xs font-semibold",
+                            paid ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-800",
+                          )}
+                        >
+                          {paid ? "Paid" : "Pending"}
+                        </span>
+                        <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-700">
+                          {order?.paymentMethod ?? "—"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Items list */}
+                    <div className="space-y-2">
+                      {Array.isArray(order.items) &&
+                        order.items.map((it: any) => (
+                          <div key={String(it?.id)} className="flex items-center justify-between gap-2">
+                            <div className="flex min-w-0 items-center gap-3">
+                              {/* Item thumbnail */}
+                              <div className="bg-muted h-10 w-10 overflow-hidden rounded">
+                                {it?.product?.images?.[0] ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={it.product.images[0]}
+                                    alt={it.product.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full bg-gray-200" />
+                                )}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="truncate text-sm font-medium">
+                                  {it?.product?.name ?? "Unnamed item"}
+                                </span>
+                                <span className="text-muted-foreground text-xs">Qty: {it?.quantity ?? 0}</span>
+                              </div>
+                            </div>
+                            <div className="text-sm font-medium">₦{Number(it?.subtotal ?? 0).toLocaleString()}</div>
+                          </div>
+                        ))}
+                    </div>
+
+                    {/* Shipping & totals */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs">Items</span>
+                        <span className="text-sm font-medium">{itemsCount}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground text-xs">Shipping to</span>
+                        <span className="line-clamp-2 text-sm font-medium">
+                          {order?.shippingInfo?.recipientAddress ?? "—"}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end">
+                        <span className="text-muted-foreground text-xs">Total</span>
+                        <span className="text-base font-semibold">
+                          ₦{Number(order?.totalAmount ?? 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-muted-foreground text-xs">
+                        Placed on {order?.createdAt ? new Date(order.createdAt).toLocaleString() : "—"}
+                        {paid && order?.paidAt ? ` • Paid ${new Date(order.paidAt).toLocaleString()}` : ""}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <SkiButton size="sm" variant="outline" href={`/shop/cart/orders/${String(order?.id)}`}>
+                          View Details
+                        </SkiButton>
+                        {!paid && (
+                          <SkiButton
+                            size="sm"
+                            variant="primary"
+                            href={`/checkout?ref=${String(order?.reference ?? "")}`}
+                          >
+                            Complete Payment
+                          </SkiButton>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>

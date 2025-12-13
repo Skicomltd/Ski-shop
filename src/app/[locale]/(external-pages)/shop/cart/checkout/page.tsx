@@ -13,7 +13,7 @@ import { ChevronRight, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -162,6 +162,8 @@ const CheckoutPage = () => {
 
   const { useCheckoutCart, useGetCart } = useAppService();
   const { mutateAsync: checkout, isPending: isCheckingOut } = useCheckoutCart();
+  const { useGetDeliveryInfo } = useAppService();
+  const { mutateAsync: fetchDeliveryInfo } = useGetDeliveryInfo();
   const { data: cartData, isLoading: isCartLoading, error: cartError } = useGetCart();
 
   // Calculate shipping fee based on delivery method
@@ -176,7 +178,7 @@ const CheckoutPage = () => {
 
   const total = subtotal + shippingFee;
 
-  // Compute dynamic delivery windows: one week in advance
+  // Helpers
   const now = new Date();
   const addDays = (d: Date, days: number) => {
     const copy = new Date(d);
@@ -185,13 +187,77 @@ const CheckoutPage = () => {
   };
   const formatDate = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "short" });
 
-  const nextWeekStart = addDays(now, 7);
-  // Pick-up station window: start to +2 days
-  const pickupStartLabel = formatDate(nextWeekStart);
-  const pickupEndLabel = formatDate(addDays(nextWeekStart, 2));
-  // Door delivery window: start+2 to +4 days
-  const doorStartLabel = formatDate(addDays(nextWeekStart, 2));
-  const doorEndLabel = formatDate(addDays(nextWeekStart, 4));
+  // Delivery windows from API (computed in runtime)
+  const [stationWindow, setStationWindow] = useState<{ start: Date; end: Date } | null>(null);
+  const [doorWindow, setDoorWindow] = useState<{ start: Date; end: Date } | null>(null);
+
+  const computeWindowFromApi = (data: any) => {
+    // Prefer explicit ISO datetime ranges from API when available
+    const isoStart = data?.startDate || data?.minDate || data?.minDateUtc;
+    const isoEnd = data?.endDate || data?.maxDate || data?.maxDateUtc;
+
+    if (isoStart && isoEnd) {
+      try {
+        const start = new Date(isoStart);
+        const end = new Date(isoEnd);
+        if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+          return { start, end };
+        }
+      } catch {
+        // fall through to other shapes
+      }
+    }
+
+    // Offset-based windows
+    if (typeof data?.startOffsetDays === "number" && typeof data?.endOffsetDays === "number") {
+      return {
+        start: addDays(now, data.startOffsetDays),
+        end: addDays(now, data.endOffsetDays),
+      };
+    }
+
+    // ETA-based window
+    if (typeof data?.etaDays === "number") {
+      return {
+        start: addDays(now, data.etaDays),
+        end: addDays(now, data.etaDays + 2),
+      };
+    }
+
+    // Fallback: next week 2-day window
+    const nextWeekStart = addDays(now, 7);
+    return { start: nextWeekStart, end: addDays(nextWeekStart, 2) };
+  };
+
+  // Fetch delivery window for station when station changes
+  useEffect(() => {
+    if (!selectedStation?.state) return;
+    fetchDeliveryInfo({ dropOffState: selectedStation.state })
+      .then((response) => {
+        // console.log(response);
+        setStationWindow(computeWindowFromApi(response?.data));
+      })
+      .catch(() => {
+        setStationWindow(null);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStation?.id, selectedStation?.state]);
+
+  // Fetch delivery window for door when address changes
+  useEffect(() => {
+    if (deliveryMethod !== "door") return;
+    const state = selectedAddress?.state;
+    if (!state) return;
+    fetchDeliveryInfo({ dropOffState: state })
+      .then((response) => {
+        // console.log(response);
+        setDoorWindow(computeWindowFromApi(response?.data));
+      })
+      .catch(() => {
+        setDoorWindow(null);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryMethod, selectedAddress?.id, selectedAddress?.state]);
 
   const handleCheckout = () => {
     if (!deliveryMethod || !paymentMethod) {
@@ -317,7 +383,8 @@ const CheckoutPage = () => {
                     <p className={`!text-base font-semibold md:!text-lg`}>Pick-up Station</p>
                   </div>
                   <p className={`my-4 !text-sm md:!text-base`}>
-                    Delivery Between <strong>{pickupStartLabel}</strong> and <strong>{pickupEndLabel}</strong>
+                    Delivery Between <strong>{formatDate(stationWindow?.start ?? addDays(now, 7))}</strong> and
+                    <strong> {formatDate(stationWindow?.end ?? addDays(now, 9))}</strong>
                   </p>
                   <div className="overflow-hidden rounded-lg border">
                     <button
@@ -353,7 +420,8 @@ const CheckoutPage = () => {
                     <p className={`!text-base font-semibold md:!text-lg`}>Door Delivery</p>
                   </div>
                   <p className={`my-4 !text-sm md:!text-base`}>
-                    Delivery Between <strong>{doorStartLabel}</strong> and <strong>{doorEndLabel}</strong>
+                    Delivery Between <strong>{formatDate(doorWindow?.start ?? addDays(now, 9))}</strong> and
+                    <strong> {formatDate(doorWindow?.end ?? addDays(now, 11))}</strong>
                   </p>
                   {deliveryMethod === "door" && (
                     <div className="mt-4 space-y-4">

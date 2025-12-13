@@ -37,7 +37,6 @@ export const VendorStoreForm = ({
     defaultValues: {
       name: "",
       description: "",
-      type: "basic",
       logo: null,
     },
   });
@@ -58,7 +57,6 @@ export const VendorStoreForm = ({
       reset({
         name: fetchedProfile.name ?? "",
         description: fetchedProfile.description ?? "",
-        type: fetchedProfile.type ?? "basic",
         logo: null,
       });
       if (typeof fetchedProfile.logo === "string" && fetchedProfile.logo) {
@@ -90,7 +88,6 @@ export const VendorStoreForm = ({
           data: {
             name: data.name,
             description: data.description,
-            type: data.type,
           },
         });
 
@@ -153,18 +150,7 @@ export const VendorStoreForm = ({
               placeholder="Describe your store and what you offer"
               className="min-h-[100px] w-full"
             />
-            <FormField
-              label="Store Type"
-              name="type"
-              type="select"
-              options={[
-                { value: "basic", label: "Basic" },
-                { value: "premium", label: "Premium" },
-                { value: "enterprise", label: "Enterprise" },
-              ]}
-              placeholder="Select store type"
-              className="h-12 w-full"
-            />
+            {/* Store Type field removed */}
           </div>
 
           {/* Submit Button */}

@@ -183,6 +183,12 @@ export const useAppService = () => {
       ...options,
     });
 
+  // Delivery info
+  const useGetDeliveryInfo = (options?: any) =>
+    useServiceMutation((service, data: { dropOffState: string }) => service.getDeliveryInfo(data), {
+      ...options,
+    });
+
   return {
     // Product Queries
     useGetAllProducts,
@@ -218,5 +224,6 @@ export const useAppService = () => {
     useGetReviewByProductId,
     useGetAllReviews,
     useDeleteReview,
+    useGetDeliveryInfo,
   };
 };

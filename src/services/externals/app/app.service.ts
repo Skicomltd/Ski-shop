@@ -245,4 +245,18 @@ export class AppService {
     //   throw new Error("Failed to delete review");
     // });
   }
+
+  // Delivery info
+  async getDeliveryInfo(payload: { dropOffState: string }) {
+    const response = await this.http.post<
+      ApiResponse<{
+        cost: number;
+        minDate: string;
+        maxDate: string;
+      }>
+    >("/carts/delivery-info", payload);
+    if (response?.status === 200 || response?.status === 201) {
+      return response.data;
+    }
+  }
 }

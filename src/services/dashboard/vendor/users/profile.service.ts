@@ -36,27 +36,26 @@ export class DashboardProfileService {
   async updateVendorProfile(data: Partial<VendorProfileFormData>) {
     const formData = new FormData();
 
-    // Add store information (now at top level)
-    if (data.name) formData.append("name", data.name);
-    if (data.description) formData.append("description", data.description);
-    if (data.type) formData.append("type", data.type);
+    // Store information (nested under store[...] per backend expectations)
+    if (data.name) formData.append("store[name]", data.name);
+    if (data.description) formData.append("store[description]", data.description);
+    // store[type] removed
 
-    // Add vendor information
-    if (data.vendor?.name) formData.append("vendor[name]", data.vendor.name);
+    // User/Vendor personal information
+    // Backend expects user[...] fields; map from our vendor schema
+    if (data.vendor?.name) formData.append("user[firstName]", data.vendor.name);
+    // Optional lastName / phone if present in future forms
+    if ((data as any).user?.lastName) formData.append("user[lastName]", (data as any).user.lastName);
+    if ((data as any).user?.phone) formData.append("user[phone]", (data as any).user.phone);
 
-    // Add business information
+    // Business information
+    // Business fields per backend: type, businessRegNumber, country, state, address
     if (data.business?.type) formData.append("business[type]", data.business.type);
     if (data.business?.businessRegNumber)
       formData.append("business[businessRegNumber]", data.business.businessRegNumber);
-    if (data.business?.name) formData.append("business[name]", data.business.name);
-    if (data.business?.contactNumber) formData.append("business[contactNumber]", data.business.contactNumber);
     if (data.business?.country) formData.append("business[country]", data.business.country);
     if (data.business?.state) formData.append("business[state]", data.business.state);
     if (data.business?.address) formData.append("business[address]", data.business.address);
-    if (data.business?.kycVerificationType)
-      formData.append("business[kycVerificationType]", data.business.kycVerificationType);
-    if (data.business?.identificationNumber)
-      formData.append("business[identificationNumber]", data.business.identificationNumber);
 
     return tryCatchWrapper(async () => {
       const response = await this.http.patch<VendorProfileApiResponse>(`/vendors/profile`, formData);
@@ -69,6 +68,7 @@ export class DashboardProfileService {
 
   async updateVendorLogo(logo: File) {
     const formData = new FormData();
+    // Logo file should be sent directly under `logo` key
     formData.append("logo", logo, logo.name);
 
     return tryCatchWrapper(async () => {

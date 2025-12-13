@@ -2,7 +2,6 @@ import { ProductBreadcrumb } from "@/app/[locale]/(external-pages)/(home)/_compo
 import { Wrapper } from "@/components/core/layout/wrapper";
 import SkiButton from "@/components/shared/button";
 import { RatingModal } from "@/components/shared/rating-modal";
-import { Ratings } from "@/components/shared/ratings";
 import { Badge } from "@/components/ui/badge";
 // import { Locale } from "@/lib/i18n/config";
 // import { formatCurrency } from "@/lib/i18n/utils";
@@ -13,25 +12,29 @@ import Image from "next/image";
 interface ProductOrderDetailProperties {
   order: {
     id: string;
-    status: OrderStatus;
-    deliveryStatus: OrderDeliveryStatus;
-    buyer: {
+    status: string; // "paid" | "pending" | etc
+    buyer: { id: string; name: string };
+    items: Array<{
       id: string;
-      name: string;
-    };
-    products: {
-      id: string;
-      name: string;
-      images: string[];
-      price: number;
+      product: { id: string; name: string; images: string[]; price: number };
       quantity: number;
-      rating: number;
-      vendor: {
-        id: string;
-        name: string;
-      };
-    }[];
+      subtotal: number;
+      deliveryStatus?: string; // item-level delivery status
+      vendor?: { id: string; name: string };
+    }>;
+    shippingInfo?: {
+      recipientAddress?: string;
+      recipientName?: string;
+      recipientPhone?: string;
+      recipientEmail?: string;
+      recipientState?: string;
+      shippingFee?: number;
+    };
+    totalAmount?: number;
     createdAt: string;
+    paidAt?: string | null;
+    reference?: string;
+    paymentMethod?: string;
   };
 }
 
@@ -47,11 +50,15 @@ const handleRatingSubmit = (rating: number, review: string, productId: string) =
 
 export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
   // const locale = useLocale();
-  // Get the first product from the order (assuming single product orders for now)
-  const product = order.products[0];
-  const orderDate = new Date(order.createdAt).toLocaleDateString("en-GB");
-  const deliveryDate = new Date(order.createdAt);
-  deliveryDate.setDate(deliveryDate.getDate() + 5); // Add 5 days for delivery
+  // Get the first item/product safely
+  const firstItem = Array.isArray(order.items) ? order.items[0] : undefined;
+  const product = firstItem?.product;
+  const orderDate = order?.createdAt ? new Date(order.createdAt).toLocaleDateString("en-GB") : "—";
+  const deliveryDate = order?.createdAt ? new Date(order.createdAt) : new Date();
+  if (order?.createdAt) deliveryDate.setDate(deliveryDate.getDate() + 5); // Add 5 days for delivery
+  const deliveryStatus = firstItem?.deliveryStatus ?? "uninitiated";
+  const isDelivered = deliveryStatus === "delivered";
+  const isPendingDelivery = deliveryStatus === "pending" || deliveryStatus === "uninitiated";
 
   return (
     <section className={`mt-18 lg:mt-[10rem]`}>
@@ -67,46 +74,50 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
           )}
         >
           <div className="relative z-[-1] aspect-square flex-1 overflow-hidden rounded-lg">
-            <Image
-              src={product.images[0]}
-              alt={product.name}
-              width={600}
-              height={600}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-            />
+            {product?.images?.[0] ? (
+              <Image
+                src={product.images[0]}
+                alt={product?.name ?? "Product"}
+                width={600}
+                height={600}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+            ) : (
+              <div className="h-full w-full bg-gray-200" />
+            )}
           </div>
           <div className="flex-1 space-y-2">
             <p className="text-[10px] capitalize lg:text-xl">Order #{order.id}</p>
-            <p className="!text-foreground line-clamp-2 !text-lg !font-semibold lg:!text-2xl">{product.name}</p>
-            <Ratings rating={product.rating} />
-            <p className="text-foreground line-clamp-2 !text-sm !font-medium lg:!text-base">QTY: {product.quantity}</p>
+            <p className="!text-foreground line-clamp-2 !text-lg !font-semibold lg:!text-2xl">{product?.name ?? "—"}</p>
+            {/* Ratings component hidden without product rating in new shape */}
+            {/* <Ratings rating={product.rating} /> */}
+            <p className="text-foreground line-clamp-2 !text-sm !font-medium lg:!text-base">
+              QTY: {firstItem?.quantity ?? 0}
+            </p>
             {/* <div className="flex items-baseline gap-2">
               <p className="text-primary text-xs font-medium lg:text-xl">
                 {formatCurrency(product.price, locale as Locale)}
               </p>
             </div> */}
-            <p className={`text-sm underline`}>By {product.vendor.name}</p>
+            {firstItem?.vendor?.name && <p className={`text-sm underline`}>By {firstItem.vendor.name}</p>}
             <div className="mt-8 space-y-2 text-xl">
               <p className={`text-sm`}>Placed On {orderDate}</p>
               <Badge
                 className={cn(
                   `text-[10px] capitalize lg:text-sm`,
-                  order.deliveryStatus === "pending" && "bg-[#C5A83C]",
-                  order.deliveryStatus === "paid" && "bg-[#008000]",
-                  order.deliveryStatus === "delivered" && "bg-mid-success",
-                  order.deliveryStatus === "cancelled" && "bg-mid-danger",
+                  isPendingDelivery && "bg-[#C5A83C]",
+                  order.status === "paid" && "bg-[#008000]",
+                  isDelivered && "bg-mid-success",
                 )}
               >
-                {order.deliveryStatus} delivery
+                {deliveryStatus} delivery
               </Badge>
-              {order.deliveryStatus === "delivered" && (
-                <p className={`text-sm`}>Delivered on {deliveryDate.toLocaleDateString("en-GB")}</p>
-              )}
-              {order.deliveryStatus === "pending" && (
+              {isDelivered && <p className={`text-sm`}>Delivered on {deliveryDate.toLocaleDateString("en-GB")}</p>}
+              {isPendingDelivery && (
                 <p className={`text-sm`}>To be delivered {deliveryDate.toLocaleDateString("en-GB")}</p>
               )}
             </div>
-            {order.deliveryStatus === "pending" && (
+            {isPendingDelivery && (
               <SkiButton
                 href={`/shop/cart/orders/${order.id}/tracking-order`}
                 variant="primary"
@@ -116,7 +127,7 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
                 Track Order
               </SkiButton>
             )}
-            {order.deliveryStatus === "delivered" && (
+            {isDelivered && product && (
               <RatingModal
                 product={{
                   id: product.id,
