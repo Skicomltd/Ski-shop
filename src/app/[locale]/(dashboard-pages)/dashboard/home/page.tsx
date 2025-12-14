@@ -96,7 +96,7 @@ const Page = () => {
     <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       <OverViewCard
         title="Total Sales"
-        value={totalProducts || "0"}
+        value={"0"}
         icon={<GiWallet />}
         iconClassName="bg-low-blue dark:bg-[#111111] text-[24px] text-primary"
       />

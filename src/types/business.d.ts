@@ -113,21 +113,21 @@ declare global {
     id: string;
     status: OrderStatus;
     buyer: OrderBuyer;
-    products: OrderProduct[];
+    items: OrderItem[];
     totalAmount: number;
     paymentMethod: string;
-    paidAt: string;
-    deliveryStatus: OrderDeliveryStatus;
+    paidAt: string | null;
     reference: string;
+    shippingInfo?: ShippingInfo;
     createdAt: string;
     [key: string]: unknown;
   }
 
   /** Order status types */
-  type OrderStatus = "paid" | "pending" | "cancelled" | "delivered";
+  type OrderStatus = "paid" | "unpaid" | "cancelled" | "delivered";
 
-  /** Order delivery status types */
-  type OrderDeliveryStatus = "pending" | "paid" | "delivered" | "cancelled";
+  /** Per-item delivery status types */
+  type OrderItemDeliveryStatus = "uninitiated" | "pending" | "in_transit" | "delivered" | "cancelled";
 
   /** Order buyer information */
   interface OrderBuyer {
@@ -141,16 +141,33 @@ declare global {
     name: string;
   }
 
-  /** Order product information */
-  interface OrderProduct {
-    [x: string]: number;
+  /** Order item information */
+  interface OrderItem {
+    id: string;
+    product: OrderItemProduct;
+    subtotal: number;
+    quantity: number;
+    deliveryStatus: OrderItemDeliveryStatus;
+    deliveryNo: string | null;
+    vendor: OrderVendor;
+  }
+
+  /** Product summary inside an order item */
+  interface OrderItemProduct {
     id: string;
     name: string;
     images: string[];
     price: number;
-    quantity: number;
-    vendor: OrderVendor;
-    rating: number;
+  }
+
+  /** Shipping info attached to an order */
+  interface ShippingInfo {
+    recipientAddress: string;
+    recipientEmail: string;
+    recipientName: string;
+    recipientPhone: string;
+    recipientState: string;
+    shippingFee: number;
   }
 
   /** Review entity */

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpAdapter } from "@/lib/http/http-adapter";
 
 export class AppService {
@@ -256,6 +257,119 @@ export class AppService {
       }>
     >("/carts/delivery-info", payload);
     if (response?.status === 200 || response?.status === 201) {
+      return response.data;
+    }
+  }
+
+  async getDeliveryStates() {
+    const response = await this.http.get<ApiResponse<string[]>>("/orders/delivery-states");
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  // Addresses (Door Delivery) CRUD
+  async createAddress(payload: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    phoneNumber: string;
+    default?: boolean;
+  }) {
+    const response = await this.http.post<ApiResponse<any>>("/addresses", payload);
+    if (response?.status === 201 || response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async getAddresses() {
+    const response = await this.http.get<ApiResponse<any[]>>("/addresses");
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async getAddressById(id: string) {
+    const response = await this.http.get<ApiResponse<any>>(`/addresses/${id}`);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async updateAddress(
+    id: string,
+    payload: Partial<{
+      receiverName: string;
+      streetAddress: string;
+      townCity: string;
+      state: string;
+      phone: string;
+      isDefault: boolean;
+    }>,
+  ) {
+    const response = await this.http.patch<ApiResponse<any>>(`/addresses/${id}`, payload);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async deleteAddress(id: string) {
+    const response = await this.http.delete<ApiResponse<{ success: boolean }>>(`/addresses/${id}`);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  // Pickup Stations CRUD
+  async createPickupStation(payload: {
+    state: string;
+    lga?: string;
+    station: string;
+    place: string;
+    address: string;
+    price: number;
+  }) {
+    const response = await this.http.post<ApiResponse<any>>("/pickups", payload);
+    if (response?.status === 201 || response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async getPickupStations() {
+    const response = await this.http.get<ApiResponse<any[]>>("/pickups");
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async getPickupStationById(id: string) {
+    const response = await this.http.get<ApiResponse<any>>(`/pickups/${id}`);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async updatePickupStation(
+    id: string,
+    payload: Partial<{
+      state: string;
+      lga?: string;
+      station: string;
+      place: string;
+      address: string;
+      price: number;
+    }>,
+  ) {
+    const response = await this.http.patch<ApiResponse<any>>(`/pickups/${id}`, payload);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  async deletePickupStation(id: string) {
+    const response = await this.http.delete<ApiResponse<{ success: boolean }>>(`/pickup-stations/${id}`);
+    if (response?.status === 200) {
       return response.data;
     }
   }

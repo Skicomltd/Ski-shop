@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { OrderTrackingData, RiderInfo } from "@/modules/tracking/types";
 import { createTrackingData } from "@/modules/tracking/utils/tracking-utils";
 import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
-import { CreditCard, Info, MapPin, Phone, Star, User } from "lucide-react";
+import { CreditCard, Info, MapPin, Phone, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { use, useState } from "react";
@@ -32,6 +32,9 @@ interface OrderDetailPageProperties {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "pending": {
+      return "bg-yellow-500 text-white";
+    }
+    case "unpaid": {
       return "bg-yellow-500 text-white";
     }
     case "delivered": {
@@ -94,7 +97,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
       // Create tracking data
       const newTrackingData = createTrackingData(
         orderId,
-        orderResponse.data.products[0]?.name || "Product",
+        orderResponse.data.items?.[0]?.product?.name || "Product",
         riderInfo,
         "rider_accepted",
       );
@@ -165,21 +168,21 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
-                {order.products.map((product: OrderProduct) => (
+                {order.items.map((item: OrderItem) => (
                   <div
-                    key={product.id}
+                    key={item.id}
                     className="bg-primary/5 relative flex items-center space-x-3 overflow-hidden rounded-lg p-3 sm:space-x-4 sm:p-4"
                   >
                     <div className="flex-shrink-0">
                       <div className={cn("")}>
                         <BlurImage
-                          src={product.images[0] || "/images/placeholder-product.jpg"}
-                          alt={product.name}
+                          src={item.product.images?.[0] || "/images/placeholder-product.jpg"}
+                          alt={item.product.name}
                           width={60}
                           height={60}
                           className="rounded-lg object-cover sm:h-20 sm:w-20"
                         />
-                        {product.vendor?.name && (
+                        {item.vendor?.name && (
                           <Image
                             src="/images/star-seller.svg"
                             alt="Seller badge"
@@ -191,11 +194,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                       </div>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="mb-1 !text-sm font-medium text-gray-900 sm:!text-2xl">{product.name}</h3>
+                      <h3 className="mb-1 !text-sm font-medium text-gray-900 sm:!text-2xl">{item.product.name}</h3>
                       <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500 sm:text-sm">Qty: {product.quantity}</div>
+                        <div className="text-xs text-gray-500 sm:text-sm">Qty: {item.quantity}</div>
                         <div className="text-primary text-sm font-medium sm:text-base">
-                          {formatCurrency(product.price)}
+                          {formatCurrency(item.product.price)}
                         </div>
                       </div>
                     </div>
@@ -214,18 +217,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-high-grey-II">Subtotal</span>
-                  <span className="font-medium">
-                    {formatCurrency(
-                      order.products.reduce(
-                        (sum: number, product: OrderProduct) => sum + product.price * product.quantity,
-                        0,
-                      ),
-                    )}
-                  </span>
+                  <span className="font-medium">{formatCurrency(order.totalAmount)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-high-grey-II">Delivery fee</span>
-                  <span className="font-medium">₦1,200</span>
+                  <span className="font-medium">{formatCurrency(order.shippingInfo?.shippingFee ?? 0)}</span>
                 </div>
                 {assignedRider && (
                   <div className="flex justify-between text-sm">
@@ -243,12 +239,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                   <span>Total</span>
                   <span className="">
                     {formatCurrency(
-                      order.products.reduce(
-                        (sum: number, product: OrderProduct) => sum + product.price * product.quantity,
-                        0,
-                      ) +
-                        1200 +
-                        (assignedRider ? 5800 : 0),
+                      (order.totalAmount ?? 0) + (order.shippingInfo?.shippingFee ?? 0) + (assignedRider ? 5800 : 0),
                     )}
                   </span>
                 </div>
@@ -316,14 +307,14 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                   <Phone className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Phone
                 </span>
-                <p className="text-sm font-medium sm:text-base">N/A</p>
+                <p className="text-sm font-medium sm:text-base">{order.shippingInfo?.recipientPhone || "N/A"}</p>
               </div>
               <div>
                 <span className="flex items-center text-xs text-gray-500 sm:text-sm">
                   <MapPin className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Address
                 </span>
-                <p className="text-sm font-medium sm:text-base">N/A</p>
+                <p className="text-sm font-medium sm:text-base">{order.shippingInfo?.recipientAddress || "N/A"}</p>
               </div>
             </CardContent>
           </Card>
@@ -339,17 +330,17 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
             <CardContent className="space-y-3 sm:space-y-4">
               <div>
                 <span className="text-xs text-gray-500 sm:text-sm">Method</span>
-                <p className="text-sm font-medium sm:text-base">N/A</p>
+                <p className="text-sm font-medium sm:text-base">{order.paymentMethod || "N/A"}</p>
               </div>
               <div>
-                <span className="text-xs text-gray-500 sm:text-sm">Transaction ID</span>
-                <p className="font-mono text-xs font-medium sm:text-sm">N/A</p>
+                <span className="text-xs text-gray-500 sm:text-sm">Reference</span>
+                <p className="font-mono text-xs font-medium sm:text-sm">{order.reference || "N/A"}</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Assigned Rider Information */}
-          {assignedRider && (
+          {/* {assignedRider && (
             <Card className="border-none shadow-none">
               <CardHeader className="pb-3 sm:pb-6">
                 <CardTitle className="flex items-center text-base sm:!text-lg">
@@ -389,7 +380,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                 </div>
               </CardContent>
             </Card>
-          )}
+          )} */}
 
           {/* Action Buttons */}
           <div className="sticky bottom-4 z-10 space-y-3 lg:top-6">

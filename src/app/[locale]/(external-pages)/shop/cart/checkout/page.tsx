@@ -13,7 +13,7 @@ import { ChevronRight, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -60,73 +60,9 @@ const addressSchema = z.object({
 
 const DEFAULT_PHONE = "081234567890";
 
-// Pickup stations data
-const pickupStations = [
-  {
-    id: "egbeda",
-    state: "Lagos",
-    lga: "Alimosho",
-    station: "egbeda",
-    place: "Ski-shop Pickup Station - Egbeda",
-    address: "6, Egbeda Road, Vulcanizer Bus stop, Egbeda.",
-    price: 5000,
-  },
-  {
-    id: "jara",
-    state: "Lagos",
-    lga: "Alimosho",
-    station: "jara",
-    place: "Jara Mall - Egbeda",
-    address: "6, Egbeda Road, Vulcanizer Bus stop, Egbeda.",
-    price: 5000,
-  },
-  {
-    id: "ipaja",
-    state: "Lagos",
-    lga: "Alimosho",
-    station: "ipaja",
-    place: "Ski-shop Pickup Station - Ipaja",
-    address: "12, Ipaja Road, Ipaja.",
-    price: 3000,
-  },
-];
+// Pickup stations are loaded from API via services
 
-const states = [
-  { value: "lagos", label: "Lagos" },
-  { value: "abuja", label: "Abuja" },
-  { value: "kano", label: "Kano" },
-];
-
-// Mock address book data
-const mockAddresses: Address[] = [
-  {
-    id: "1",
-    receiverName: "Adewunmi John",
-    streetAddress: "6, Egbeda Road, Vulcanizer Bus stop, Egbeda, Lagos.",
-    townCity: "Egbeda",
-    state: "Lagos",
-    phone: "08130054558",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    receiverName: "Ade",
-    streetAddress: "12, Ipaja Road, Ipaja, Lagos.",
-    townCity: "Ipaja",
-    state: "Lagos",
-    phone: "08012345678",
-    isDefault: false,
-  },
-  {
-    id: "3",
-    receiverName: "John",
-    streetAddress: "25, Allen Avenue, Ikeja, Lagos.",
-    townCity: "Ikeja",
-    state: "Lagos",
-    phone: "09087654321",
-    isDefault: false,
-  },
-];
+// Addresses are loaded from API via services
 
 const CheckoutPage = () => {
   const locale = useLocale();
@@ -136,9 +72,11 @@ const CheckoutPage = () => {
   const [showPickupModal, setShowPickupModal] = useState(false);
   const [showAddressBookModal, setShowAddressBookModal] = useState(false);
   const [showAddAddressModal, setShowAddAddressModal] = useState(false);
-  const [selectedStation, setSelectedStation] = useState(pickupStations[0]);
+  const [selectedStation, setSelectedStation] = useState<any | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
-  const [addresses, setAddresses] = useState<Address[]>(mockAddresses);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [stations, setStations] = useState<any[]>([]);
+  const [selectedStateForStation, setSelectedStateForStation] = useState<string>("");
 
   const methods = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -165,9 +103,90 @@ const CheckoutPage = () => {
   const { useGetDeliveryInfo } = useAppService();
   const { mutateAsync: fetchDeliveryInfo } = useGetDeliveryInfo();
   const { data: cartData, isLoading: isCartLoading, error: cartError } = useGetCart();
+  const { useGetAddresses, useCreateAddress, useGetPickupStations, useGetDeliveryStates } = useAppService();
+
+  // Delivery States
+  const { data: deliveryStates } = useGetDeliveryStates();
+  const _stateOptions: string[] = useMemo(() => {
+    const fromData = Array.isArray((deliveryStates as any)?.data)
+      ? ((deliveryStates as any).data as unknown as any[])
+      : Array.isArray(deliveryStates as any)
+        ? (deliveryStates as unknown as any[])
+        : [];
+    return fromData.map((s: any) => s?.name || s?.state || s).filter((v: any) => typeof v === "string");
+  }, [deliveryStates]);
+
+  // Initialize selected state for station modal from delivery states if not set
+  useEffect(() => {
+    if (!selectedStateForStation && _stateOptions.length > 0) {
+      setSelectedStateForStation(_stateOptions[0]);
+    }
+  }, [selectedStateForStation, _stateOptions]);
+
+  const { data: addressList } = useGetAddresses();
+  const { data: pickupStationList } = useGetPickupStations();
+  const { mutateAsync: createAddress } = useCreateAddress();
+  // const { mutateAsync: updateAddress } = useUpdateAddress();
+  // const { mutateAsync: deleteAddress } = useDeleteAddress();
+
+  useEffect(() => {
+    // Populate stations from API and normalize (supports paged shape)
+    const pickupData = (pickupStationList as any)?.data;
+    const rawItems = Array.isArray(pickupData?.items)
+      ? (pickupData.items as any[])
+      : Array.isArray(pickupData)
+        ? (pickupData as any[])
+        : [];
+    const normalized = rawItems.map((raw: any) => ({
+      id: raw?.id ?? raw?._id ?? String(Math.random()),
+      place: raw?.place ?? raw?.name ?? "",
+      address: raw?.address ?? "",
+      state: raw?.state ?? "",
+      lga: raw?.lga ?? raw?.localGovt ?? "",
+      station: raw?.station ?? raw?.code ?? raw?.slug ?? "",
+      price: typeof raw?.price === "number" ? raw.price : Number(raw?.price ?? 0) || 0,
+    }));
+    setStations(normalized);
+    if (!selectedStation && normalized.length > 0) {
+      setSelectedStation(normalized[0]);
+      setSelectedStateForStation(normalized[0]?.state || "");
+    }
+  }, [pickupStationList, selectedStation]);
+
+  // Re-select station when user changes selected state in modal
+  useEffect(() => {
+    if (!selectedStateForStation) return;
+    const inState = stations.filter((s) => s.state === selectedStateForStation);
+    if (inState.length > 0) {
+      setSelectedStation(inState[0]);
+    }
+  }, [selectedStateForStation, stations]);
+
+  useEffect(() => {
+    // Populate addresses from API and normalize to UI shape
+    const addrData = (addressList as any)?.data;
+    const apiItems = Array.isArray(addrData?.items) ? (addrData.items as any[]) : [];
+    const normalized = apiItems.map((raw: any) => ({
+      id: raw?.id ?? String(Math.random()),
+      receiverName: raw?.receiverName ?? raw?.name ?? "",
+      streetAddress: raw?.streetAddress ?? raw?.address ?? "",
+      townCity: raw?.townCity ?? raw?.city ?? "",
+      state: raw?.state ?? "",
+      phone: raw?.phone ?? raw?.phoneNumber ?? "",
+      isDefault: raw?.isDefault ?? raw?.default ?? false,
+    }));
+    setAddresses(normalized);
+    if (!selectedAddress && normalized.length > 0) {
+      const defaultAddr = normalized.find((a: any) => a.isDefault) || normalized[0];
+      setSelectedAddress(defaultAddr);
+    }
+  }, [addressList, selectedAddress]);
 
   // Calculate shipping fee based on delivery method
-  const shippingFee = deliveryMethod === "door" ? 300 : selectedStation.price;
+  const [deliveryCostDoor, setDeliveryCostDoor] = useState<number | null>(null);
+  const [deliveryCostStation, setDeliveryCostStation] = useState<number | null>(null);
+  const shippingFee =
+    deliveryMethod === "door" ? (deliveryCostDoor ?? 300) : (deliveryCostStation ?? selectedStation?.price ?? 0);
 
   // Calculate totals
   const subtotal =
@@ -236,9 +255,12 @@ const CheckoutPage = () => {
       .then((response) => {
         // console.log(response);
         setStationWindow(computeWindowFromApi(response?.data));
+        const cost = (response as any)?.data?.cost;
+        setDeliveryCostStation(typeof cost === "number" ? cost : Number(cost ?? Number.NaN));
       })
       .catch(() => {
         setStationWindow(null);
+        setDeliveryCostStation(null);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStation?.id, selectedStation?.state]);
@@ -252,9 +274,12 @@ const CheckoutPage = () => {
       .then((response) => {
         // console.log(response);
         setDoorWindow(computeWindowFromApi(response?.data));
+        const cost = (response as any)?.data?.cost;
+        setDeliveryCostDoor(typeof cost === "number" ? cost : Number(cost ?? Number.NaN));
       })
       .catch(() => {
         setDoorWindow(null);
+        setDeliveryCostDoor(null);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryMethod, selectedAddress?.id, selectedAddress?.state]);
@@ -332,7 +357,7 @@ const CheckoutPage = () => {
 
   const handleStationSelection = () => {
     setShowPickupModal(false);
-    toast.success(`Selected station: ${selectedStation.station}`);
+    toast.success(`Selected station: ${selectedStation?.station ?? selectedStation?.place ?? "Station"}`);
   };
 
   const handleAddressSelection = (address: Address) => {
@@ -341,22 +366,42 @@ const CheckoutPage = () => {
     toast.success(`Selected address: ${address.receiverName}`);
   };
 
-  const handleAddAddress = (data: AddressFormData) => {
-    const newAddress: Address = {
-      id: Date.now().toString(),
-      ...data,
-    };
-
-    if (data.isDefault) {
-      // Remove default from other addresses
-      setAddresses((previous) => previous.map((addr) => ({ ...addr, isDefault: false })));
+  const handleAddAddress = async (data: AddressFormData) => {
+    try {
+      const payload = {
+        name: data.receiverName,
+        address: data.streetAddress,
+        city: data.townCity,
+        state: data.state,
+        phoneNumber: data.phone,
+        default: data.isDefault,
+      };
+      const created = await createAddress(payload as any);
+      // Prefer server response but fall back to local
+      const serverAddr = (created as any)?.data || null;
+      if (data.isDefault) {
+        setAddresses((previous) => previous.map((addr) => ({ ...addr, isDefault: false })));
+      }
+      if (serverAddr) {
+        setAddresses((previous) => [...previous, serverAddr]);
+        // Normalize server response to Address shape for local state if needed
+        const normalized: Address = {
+          id: serverAddr.id ?? String(Date.now()),
+          receiverName: serverAddr.name ?? data.receiverName,
+          streetAddress: serverAddr.address ?? data.streetAddress,
+          townCity: serverAddr.city ?? data.townCity,
+          state: serverAddr.state ?? data.state,
+          phone: serverAddr.phoneNumber ?? data.phone,
+          isDefault: serverAddr.default ?? data.isDefault ?? false,
+        };
+        setSelectedAddress(normalized);
+      }
+      setShowAddAddressModal(false);
+      addressMethods.reset();
+      toast.success("Address added successfully");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to add address");
     }
-
-    setAddresses((previous) => [...previous, newAddress]);
-    setSelectedAddress(newAddress);
-    setShowAddAddressModal(false);
-    addressMethods.reset();
-    toast.success("Address added successfully");
   };
 
   return (
@@ -396,12 +441,14 @@ const CheckoutPage = () => {
                       <p className="!text-base font-semibold md:!text-lg">Select Pick-up Station</p>
                       <ChevronRight />
                     </button>
-                    {deliveryMethod === "station" && (
+                    {deliveryMethod === "station" && selectedStation && (
                       <div className="p-4">
-                        <span className="!text-sm font-semibold md:!text-base">{selectedStation.place}</span>
-                        <div className="!text-xs text-gray-500 md:!text-sm">{selectedStation.address}</div>
+                        <span className="!text-sm font-semibold md:!text-base">
+                          {selectedStation?.place ?? "Select Pick-up Station"}
+                        </span>
+                        <div className="!text-xs text-gray-500 md:!text-sm">{selectedStation?.address ?? ""}</div>
                         <div className="mt-1 !text-sm font-bold text-[#FF9900] md:!text-base">
-                          {formatCurrency(selectedStation.price, locale as Locale)}
+                          {formatCurrency(selectedStation?.price ?? 0, locale as Locale)}
                         </div>
                       </div>
                     )}
@@ -613,19 +660,23 @@ const CheckoutPage = () => {
           <div className="space-y-4">
             <div className="mb-4 space-y-4">
               <FormField
-                label="Select State"
+                label="State"
                 name="state"
                 type="select"
-                placeholder="Choose your state"
+                placeholder="Select your state"
                 required
-                options={states}
+                options={(Array.isArray(_stateOptions) ? _stateOptions : []).map((s) => ({ value: s, label: s }))}
+                onChange={(event_: any) => {
+                  const next = typeof event_?.target?.value === "string" ? event_.target.value : event_;
+                  setSelectedStateForStation(next);
+                }}
               />
               <FormField
                 name="pickupStation"
                 type="select"
                 placeholder="Choose your pickup station"
                 required
-                options={pickupStations.map((station) => ({
+                options={(Array.isArray(stations) ? stations : []).map((station) => ({
                   value: station.id,
                   label: `${station.place} (${formatCurrency(station.price, locale as Locale)})`,
                 }))}
@@ -633,58 +684,62 @@ const CheckoutPage = () => {
             </div>
 
             <div className="mb-6 max-h-48 space-y-4 overflow-y-auto">
-              {pickupStations.map((station) => (
-                <label key={station.id} className="flex cursor-pointer items-start gap-2">
-                  <input
-                    type="radio"
-                    name="pickup-station"
-                    value={station.id}
-                    checked={selectedStation.id === station.id}
-                    onChange={() => setSelectedStation(station)}
-                    className="mt-1 accent-blue-600"
-                  />
-                  <div>
-                    <span className="!text-sm font-semibold md:!text-base">{station.place}</span>
-                    <div className="!text-xs text-gray-500 md:!text-sm">{station.address}</div>
-                    <div className="mt-1 !text-sm font-bold text-[#FF9900] md:!text-base">
-                      {formatCurrency(station.price, locale as Locale)}
+              {!Array.isArray(stations) || stations.length === 0 ? (
+                <div className="!text-sm text-gray-600 md:!text-base">No pickup stations available.</div>
+              ) : (
+                stations.map((station) => (
+                  <label key={station.id} className="flex cursor-pointer items-start gap-2">
+                    <input
+                      type="radio"
+                      name="pickup-station"
+                      value={station.id}
+                      checked={selectedStation?.id === station.id}
+                      onChange={() => setSelectedStation(station)}
+                      className="mt-1 accent-blue-600"
+                    />
+                    <div>
+                      <span className="!text-sm font-semibold md:!text-base">{station.place}</span>
+                      <div className="!text-xs text-gray-500 md:!text-sm">{station.address}</div>
+                      <div className="mt-1 !text-sm font-bold text-[#FF9900] md:!text-base">
+                        {formatCurrency(station.price, locale as Locale)}
+                      </div>
                     </div>
-                  </div>
-                </label>
-              ))}
+                  </label>
+                ))
+              )}
             </div>
 
             <button
               type="button"
               className="w-full rounded-full bg-[#0090D0] py-2 !text-base font-semibold text-white md:!text-lg"
-              disabled={!selectedStation.station}
+              disabled={!selectedStation?.id}
               onClick={handleStationSelection}
             >
               Select Station
             </button>
 
             {/* Display selected station information */}
-            {selectedStation.station && (
+            {selectedStation?.id && (
               <div className="mt-4 rounded-lg bg-gray-50 p-4">
                 <h4 className="!text-lg font-semibold text-gray-800 md:!text-xl">Selected Station:</h4>
                 <div className="mt-2 space-y-1 !text-xs text-gray-600 md:!text-sm">
                   <p>
-                    <strong>Place:</strong> {selectedStation.place}
+                    <strong>Place:</strong> {selectedStation?.place}
                   </p>
                   <p>
-                    <strong>Address:</strong> {selectedStation.address}
+                    <strong>Address:</strong> {selectedStation?.address}
                   </p>
                   <p>
-                    <strong>State:</strong> {selectedStation.state}
+                    <strong>State:</strong> {selectedStation?.state}
                   </p>
                   <p>
-                    <strong>LGA:</strong> {selectedStation.lga}
+                    <strong>LGA:</strong> {selectedStation?.lga}
                   </p>
                   <p>
-                    <strong>Station:</strong> {selectedStation.station}
+                    <strong>Station:</strong> {selectedStation?.station}
                   </p>
                   <p className="font-bold text-[#FF9900]">
-                    <strong>Price:</strong> {formatCurrency(selectedStation.price, locale as Locale)}
+                    <strong>Price:</strong> {formatCurrency(selectedStation?.price ?? 0, locale as Locale)}
                   </p>
                 </div>
               </div>
@@ -806,7 +861,14 @@ const CheckoutPage = () => {
 
               <FormField label="Town/City" name="townCity" type="text" placeholder="Town/City" required />
 
-              <FormField label="State" name="state" type="select" placeholder="State" required options={states} />
+              <FormField
+                label="State"
+                name="state"
+                type="select"
+                placeholder="Select state"
+                required
+                options={(Array.isArray(_stateOptions) ? _stateOptions : []).map((s) => ({ value: s, label: s }))}
+              />
 
               <FormField label="Phone" name="phone" type="text" placeholder="Phone" required />
             </div>

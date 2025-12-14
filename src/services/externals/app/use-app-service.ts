@@ -189,6 +189,134 @@ export const useAppService = () => {
       ...options,
     });
 
+  const useGetDeliveryStates = (options?: any) =>
+    useServiceQuery([], (service) => service.getDeliveryStates(), options);
+
+  // Addresses hooks
+  const useGetAddresses = (options?: any) =>
+    useServiceQuery([...queryKeys.shipping.addresses.list()], (service) => service.getAddresses(), {
+      staleTime: 1000 * 60 * 5,
+      ...options,
+    });
+
+  const useGetAddressById = (id: string, options?: any) =>
+    useServiceQuery([...queryKeys.shipping.addresses.details(id)], (service) => service.getAddressById(id), options);
+
+  const useCreateAddress = (options?: any) =>
+    useServiceMutation(
+      (
+        service,
+        data: {
+          name: string;
+          address: string;
+          city: string;
+          state: string;
+          phoneNumber: string;
+          default?: boolean;
+        },
+      ) => service.createAddress(data),
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.addresses.list() });
+        },
+        ...options,
+      },
+    );
+
+  const useUpdateAddress = (options?: any) =>
+    useServiceMutation(
+      (
+        service,
+        data: {
+          id: string;
+          payload: Partial<{
+            receiverName: string;
+            streetAddress: string;
+            townCity: string;
+            state: string;
+            phone: string;
+            isDefault: boolean;
+          }>;
+        },
+      ) => service.updateAddress(data.id, data.payload),
+      {
+        onSuccess: (result, variables) => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.addresses.list() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.addresses.details(variables.id) });
+        },
+        ...options,
+      },
+    );
+
+  const useDeleteAddress = (options?: any) =>
+    useServiceMutation((service, id: string) => service.deleteAddress(id), {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.shipping.addresses.list() });
+      },
+      ...options,
+    });
+
+  // Pickup Stations hooks
+  const useGetPickupStations = (options?: any) =>
+    useServiceQuery([...queryKeys.shipping.pickupStations.list()], (service) => service.getPickupStations(), {
+      staleTime: 1000 * 60 * 5,
+      ...options,
+    });
+
+  const useGetPickupStationById = (id: string, options?: any) =>
+    useServiceQuery(
+      [...queryKeys.shipping.pickupStations.details(id)],
+      (service) => service.getPickupStationById(id),
+      options,
+    );
+
+  const useCreatePickupStation = (options?: any) =>
+    useServiceMutation(
+      (
+        service,
+        data: { state: string; lga?: string; station: string; place: string; address: string; price: number },
+      ) => service.createPickupStation(data),
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.pickupStations.list() });
+        },
+        ...options,
+      },
+    );
+
+  const useUpdatePickupStation = (options?: any) =>
+    useServiceMutation(
+      (
+        service,
+        data: {
+          id: string;
+          payload: Partial<{
+            state: string;
+            lga?: string;
+            station: string;
+            place: string;
+            address: string;
+            price: number;
+          }>;
+        },
+      ) => service.updatePickupStation(data.id, data.payload),
+      {
+        onSuccess: (result, variables) => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.pickupStations.list() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.shipping.pickupStations.details(variables.id) });
+        },
+        ...options,
+      },
+    );
+
+  const useDeletePickupStation = (options?: any) =>
+    useServiceMutation((service, id: string) => service.deletePickupStation(id), {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.shipping.pickupStations.list() });
+      },
+      ...options,
+    });
+
   return {
     // Product Queries
     useGetAllProducts,
@@ -225,5 +353,18 @@ export const useAppService = () => {
     useGetAllReviews,
     useDeleteReview,
     useGetDeliveryInfo,
+    useGetDeliveryStates,
+
+    // Shipping
+    useGetAddresses,
+    useGetAddressById,
+    useCreateAddress,
+    useUpdateAddress,
+    useDeleteAddress,
+    useGetPickupStations,
+    useGetPickupStationById,
+    useCreatePickupStation,
+    useUpdatePickupStation,
+    useDeletePickupStation,
   };
 };

@@ -39,6 +39,16 @@ export const queryKeys = {
     list: () => ["order", "list"] as const,
     details: (id: string) => ["order", "details", id] as const,
   },
+  shipping: {
+    addresses: {
+      list: () => ["shipping", "addresses", "list"] as const,
+      details: (id: string) => ["shipping", "addresses", "details", id] as const,
+    },
+    pickupStations: {
+      list: () => ["shipping", "pickup-stations", "list"] as const,
+      details: (id: string) => ["shipping", "pickup-stations", "details", id] as const,
+    },
+  },
   settings: {
     general: () => ["settings", "general"] as const,
     notifications: () => ["settings", "notifications"] as const,

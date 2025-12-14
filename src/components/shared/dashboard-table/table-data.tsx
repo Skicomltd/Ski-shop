@@ -40,34 +40,36 @@ export const useOrderColumn = (): TableColumnDefinition<Order>[] => {
   return [
     {
       header: "Reference ID",
-      accessorKey: "id",
-      render: (_, order: Order) => <span className="!text-sm font-medium">{order.reference.slice(0, 10)}...</span>,
+      accessorKey: "reference",
+      render: (_, order: Order) => (
+        <span className="!text-sm font-medium">{order.reference?.slice(0, 10) ?? "N/A"}...</span>
+      ),
     },
     {
       header: "Products",
-      accessorKey: "products",
+      accessorKey: "items",
       render: (_, order: Order) => (
         <div className="flex items-center space-x-2">
           <div className="relative">
-            {order.products.length > 0 && order.products[0].images.length > 0 && (
+            {order.items?.[0]?.product?.images && order.items[0].product.images.length > 0 && (
               <BlurImage
-                src={order.products[0].images[0]}
-                alt={order.products[0].name}
+                src={order.items[0].product.images[0]}
+                alt={order.items[0].product.name}
                 width={40}
                 height={40}
                 className="rounded-md object-cover"
               />
             )}
-            {order.products.length > 1 && (
+            {order.items && order.items.length > 1 && (
               <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                +{order.products.length - 1}
+                +{order.items.length - 1}
               </div>
             )}
           </div>
           <div>
-            <div className="!text-sm font-medium">{order.products[0]?.name || "N/A"}</div>
+            <div className="!text-sm font-medium">{order.items?.[0]?.product?.name || "N/A"}</div>
             <p className="!text-sm text-gray-500">
-              {order.products[0].quantity} item{order.products[0].quantity > 1 ? "s" : ""}
+              {order.items?.[0]?.quantity ?? 0} item{(order.items?.[0]?.quantity ?? 0) > 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -78,22 +80,23 @@ export const useOrderColumn = (): TableColumnDefinition<Order>[] => {
       accessorKey: "buyer",
       render: (_, order: Order) => (
         <div>
-          <p className="!text-sm font-medium">{order.buyer.name}</p>
+          <p className="!text-sm font-medium">{order.buyer?.name ?? "N/A"}</p>
         </div>
       ),
     },
     {
       header: "Delivery Address",
-      accessorKey: "delivery",
-      render: () => <p className="max-w-xs truncate !text-sm">N/A</p>,
+      accessorKey: "shippingInfo",
+      render: (_, order: Order) => (
+        <p className="max-w-xs truncate !text-sm">{order.shippingInfo?.recipientAddress || "N/A"}</p>
+      ),
     },
     {
       header: "Total Amount",
-      accessorKey: "products",
-      render: (_, order: Order) => {
-        const totalAmount = order.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
-        return <span className="!text-sm font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
-      },
+      accessorKey: "totalAmount",
+      render: (_, order: Order) => (
+        <span className="!text-sm font-medium">{formatCurrency(order.totalAmount ?? 0, locale as Locale)}</span>
+      ),
     },
     {
       header: "Date",
@@ -108,7 +111,7 @@ export const useOrderColumn = (): TableColumnDefinition<Order>[] => {
           className={cn(
             `rounded-full px-2 py-1 !text-sm capitalize`,
             order.status === "paid" && "bg-low-success text-mid-success",
-            order.status === "pending" && "bg-yellow-100 text-yellow-600",
+            order.status === "unpaid" && "bg-yellow-100 text-yellow-600",
             order.status === "cancelled" && "bg-red-100 text-red-600",
             order.status === "delivered" && "bg-blue-100 text-blue-600",
           )}
@@ -246,34 +249,34 @@ export const useDashboardOrderColumn = (): TableColumnDefinition<Order>[] => {
   return [
     {
       header: "Reference ID",
-      accessorKey: "id",
-      render: (_, order: Order) => <span className="!text-sm font-medium">{order.reference}...</span>,
+      accessorKey: "reference",
+      render: (_, order: Order) => <span className="!text-sm font-medium">{order.reference ?? "N/A"}...</span>,
     },
     {
       header: "Products",
-      accessorKey: "products",
+      accessorKey: "items",
       render: (_, order: Order) => (
         <div className="flex items-center space-x-2">
           <div className="relative">
-            {order.products.length > 0 && order.products[0].images.length > 0 && (
+            {order.items?.[0]?.product?.images && order.items[0].product.images.length > 0 && (
               <BlurImage
-                src={order.products[0].images[0]}
-                alt={order.products[0].name}
+                src={order.items[0].product.images[0]}
+                alt={order.items[0].product.name}
                 width={40}
                 height={40}
                 className="rounded-md object-cover"
               />
             )}
-            {order.products.length > 1 && (
+            {order.items && order.items.length > 1 && (
               <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                +{order.products.length - 1}
+                +{order.items.length - 1}
               </div>
             )}
           </div>
           <div>
-            <div className="!text-sm font-medium">{order.products[0]?.name || "N/A"}</div>
+            <div className="!text-sm font-medium">{order.items?.[0]?.product?.name || "N/A"}</div>
             <div className="!text-sm text-gray-500">
-              {order.products[0].quantity} item{order.products[0].quantity > 1 ? "s" : ""}
+              {order.items?.[0]?.quantity ?? 0} item{(order.items?.[0]?.quantity ?? 0) > 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -284,13 +287,13 @@ export const useDashboardOrderColumn = (): TableColumnDefinition<Order>[] => {
       accessorKey: "buyer",
       render: (_, order: Order) => (
         <div>
-          <div className="!text-sm font-medium">{order.buyer.name}</div>
+          <div className="!text-sm font-medium">{order.buyer?.name ?? "N/A"}</div>
         </div>
       ),
     },
     {
       header: "Delivery Address",
-      accessorKey: "delivery",
+      accessorKey: "shippingInfo",
       render: () => (
         <div className="max-w-xs truncate">
           <span className="!text-sm">N/A</span>
@@ -299,11 +302,10 @@ export const useDashboardOrderColumn = (): TableColumnDefinition<Order>[] => {
     },
     {
       header: "Total Amount",
-      accessorKey: "products",
-      render: (_, order: Order) => {
-        const totalAmount = order.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
-        return <span className="!text-sm font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
-      },
+      accessorKey: "totalAmount",
+      render: (_, order: Order) => (
+        <span className="!text-sm font-medium">{formatCurrency(order.totalAmount ?? 0, locale as Locale)}</span>
+      ),
     },
     {
       header: "Date",
@@ -318,7 +320,7 @@ export const useDashboardOrderColumn = (): TableColumnDefinition<Order>[] => {
           className={cn(
             `rounded-full px-2 py-1 !text-sm capitalize`,
             order.status === "paid" && "bg-low-success text-mid-success",
-            order.status === "pending" && "bg-yellow-100 text-yellow-600",
+            order.status === "unpaid" && "bg-yellow-100 text-yellow-600",
             order.status === "cancelled" && "bg-red-100 text-red-600",
             order.status === "delivered" && "bg-blue-100 text-blue-600",
           )}
