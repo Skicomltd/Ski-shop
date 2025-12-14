@@ -7,19 +7,19 @@ import { AlertModal } from "@/components/shared/dialog/alert-modal";
 import { ErrorState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency, formatDate } from "@/lib/i18n/utils";
 import { cn } from "@/lib/utils";
-import { OrderTrackingData, RiderInfo } from "@/modules/tracking/types";
-import { createTrackingData } from "@/modules/tracking/utils/tracking-utils";
+// import { OrderTrackingData, RiderInfo } from "@/modules/tracking/types";
+// import { createTrackingData } from "@/modules/tracking/utils/tracking-utils";
 import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
-import { CreditCard, Info, MapPin, Phone, User } from "lucide-react";
+import { CreditCard, MapPin, Phone, User } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 import { use, useState } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
-import { AssignRiderModal } from "./_components/assign-rider-modal";
+// import { AssignRiderModal } from "./_components/assign-rider-modal";
 import { OrderDetailSkeleton } from "./_components/order-detail-skeleton";
 
 interface OrderDetailPageProperties {
@@ -51,64 +51,77 @@ const getStatusColor = (status: string) => {
 
 export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
   const { orderId } = use(params);
-  const { useGetOrderById, useUpdateOrderStatus } = useDashboardOrderService();
+  const { useGetOrderById, useRequestDelivery } = useDashboardOrderService();
   const { data: orderResponse, isLoading, isError, refetch } = useGetOrderById(orderId);
-  const [isAssignRiderModalOpen, setIsAssignRiderModalOpen] = useState(false);
+  // const [isAssignRiderModalOpen, setIsAssignRiderModalOpen] = useState(false);
   const [isFulfillmentFeeModalOpen, setIsFulfillmentFeeModalOpen] = useState(false);
-  const [trackingData, setTrackingData] = useState<OrderTrackingData | null>(null);
-  const [assignedRider, setAssignedRider] = useState<RiderInfo | null>({
-    id: "1",
-    name: "Bola Xpress",
-    phone: "0803 123 4567",
-    rating: 4.7,
-    reviews: 63,
-    location: {
-      lat: 6.5244,
-      lng: 3.3792,
-      address: "Lagos, Nigeria",
-    },
-  });
+  // const [trackingData, setTrackingData] = useState<OrderTrackingData | null>(null);
+  // const [assignedRider, setAssignedRider] = useState<RiderInfo | null>({
+  //   id: "1",
+  //   name: "Bola Xpress",
+  //   phone: "0803 123 4567",
+  //   rating: 4.7,
+  //   reviews: 63,
+  //   location: {
+  //     lat: 6.5244,
+  //     lng: 3.3792,
+  //     address: "Lagos, Nigeria",
+  //   },
+  // });
 
   // Status checkboxes state
-  const [orderConfirmed, setOrderConfirmed] = useState(true);
-  const [packageReady, setPackageReady] = useState(false);
+  // const [orderConfirmed, setOrderConfirmed] = useState(true);
+  // const [packageReady, setPackageReady] = useState(false);
 
   // Handle checkbox changes
-  const handleOrderConfirmedChange = (checked: boolean | "indeterminate") => {
-    setOrderConfirmed(checked === true);
-  };
+  // const handleOrderConfirmedChange = (checked: boolean | "indeterminate") => {
+  //   setOrderConfirmed(checked === true);
+  // };
 
-  const handlePackageReadyChange = (checked: boolean | "indeterminate") => {
-    setPackageReady(checked === true);
-  };
+  // const handlePackageReadyChange = (checked: boolean | "indeterminate") => {
+  //   setPackageReady(checked === true);
+  // };
 
-  const updateOrderStatusMutation = useUpdateOrderStatus({
+  // const updateOrderStatusMutation = useUpdateOrderStatus({
+  //   onSuccess: () => {
+  //     // Optionally refresh the order data or show success message
+  //     // Order status updated successfully
+  //   },
+  //   onError: () => {
+  //     // Failed to update order status
+  //   },
+  // });
+
+  // const handleAssignRider = (riderId: string, riderInfo?: RiderInfo) => {
+  //   if (riderInfo && orderResponse?.data) {
+  //     // Create tracking data
+  //     const newTrackingData = createTrackingData(
+  //       orderId,
+  //       orderResponse.data.items?.[0]?.product?.name || "Product",
+  //       riderInfo,
+  //       "rider_accepted",
+  //     );
+
+  //     setTrackingData(newTrackingData);
+  //     setAssignedRider(riderInfo);
+  //   }
+  // };
+
+  // const handleFulfillmentFeeInfo = () => {
+  //   setIsFulfillmentFeeModalOpen(true);
+  // };
+
+  const requestDeliveryMutation = useRequestDelivery({
     onSuccess: () => {
-      // Optionally refresh the order data or show success message
-      // Order status updated successfully
-    },
-    onError: () => {
-      // Failed to update order status
+      // Optionally show success and refresh order details
+      refetch();
     },
   });
 
-  const handleAssignRider = (riderId: string, riderInfo?: RiderInfo) => {
-    if (riderInfo && orderResponse?.data) {
-      // Create tracking data
-      const newTrackingData = createTrackingData(
-        orderId,
-        orderResponse.data.items?.[0]?.product?.name || "Product",
-        riderInfo,
-        "rider_accepted",
-      );
-
-      setTrackingData(newTrackingData);
-      setAssignedRider(riderInfo);
-    }
-  };
-
-  const handleFulfillmentFeeInfo = () => {
-    setIsFulfillmentFeeModalOpen(true);
+  const handleRequestDelivery = () => {
+    const firstItemId = orderResponse?.data?.items?.[0]?.id;
+    if (!firstItemId) return;
+    requestDeliveryMutation.mutate({ orderId, orderItemId: firstItemId });
   };
 
   if (isLoading) {
@@ -223,7 +236,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                   <span className="text-high-grey-II">Delivery fee</span>
                   <span className="font-medium">{formatCurrency(order.shippingInfo?.shippingFee ?? 0)}</span>
                 </div>
-                {assignedRider && (
+                {/* {assignedRider && (
                   <div className="flex justify-between text-sm">
                     <span className="text-high-grey-II flex items-center gap-1">
                       Gas / Fulfillment Fee
@@ -242,13 +255,13 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                       (order.totalAmount ?? 0) + (order.shippingInfo?.shippingFee ?? 0) + (assignedRider ? 5800 : 0),
                     )}
                   </span>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>
 
           {/* Update Status Section */}
-          <Card className="border-none shadow-none">
+          {/* <Card className="border-none shadow-none">
             <CardHeader className="pb-3 sm:pb-6">
               <CardTitle className="text-base sm:!text-lg">Update Status</CardTitle>
             </CardHeader>
@@ -284,7 +297,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Sidebar */}
@@ -384,35 +397,35 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
 
           {/* Action Buttons */}
           <div className="sticky bottom-4 z-10 space-y-3 lg:top-6">
-            {trackingData ? (
+            {/* {trackingData ? (
               <Link href={`/dashboard/orders/${orderId}/tracking`}>
                 <SkiButton variant="primary" size="xl" className="w-full">
                   Track Rider
                 </SkiButton>
               </Link>
-            ) : (
-              <SkiButton
-                variant="primary"
-                size="xl"
-                className="w-full"
-                onClick={() => setIsAssignRiderModalOpen(true)}
-                isDisabled={updateOrderStatusMutation.isPending}
-              >
-                {updateOrderStatusMutation.isPending ? "Assigning..." : "Assign Rider"}
-              </SkiButton>
-            )}
+            ) : ( */}
+            <SkiButton
+              variant="primary"
+              size="xl"
+              className="w-full"
+              onClick={handleRequestDelivery}
+              isDisabled={requestDeliveryMutation.isPending}
+            >
+              Request Delivery
+            </SkiButton>
+            {/* )} */}
           </div>
         </div>
       </div>
       {/* </Wrapper> */}
 
       {/* Assign Rider Modal */}
-      <AssignRiderModal
+      {/* <AssignRiderModal
         isOpen={isAssignRiderModalOpen}
         onClose={() => setIsAssignRiderModalOpen(false)}
         onAssignRider={handleAssignRider}
         orderId={""}
-      />
+      /> */}
 
       {/* Fulfillment Fee Info Modal */}
       <AlertModal

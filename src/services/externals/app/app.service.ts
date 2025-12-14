@@ -153,6 +153,13 @@ export class AppService {
     // });
   }
 
+  async completeOrderPayment(orderId: string) {
+    const response = await this.http.get<OrderApiResponse>(`/orders/${orderId}/pay`);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
   async getOrderById(id: string) {
     // return tryCatchWrapper(async () => {
     const response = await this.http.get<{ success: boolean; data: Order }>(`/orders/${id}`);
@@ -369,6 +376,16 @@ export class AppService {
 
   async deletePickupStation(id: string) {
     const response = await this.http.delete<ApiResponse<{ success: boolean }>>(`/pickup-stations/${id}`);
+    if (response?.status === 200) {
+      return response.data;
+    }
+  }
+
+  // Track Order
+  async getTrackOrderById(orderId: string, itemId: string) {
+    const path = `/orders/${orderId}/items/${itemId}`;
+
+    const response = await this.http.get<ApiResponse<TrackOrderData>>(path);
     if (response?.status === 200) {
       return response.data;
     }

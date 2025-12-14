@@ -134,10 +134,25 @@ export const useAppService = () => {
   const useGetOrderById = (id: string, options?: any) =>
     useServiceQuery([...queryKeys.order.details(id)], (service) => service.getOrderById(id), options);
 
+  const useTrackOrderById = (orderId: string, itemId?: string, options?: any) =>
+    useServiceQuery(
+      ["track-order", orderId, itemId ?? null],
+      (service) => service.getTrackOrderById(orderId, itemId ?? ""),
+      { staleTime: 1000 * 60, ...options },
+    );
+
   const useSaveProduct = (options?: any) =>
     useServiceMutation((service, data: { productId: string }) => service.saveProduct(data), {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.product.saved() });
+      },
+      ...options,
+    });
+
+  const useCompleteOrderPayment = (options?: any) =>
+    useServiceMutation((service, orderId: string) => service.completeOrderPayment(orderId), {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.order.list() });
       },
       ...options,
     });
@@ -339,6 +354,8 @@ export const useAppService = () => {
     // Order Queries
     useGetOrders,
     useGetOrderById,
+    useTrackOrderById,
+    useCompleteOrderPayment,
 
     // Product Mutations
     useSaveProduct,

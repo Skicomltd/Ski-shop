@@ -40,6 +40,22 @@ export const useDashboardOrderService = () => {
     );
   };
 
+  const useRequestDelivery = (options?: any) => {
+    const queryClient = useQueryClient();
+
+    return useServiceMutation(
+      (service, { orderId, orderItemId }: { orderId: string; orderItemId: string }) =>
+        service.requestDelivery(orderId, orderItemId),
+      {
+        onSuccess: () => {
+          // Refresh order details and list after requesting delivery
+          queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.orders.list() });
+        },
+        ...options,
+      },
+    );
+  };
+
   return {
     // Queries
     useGetAllOrders,
@@ -47,5 +63,6 @@ export const useDashboardOrderService = () => {
 
     // Mutations
     useUpdateOrderStatus,
+    useRequestDelivery,
   };
 };

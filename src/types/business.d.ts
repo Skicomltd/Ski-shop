@@ -296,6 +296,70 @@ declare global {
     type: string;
     createdAt: string;
   }
+
+  interface RequestDeliveryModel {
+    id: string;
+    product: Product;
+    subtotal: number;
+    quantity: number;
+    deliveryStatus: string;
+    deliveryNo: string;
+    vendor: Vendor;
+    history: History[];
+  }
+
+  interface History {
+    orderStatus: string;
+    statusCreationDate: string; // ISO date string, e.g. 2025-12-14T00:00:00.000Z
+    statusDescription: string;
+  }
+
+  interface Product {
+    id: string;
+    name: string;
+    images: string[];
+    price: number;
+  }
+  interface Vendor {
+    id: string;
+    name: string;
+  }
+  interface TrackOrderData {
+    id: string;
+    product: {
+      id: string;
+      name: string;
+      images: string[];
+      price: number;
+    };
+    subtotal: number;
+    quantity: number;
+    deliveryStatus:
+      | "pending"
+      | "assigned"
+      | "picked_up"
+      | "in_transit"
+      | "arrived_at_hub"
+      | "out_for_delivery"
+      | "delivered";
+    deliveryNo: string;
+    vendor: {
+      id: string;
+      name: string;
+    };
+    history: Array<{
+      orderStatus:
+        | "pending"
+        | "assigned"
+        | "picked_up"
+        | "in_transit"
+        | "arrived_at_hub"
+        | "out_for_delivery"
+        | "delivered";
+      statusCreationDate: string; // ISO or formatted date string
+      statusDescription: string;
+    }>;
+  }
 }
 
 export {};

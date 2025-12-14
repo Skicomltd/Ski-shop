@@ -161,6 +161,7 @@ const Orders = ({ headerStyle }: { title: string; headerStyle?: string; hasActio
                           <SkiButton
                             size="sm"
                             variant="primary"
+                            isDisabled
                             href={`/checkout?ref=${String(order?.reference ?? "")}`}
                           >
                             Complete Payment

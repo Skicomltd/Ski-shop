@@ -5,9 +5,9 @@ import { BackButton } from "@/components/shared/back-button";
 import SkiButton from "@/components/shared/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { OrderTracking } from "@/modules/tracking";
-import { OrderTrackingData, RiderInfo, TrackingStatus } from "@/modules/tracking/types";
+import { OrderTrackingData, RiderInfo, TrackingStatus, TrackingStep } from "@/modules/tracking/types";
 import { createTrackingData, updateTrackingStatus } from "@/modules/tracking/utils/tracking-utils";
-import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
+import { useAppService } from "@/services/externals/app/use-app-service";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
@@ -21,14 +21,13 @@ interface TrackingPageProperties {
 
 export default function TrackingPage({ params }: TrackingPageProperties) {
   const { orderId } = use(params);
-  const { useGetOrderById } = useDashboardOrderService();
-  const { data: orderResponse, isLoading, isError } = useGetOrderById(orderId);
+  const { useTrackOrderById } = useAppService();
+  const { data: trackingResponse, isLoading, isError } = useTrackOrderById(orderId);
   const [trackingData, setTrackingData] = useState<OrderTrackingData | null>(null);
 
   // Initialize tracking data if not already set
   useEffect(() => {
-    if (orderResponse?.data && !trackingData) {
-      // This would normally come from the order detail page, but for now we'll create mock data
+    if (trackingResponse?.data && !trackingData) {
       const mockRiderInfo: RiderInfo = {
         id: "1",
         name: "Bola Xpress",
@@ -42,16 +41,52 @@ export default function TrackingPage({ params }: TrackingPageProperties) {
         },
       };
 
+      const toTrackingStatus = (s: string): TrackingStatus => {
+        switch (s) {
+          case "pending": {
+            return "order_confirmed";
+          }
+          case "assigned": {
+            return "rider_accepted";
+          }
+          case "picked_up": {
+            return "package_picked_up";
+          }
+          case "in_transit":
+          case "out_for_delivery": {
+            return "rider_on_way";
+          }
+          case "arrived_at_hub": {
+            return "package_ready";
+          }
+          case "delivered": {
+            return "package_delivered";
+          }
+          default: {
+            return "order_confirmed";
+          }
+        }
+      };
+      const latestStatus = toTrackingStatus(trackingResponse.data.deliveryStatus);
       const newTrackingData = createTrackingData(
         orderId,
-        orderResponse.data.products[0]?.name || "Product",
+        trackingResponse.data.product?.name || "Product",
         mockRiderInfo,
-        "rider_accepted",
+        latestStatus,
       );
+
+      const steps: TrackingStep[] = trackingResponse.data.history.map((h) => ({
+        status: toTrackingStatus(h.orderStatus),
+        title: h.orderStatus.replaceAll("_", " "),
+        description: h.statusDescription,
+        completed: true,
+        timestamp: h.statusCreationDate,
+      }));
+      newTrackingData.steps = steps;
 
       setTrackingData(newTrackingData);
     }
-  }, [orderResponse?.data, orderId, trackingData]);
+  }, [trackingResponse?.data, orderId, trackingData]);
 
   const handleStatusUpdate = (status: TrackingStatus) => {
     if (trackingData) {
@@ -95,7 +130,7 @@ export default function TrackingPage({ params }: TrackingPageProperties) {
     );
   }
 
-  if (isError || !orderResponse?.data) {
+  if (isError || !trackingResponse?.data) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

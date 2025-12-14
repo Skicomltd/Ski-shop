@@ -30,6 +30,19 @@ export class DashboardOrderService {
     });
   }
 
+  async requestDelivery(orderId: string, orderItemId: string) {
+    return tryCatchWrapper(async () => {
+      const response = await this.http.get<ApiResponse<RequestDeliveryModel>>(
+        `/orders/${orderId}/items/${orderItemId}/request-delivery`,
+      );
+
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to fetch order");
+    });
+  }
+
   async updateOrderStatus(
     id: string,
     status: "pending" | "delivered" | "cancelled",
