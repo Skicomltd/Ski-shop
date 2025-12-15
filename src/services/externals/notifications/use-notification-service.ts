@@ -3,6 +3,7 @@ import type { Notification, NotificationType } from "@/components/shared/notific
 import { queryClient } from "@/lib/react-query/query-client";
 import { queryKeys } from "@/lib/react-query/query-keys";
 import { createServiceHooks } from "@/lib/react-query/use-service-query";
+import { EventRegistry } from "@/lib/sse/use-notifications";
 import { dependencies } from "@/lib/tools/dependencies";
 
 import {
@@ -28,11 +29,7 @@ function normaliseTimestamp(input: unknown): Date {
   return new Date();
 }
 
-/**
- * Best-effort normalisation from backend payload into `NotificationWidget` model.
- * Supports several common shapes used by SSE + REST responses.
- */
-export function mapToWidgetNotifications(raw: RawNotificationsResponse): Notification[] {
+function extractRawNotificationItems(raw: RawNotificationsResponse): any[] {
   const items: any[] = Array.isArray((raw as any)?.data)
     ? (raw as any).data
     : Array.isArray(raw as any)
@@ -40,6 +37,16 @@ export function mapToWidgetNotifications(raw: RawNotificationsResponse): Notific
       : Array.isArray((raw as any)?.results)
         ? (raw as any).results
         : [];
+
+  return items;
+}
+
+/**
+ * Best-effort normalisation from backend payload into `NotificationWidget` model.
+ * Supports several common shapes used by SSE + REST responses.
+ */
+export function mapToWidgetNotifications(raw: RawNotificationsResponse): Notification[] {
+  const items = extractRawNotificationItems(raw);
 
   return items.map<Notification>((item: any) => {
     const id = String(item.id ?? item._id ?? crypto.randomUUID());
@@ -96,6 +103,24 @@ export const useNotificationService = () => {
       },
     );
 
+  // Returns the count of unread vendor-order notifications
+  // using the backend notifications endpoint with `isRead=false`
+  // and filtering by SSE event type `order.placed.vendor`.
+  const useGetUnreadVendorOrderNotifications = (options?: any) =>
+    useServiceQuery<number, Error>(
+      ["notifications", "unread", EventRegistry.ORDER_PALCED_VENDOR],
+      async (service) => {
+        const raw = await service.getNotifications({ isRead: false });
+        const items = extractRawNotificationItems(raw);
+
+        return items.filter((item: any) => item?.type === EventRegistry.ORDER_PALCED_VENDOR).length;
+      },
+      {
+        staleTime: 30 * 1000,
+        ...options,
+      },
+    );
+
   const useMarkNotificationAsRead = (options?: any) =>
     useServiceMutation((service, variables: { id: string }) => service.markOneAsRead(variables.id), {
       onSuccess: () => {
@@ -138,6 +163,7 @@ export const useNotificationService = () => {
 
   return {
     useGetNotifications,
+    useGetUnreadVendorOrderNotifications,
     useMarkNotificationAsRead,
     useUnmarkNotificationAsRead,
     useMarkAllAsRead,

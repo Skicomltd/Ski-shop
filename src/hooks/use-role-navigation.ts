@@ -7,8 +7,8 @@ import {
   dangerBadge,
   type NavItem,
 } from "@/components/shared/sidebar";
-import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
 import { usePayoutService } from "@/services/dashboard/vendor/payouts";
+import { useNotificationService } from "@/services/externals/notifications/use-notification-service";
 import { ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { FaGamepad } from "react-icons/fa";
@@ -21,22 +21,23 @@ import { TbCreditCard, TbSettings2, TbShoppingBag, TbUserCog, TbUsers } from "re
 
 export const useRoleNavigation = (): NavItem[] => {
   const { data: session } = useSession();
+  const { useGetUnreadVendorOrderNotifications } = useNotificationService();
 
   const userRole = session?.user?.role.name.toUpperCase();
 
-  // Get order and payout data for dynamic badges
-  const { useGetAllOrders } = useDashboardOrderService();
   const { useGetWithdrawalsHistory } = usePayoutService();
 
   // Fetch data with minimal queries for badge counts
-  const { data: ordersData } = useGetAllOrders({ page: 1, limit: 1 }, { staleTime: 30_000 });
+  const { data: unreadVendorOrdersCount = 0 } = useGetUnreadVendorOrderNotifications({ staleTime: 30_000 });
   const { data: withdrawalsData } = useGetWithdrawalsHistory(undefined, { staleTime: 30_000 });
 
-  // Calculate badge counts
-  const orderCount = ordersData?.success ? ordersData.data?.metadata?.total || 0 : 0;
+  // Calculate badge counts based on unread vendor order notifications
+  const orderCount = unreadVendorOrdersCount || 0;
   const pendingWithdrawals = withdrawalsData?.success
     ? withdrawalsData.data?.filter((w: WithdrawalHistoryItem) => w.status === "pending")?.length || 0
     : 0;
+
+  const effectiveOrderCount = orderCount;
 
   const createSettingsMenu = (role: string): NavItem => {
     const baseRoute =
@@ -107,7 +108,7 @@ export const useRoleNavigation = (): NavItem[] => {
         ),
         createNavItem("orders", "All Orders", "/super-admin/orders", {
           icon: RiShoppingCartLine,
-          badge: orderCount > 0 ? dangerBadge(orderCount) : undefined,
+          badge: effectiveOrderCount > 0 ? dangerBadge(effectiveOrderCount) : undefined,
         }),
         createNavItem("products", "Platform Products", "/super-admin/products", { icon: TbShoppingBag }),
         createNavItem("payouts", "Platform Payouts", "/super-admin/payouts", { icon: MdOutlineAddCard }),
@@ -128,7 +129,7 @@ export const useRoleNavigation = (): NavItem[] => {
         createNavItem("users", "Users", "/admin/users", { icon: PiUsersThreeLight }),
         createNavItem("orders", "Orders", "/admin/orders", {
           icon: RiShoppingCartLine,
-          badge: orderCount > 0 ? dangerBadge(orderCount) : undefined,
+          badge: effectiveOrderCount > 0 ? dangerBadge(effectiveOrderCount) : undefined,
         }),
         createNavItem("payouts", "Payouts", "/admin/payouts", { icon: MdOutlineAddCard }),
         createNavItem("products", "Skicom Products", "/admin/products", { icon: TbShoppingBag }),
@@ -149,7 +150,7 @@ export const useRoleNavigation = (): NavItem[] => {
         createNavItem("products", "My Products", "/dashboard/products", { icon: TbShoppingBag }),
         createNavItem("orders", "Orders", "/dashboard/orders", {
           icon: RiShoppingCartLine,
-          badge: orderCount > 0 ? dangerBadge(orderCount) : undefined,
+          badge: effectiveOrderCount > 0 ? dangerBadge(effectiveOrderCount) : undefined,
         }),
         // createDivider("finance-section"),
         createNavItem("payouts", "Payouts", "/dashboard/payouts", {
