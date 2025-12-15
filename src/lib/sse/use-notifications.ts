@@ -5,16 +5,15 @@ import { EventSource } from "eventsource";
 import { useCallback, useEffect, useRef } from "react";
 
 export const EventRegistry = {
-  ORDER_CREATED: "order.created",
-  ORDER_STATUS_UPDATED: "order.status.updated",
-  ORDER_FULFILLED: "order.fulfilled",
-  ORDER_CANCELLED: "order.cancelled",
-  PAYOUT_REQUESTED: "payout.requested",
-  PAYOUT_COMPLETED: "payout.completed",
-  PRODUCT_LOW_STOCK: "product.low-stock",
-  PROMOTION_STARTED: "promotion.started",
-  PROMOTION_ENDING_SOON: "promotion.ending-soon",
-  SUBSCRIPTION_UPDATED: "subscription.updated",
+  ORDER_PLACED_PAID: "order.placed.paid",
+  ORDER_PLACED_POD: "order.placed.pod", // payment on delivery
+  ORDER_PALCED_VENDOR: "order.placed.vendor",
+  ORDER_PALCED_CUSTOMER: "order.placed.customer",
+
+  ORDER_DELIVERY_REQUESTED: "order.delivery.requested",
+  ORDER_PAID_AFTER_DELIVERY: "order.paid.after_delivery",
+
+  ORDER_STATUS_CHANGED: "order.status.change",
 } as const;
 
 export type EventNameType = (typeof EventRegistry)[keyof typeof EventRegistry];
@@ -118,7 +117,7 @@ export function useNotifications(userId?: string, token?: string) {
       return;
     }
 
-    const baseUrl = (process.env.NEXT_PUBLIC_SSE_PROGRESS_CHANNEL || process.env.NEXT_PUBLIC_SSE_URL) ?? undefined;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     if (!baseUrl) {
       statusReference.current = "error";

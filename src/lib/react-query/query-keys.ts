@@ -161,4 +161,8 @@ export const queryKeys = {
       },
     },
   },
+  notifications: {
+    base: () => ["notifications"] as const,
+    list: (filters?: { isRead?: boolean }) => ["notifications", "list", filters?.isRead ?? "all"] as const,
+  },
 };

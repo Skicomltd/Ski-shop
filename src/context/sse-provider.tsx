@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useNotifications, type UseNotificationsReturn } from "@/lib/sse/use-notifications";

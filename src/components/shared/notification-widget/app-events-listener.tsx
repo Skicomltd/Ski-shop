@@ -31,7 +31,6 @@ export const AppEventsListener = () => {
           toast.warning?.(title, { description } as any) ?? toast(title, { description });
           break;
         }
-        case "info":
         default: {
           toast.info?.(title, { description } as any) ?? toast(title, { description });
         }

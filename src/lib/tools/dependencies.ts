@@ -10,6 +10,7 @@ import { PromotionService } from "@/services/dashboard/vendor/promotions/promoti
 import { SettingsService } from "@/services/dashboard/vendor/settings/settings.service";
 import { DashboardProfileService } from "@/services/dashboard/vendor/users/profile.service";
 import { AppService } from "@/services/externals/app/app.service";
+import { NotificationService } from "@/services/externals/notifications/notification.service";
 import { OnboardingUserService } from "@/services/externals/onboarding/onboarding-user.service";
 import { UserService } from "@/services/externals/user/user.service";
 
@@ -31,6 +32,7 @@ const dependencies = {
   SETTINGS_SERVICE: Symbol("SettingsService"),
   PLAY2WIN_SERVICE: Symbol("Play2WinService"),
   ADMIN_SETTINGS_SERVICE: Symbol("AdminSettingsService"),
+  NOTIFICATION_SERVICE: Symbol("NotificationService"),
 };
 
 // Types are now globally available in src/types/
@@ -50,6 +52,7 @@ const adminService = new AdminService(httpAdapter);
 const settingsService = new SettingsService(httpAdapter);
 const play2WinService = new Play2WinService(httpAdapter);
 const adminSettingsService = new AdminSettingsService(httpAdapter);
+const notificationService = new NotificationService(httpAdapter);
 
 class DependencyContainer implements IDependencyContainer {
   _dependencies = {};
@@ -82,5 +85,6 @@ container.add(dependencies.ADMIN_SERVICE, adminService);
 container.add(dependencies.SETTINGS_SERVICE, settingsService);
 container.add(dependencies.PLAY2WIN_SERVICE, play2WinService);
 container.add(dependencies.ADMIN_SETTINGS_SERVICE, adminSettingsService);
+container.add(dependencies.NOTIFICATION_SERVICE, notificationService);
 
 export { container, dependencies };
