@@ -110,7 +110,7 @@ export const AllUsers = () => {
             itemsPerPage={limit}
             hasPreviousPage={userData.data.metadata.hasPreviousPage || false}
             hasNextPage={userData.data.metadata.hasNextPage || false}
-            showPagination
+            showPagination={false}
             pageParameter="page"
             onRowClick={handleRowClick}
           />

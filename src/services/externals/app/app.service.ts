@@ -330,12 +330,12 @@ export class AppService {
 
   // Pickup Stations CRUD
   async createPickupStation(payload: {
-    state: string;
-    lga?: string;
-    station: string;
-    place: string;
+    name: string;
+    contactPerson: string;
     address: string;
-    price: number;
+    state: string;
+    phoneNumber: string;
+    status: string;
   }) {
     const response = await this.http.post<ApiResponse<any>>("/pickups", payload);
     if (response?.status === 201 || response?.status === 200) {
@@ -360,12 +360,12 @@ export class AppService {
   async updatePickupStation(
     id: string,
     payload: Partial<{
-      state: string;
-      lga?: string;
-      station: string;
-      place: string;
+      name: string;
+      contactPerson: string;
       address: string;
-      price: number;
+      state: string;
+      phoneNumber: string;
+      status: string;
     }>,
   ) {
     const response = await this.http.patch<ApiResponse<any>>(`/pickups/${id}`, payload);
@@ -375,7 +375,7 @@ export class AppService {
   }
 
   async deletePickupStation(id: string) {
-    const response = await this.http.delete<ApiResponse<{ success: boolean }>>(`/pickup-stations/${id}`);
+    const response = await this.http.delete<ApiResponse<{ success: boolean }>>(`/pickups/${id}`);
     if (response?.status === 200) {
       return response.data;
     }

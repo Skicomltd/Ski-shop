@@ -2,63 +2,27 @@
 
 import { Icons } from "@/components/core/miscellaneous/icons";
 import { formatCurrency } from "@/lib/i18n/utils";
+import { usePromotionService } from "@/services/dashboard/vendor/promotions/use-promotion-service";
 import { Clock, DollarSign } from "lucide-react";
 
 import { DashboardHeader } from "../../_components/dashboard-header";
 import { OverViewCard } from "../../_components/overview-card";
 import { PromotionHistoryTable } from "./_views/promotion-history-table";
-import { PromotionRequestsTable, type AdminPromotionRequest } from "./_views/promotion-request-table";
-
-// Move actions to module scope to satisfy lint rules
-const approveRequest = (id: string) => {
-  void id;
-};
-const rejectRequest = (id: string) => {
-  void id;
-};
+import { PromotionRequestsTable } from "./_views/promotion-request-table";
 
 const Promotions = () => {
-  // Mock stats for the admin promotions dashboard
-  const stats = {
-    totalPromotions: 150,
-    activePromotions: 70,
-    expiredPromotions: 80,
-    promotionsRevenue: 400_000,
-  };
+  const { useGetAllAvailablePromotions } = usePromotionService();
+  const { data } = useGetAllAvailablePromotions();
 
-  // Mock requests (pending approvals)
-  const mockRequests: AdminPromotionRequest[] = [
-    {
-      id: "req-1",
-      vendorName: "Swift & More",
-      productName: "Apple iPhone 13 Mini",
-      adType: "banner",
-      durationDays: 100,
-      amount: 234_000,
-      dateTime: "2025-01-15T09:45:00.000Z",
-      status: "pending",
-    },
-    {
-      id: "req-2",
-      vendorName: "Swift & More",
-      productName: "Apple iPhone 13 Mini",
-      adType: "featured",
-      durationDays: 100,
-      amount: 234_000,
-      dateTime: "2025-01-15T09:45:00.000Z",
-      status: "pending",
-    },
-    {
-      id: "req-3",
-      vendorName: "Swift & More",
-      productName: "Apple iPhone 13 Mini",
-      adType: "banner",
-      durationDays: 100,
-      amount: 234_000,
-      dateTime: "2025-01-15T09:45:00.000Z",
-      status: "pending",
-    },
-  ];
+  const promotions = (data?.data?.items ?? []) as Promotion[];
+  const metadata = data?.data?.metadata;
+
+  const totalPromotions = metadata?.total ?? promotions.length ?? 0;
+  // All available promotion packages are considered "active" from an admin perspective
+  const activePromotions = totalPromotions ?? 0;
+  // No explicit "expired" concept is exposed for promotion packages yet
+  const expiredPromotions = 0;
+  // const promotionsRevenue = promotions.reduce((sum, promotion) => sum + (promotion.amount ?? 0), 0);
 
   return (
     <div className="space-y-6">
@@ -74,32 +38,33 @@ const Promotions = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <OverViewCard
           title="Total Promotions"
-          value={stats.totalPromotions}
+          value={totalPromotions ?? 0}
           icon={<Icons.promotion className="text-primary h-4 w-4" />}
           iconClassName="bg-primary/10"
         />
         <OverViewCard
           title="Active Promotions"
-          value={stats.activePromotions}
+          value={activePromotions ?? 0}
           icon={<Clock className="h-4 w-4 text-green-600" />}
           iconClassName="bg-green-100"
         />
         <OverViewCard
           title="Expired Promotions"
-          value={stats.expiredPromotions}
+          value={expiredPromotions ?? 0}
           icon={<Clock className="h-4 w-4 text-orange-600" />}
           iconClassName="bg-orange-100"
         />
         <OverViewCard
           title="Promotions Revenue"
-          value={formatCurrency(stats.promotionsRevenue || 0)}
+          // value={formatCurrency(promotionsRevenue ?? 0)}
+          value={formatCurrency(0)}
           icon={<DollarSign className="h-4 w-4 text-blue-600" />}
           iconClassName="bg-blue-100"
         />
       </div>
 
       <section className="space-y-8">
-        <PromotionRequestsTable requests={mockRequests} onApprove={approveRequest} onReject={rejectRequest} />
+        <PromotionRequestsTable />
         <PromotionHistoryTable />
       </section>
     </div>
