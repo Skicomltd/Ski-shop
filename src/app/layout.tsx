@@ -7,6 +7,7 @@ import "../styles/global.css";
 
 import { AppThemeProvider } from "@/components/core/miscellaneous/theme-provider";
 import { Toast } from "@/components/shared/Toast";
+import { SSEProvider } from "@/context/sse-provider";
 import { PageWrapper } from "@/lib/animation";
 import { ReactQueryProvider } from "@/lib/react-query/query-provider";
 // import { MockServiceWorkerProvider } from "@/mocks/mock-provider";
@@ -26,17 +27,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ng">
       <SessionProvider>
         <body className={cn("", fontVariables)}>
-          <ReactQueryProvider>
-            <AppThemeProvider>
-              <NuqsAdapter>
-                <NextTopLoader showSpinner={false} />
-                <Toast />
-                {/* <MockServiceWorkerProvider isEnabled={true}> */}
-                <PageWrapper>{children}</PageWrapper>
-                {/* </MockServiceWorkerProvider> */}
-              </NuqsAdapter>
-            </AppThemeProvider>
-          </ReactQueryProvider>
+          <SSEProvider>
+            <ReactQueryProvider>
+              <AppThemeProvider>
+                <NuqsAdapter>
+                  <NextTopLoader showSpinner={false} />
+                  <Toast />
+                  {/* <MockServiceWorkerProvider isEnabled={true}> */}
+                  <PageWrapper>{children}</PageWrapper>
+                  {/* </MockServiceWorkerProvider> */}
+                </NuqsAdapter>
+              </AppThemeProvider>
+            </ReactQueryProvider>
+          </SSEProvider>
         </body>
       </SessionProvider>
     </html>

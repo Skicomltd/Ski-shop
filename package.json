@@ -88,6 +88,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "eventsource": "^4.0.0",
     "firebase": "^12.6.0",
     "input-otp": "^1.4.2",
     "jose": "^5.10.0",
