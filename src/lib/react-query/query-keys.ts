@@ -99,12 +99,20 @@ export const queryKeys = {
       store: () => ["dashboard", "payouts", "store"] as const,
       list: (filters?: Filters) => ["dashboard", "payouts", "list", filters?.page, filters?.limit],
       stats: () => ["dashboard", "payouts", "stats"] as const,
+      /**
+       * Generic withdrawals history key that supports pagination and basic filtering.
+       *
+       * This is primarily used for admin payout views where we fetch withdrawals
+       * with optional status/search filters.
+       */
       withdrawalHistory: (filters?: Filters) => [
         "dashboard",
         "payouts",
         "withdrawal-history",
         filters?.page,
         filters?.limit,
+        filters?.status,
+        filters?.search,
       ],
       withdrawals: (payoutId: string) => ["dashboard", "payouts", "withdrawals", payoutId] as const,
       banks: () => ["dashboard", "payouts", "banks"] as const,

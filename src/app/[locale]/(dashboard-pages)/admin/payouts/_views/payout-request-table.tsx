@@ -6,56 +6,86 @@ import { DashboardTable } from "@/components/shared/dashboard-table";
 import { useAdminPayoutRequestColumn } from "@/components/shared/dashboard-table/admin/admin-table-data";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
-import { useCallback } from "react";
+import { usePayoutService } from "@/services/dashboard/vendor/payouts";
+import { useCallback, useMemo } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
 
+const transformAdminWithdrawalsToPayoutRequests = (items: WithdrawalHistoryItem[]): PayoutRequest[] => {
+  return items.map((item) => {
+    const bank = item.bank;
+    const user = bank?.user;
+
+    const userId = user?.id ?? "";
+    const userName = user?.fullName ?? "Unknown User";
+    const storeName = bank?.bankName || bank?.name || undefined;
+    const walletBalance = (item as WithdrawalHistoryItem & { walletBalance?: number }).walletBalance ?? 0;
+
+    const role: PayoutRequest["role"] = "vendor"; // Current withdrawals are vendor-based
+
+    return {
+      id: item.id,
+      userId,
+      userName,
+      storeName,
+      role,
+      walletBalance,
+      amount: item.amount,
+      dateTime: item.date,
+      // Map underlying withdrawal status to admin request status
+      status: item.status === "approved" || item.status === "completed" ? "approved" : "pending",
+    };
+  });
+};
+
 export const PayoutRequestTable = () => {
   const { search: searchQuery, setSearch: setSearchQuery, resetToFirstPage } = useDashboardSearchParameters();
+  const { useGetAdminWithdrawals, useInitiateWithdrawalApproval } = usePayoutService();
 
-  // Mock data for demonstration - in real app this would come from API
-  const mockData: PayoutRequest[] = [
-    {
-      id: "1",
-      userId: "user1",
-      userName: "John's Store",
-      storeName: "John's Electronics",
-      role: "vendor",
-      walletBalance: 5000,
-      amount: 2000,
-      dateTime: "2024-09-20T10:00:00Z",
-      status: "pending",
-    },
-    {
-      id: "2",
-      userId: "user2",
-      userName: "Sarah Rider",
-      role: "rider",
-      walletBalance: 1500,
-      amount: 800,
-      dateTime: "2024-09-19T15:30:00Z",
-      status: "pending",
-    },
-    {
-      id: "3",
-      userId: "user3",
-      userName: "Mike's Bakery",
-      storeName: "Mike's Bakery",
-      role: "vendor",
-      walletBalance: 3200,
-      amount: 1200,
-      dateTime: "2024-09-18T12:15:00Z",
-      status: "pending",
-    },
-  ];
+  // Fetch pending withdrawals using the "Find as Admin" endpoint (status=pending)
+  const { data: withdrawalsData, refetch } = useGetAdminWithdrawals({ status: "pending" });
 
-  const payoutRequests = mockData || [];
-  const totalRequests = mockData?.length || 0;
+  const { mutate: mutateWithdrawalDecision } = useInitiateWithdrawalApproval();
+
+  const payoutRequests = useMemo(() => {
+    const items = withdrawalsData?.success ? withdrawalsData.data : [];
+    const requests = transformAdminWithdrawalsToPayoutRequests(items);
+
+    const query = (searchQuery || "").toLowerCase().trim();
+    if (!query) return requests;
+
+    return requests.filter((request) => {
+      const name = request.userName?.toLowerCase() ?? "";
+      const store = request.storeName?.toLowerCase() ?? "";
+      const role = request.role?.toLowerCase() ?? "";
+      return name.includes(query) || store.includes(query) || role.includes(query);
+    });
+  }, [withdrawalsData, searchQuery]);
+
+  const totalRequests = payoutRequests.length;
   const totalPages = 1;
   const hasNextPage = false;
   const hasPreviousPage = false;
 
-  const columns = useAdminPayoutRequestColumn();
+  const handleDecision = useCallback(
+    (request: PayoutRequest, decision: "approve" | "reject") => {
+      mutateWithdrawalDecision(
+        { decision, withdrawalId: request.id },
+        {
+          onSuccess: () => {
+            // Refresh pending requests after a decision is made
+            void refetch();
+          },
+        },
+      );
+    },
+    [mutateWithdrawalDecision, refetch],
+  );
+
+  const columns = useAdminPayoutRequestColumn(
+    (request) => handleDecision(request, "approve"),
+    (request) => handleDecision(request, "reject"),
+  );
 
   const handleSearchChange = useCallback(
     (newSearch: string) => {

@@ -28,6 +28,15 @@ export const usePayoutService = () => {
     );
   };
 
+  // Admin: query withdrawals with support for status/search filters
+  const useGetAdminWithdrawals = (filters?: Filters, options?: any) => {
+    return useServiceQuery(
+      [...queryKeys.dashboard.payouts.withdrawalHistory(filters)],
+      (service) => service.getAdminWithdrawals(filters),
+      options,
+    );
+  };
+
   // Query for payout stats
   // const useGetPayoutStats = (options?: any) =>
   //   useServiceQuery([...queryKeys.dashboard.payouts.stats()], (service) => service.getPayoutStats(), options);
@@ -64,6 +73,7 @@ export const usePayoutService = () => {
   return {
     useGetPayoutStore,
     useGetPayouts,
+    useGetAdminWithdrawals,
     // useGetPayoutStats,
     useGetWithdrawalsHistory,
     useGetVendorBanks,

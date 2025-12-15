@@ -14,47 +14,75 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
     {
       header: "Products",
       accessorKey: "products",
-      render: (_, order: Order) => (
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            {order.products.length > 0 && order.products[0].images.length > 0 && (
-              <BlurImage
-                src={order.products[0].images[0]}
-                alt={order.products[0].name}
-                width={40}
-                height={40}
-                className="rounded-md object-cover"
-              />
-            )}
-            {order.products.length > 1 && (
-              <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                +{order.products.length - 1}
+      render: (_, order: Order) => {
+        const products: Array<{ images?: string[]; name?: string; quantity?: number; price?: number }> = Array.isArray(
+          order.products,
+        )
+          ? order.products
+          : [];
+        const firstProduct = products[0];
+        const firstImage = firstProduct?.images?.[0];
+        const additionalProductsCount = products.length > 1 ? products.length - 1 : 0;
+        const productName = firstProduct?.name || "N/A";
+        const quantity = firstProduct?.quantity ?? 0;
+
+        return (
+          <div className="flex items-center space-x-2">
+            <div className="relative">
+              {firstImage && (
+                <BlurImage
+                  src={firstImage}
+                  alt={productName}
+                  width={40}
+                  height={40}
+                  className="rounded-md object-cover"
+                />
+              )}
+              {additionalProductsCount > 0 && (
+                <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                  +{additionalProductsCount}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-xs font-medium">{productName}</div>
+              <div className="text-xs text-gray-500">
+                {quantity} item{quantity === 1 ? "" : "s"}
               </div>
-            )}
-          </div>
-          <div>
-            <div className="text-xs font-medium">{order.products[0]?.name || "N/A"}</div>
-            <div className="text-xs text-gray-500">
-              {order.products[0].quantity} item{order.products[0].quantity > 1 ? "s" : ""}
             </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: "Order ID",
       accessorKey: "id",
-      render: (_, order: Order) => (
-        <span className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium" title={order.reference}>
-          {order.reference.length > 10 ? `${order.reference.slice(0, 10)}...` : order.reference}
-        </span>
-      ),
+      render: (_, order: Order) => {
+        const reference = order.reference ?? "";
+        const displayReference = reference
+          ? reference.length > 10
+            ? `${reference.slice(0, 10)}...`
+            : reference
+          : "N/A";
+
+        return (
+          <span
+            className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium"
+            title={reference || "N/A"}
+          >
+            {displayReference}
+          </span>
+        );
+      },
     },
     {
       header: "Total Amount",
       accessorKey: "products",
       render: (_, order: Order) => {
-        const totalAmount = order.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
+        const products: Array<{ price: number; quantity: number }> = Array.isArray(order.products)
+          ? order.products
+          : [];
+        const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity, 0);
         return <span className="text-xs font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
       },
     },
@@ -82,36 +110,44 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
     {
       header: "Payment Status",
       accessorKey: "status",
-      render: (_, order: Order) => (
-        <span
-          className={cn(
-            `rounded-full px-2 py-1 text-xs capitalize`,
-            order.status === "paid" && "bg-low-success text-mid-success",
-            order.status === "pending" && "bg-yellow-100 text-yellow-600",
-            order.status === "cancelled" && "bg-red-100 text-red-600",
-            order.status === "delivered" && "bg-blue-100 text-blue-600",
-          )}
-        >
-          {order.status}
-        </span>
-      ),
+      render: (_, order: Order) => {
+        const status = String(order.status ?? "");
+
+        return (
+          <span
+            className={cn(
+              `rounded-full px-2 py-1 text-xs capitalize`,
+              status === "paid" && "bg-low-success text-mid-success",
+              status === "pending" && "bg-yellow-100 text-yellow-600",
+              status === "cancelled" && "bg-red-100 text-red-600",
+              status === "delivered" && "bg-blue-100 text-blue-600",
+            )}
+          >
+            {status || "N/A"}
+          </span>
+        );
+      },
     },
     {
       header: "Delivery Status",
       accessorKey: "deliveryStatus",
-      render: (_, order: Order) => (
-        <span
-          className={cn(
-            `rounded-full px-2 py-1 text-xs capitalize`,
-            order.deliveryStatus === "paid" && "bg-low-success text-mid-success",
-            order.deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
-            order.deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
-            order.deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
-          )}
-        >
-          {order.deliveryStatus}
-        </span>
-      ),
+      render: (_, order: Order) => {
+        const deliveryStatus = String(order.deliveryStatus ?? "");
+
+        return (
+          <span
+            className={cn(
+              `rounded-full px-2 py-1 text-xs capitalize`,
+              deliveryStatus === "paid" && "bg-low-success text-mid-success",
+              deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
+              deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
+            )}
+          >
+            {deliveryStatus || "N/A"}
+          </span>
+        );
+      },
     },
   ];
 };
@@ -242,7 +278,10 @@ export const useAdminVendorColumn = (): TableColumnDefinition<Users>[] => {
   ];
 };
 
-export const useAdminPayoutRequestColumn = (): TableColumnDefinition<PayoutRequest>[] => {
+export const useAdminPayoutRequestColumn = (
+  onApprove?: (request: PayoutRequest) => void,
+  onReject?: (request: PayoutRequest) => void,
+): TableColumnDefinition<PayoutRequest>[] => {
   const locale = useLocale();
 
   return [
@@ -301,26 +340,40 @@ export const useAdminPayoutRequestColumn = (): TableColumnDefinition<PayoutReque
     {
       header: "Action",
       accessorKey: "payoutAction",
-      render: () => {
+      render: (_: unknown, request: PayoutRequest) => {
+        const disabled = request.status !== "pending";
+
         return (
           <div className="flex items-center gap-4">
             <button
               onClick={(event) => {
                 event.stopPropagation();
-                // TODO: Implement approve logic
+                if (!disabled && onApprove) {
+                  onApprove(request);
+                }
               }}
-              className="cursor-pointer rounded p-1 transition-colors hover:bg-green-50"
+              className={cn(
+                "cursor-pointer rounded p-1 transition-colors hover:bg-green-50",
+                disabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
+              )}
               title="Approve payout request"
+              disabled={disabled}
             >
               <CircleCheck className="text-mid-success h-5 w-5 stroke-3" />
             </button>
             <button
               onClick={(event) => {
                 event.stopPropagation();
-                // TODO: Implement reject logic
+                if (!disabled && onReject) {
+                  onReject(request);
+                }
               }}
-              className="cursor-pointer rounded p-1 transition-colors hover:bg-red-50"
+              className={cn(
+                "cursor-pointer rounded p-1 transition-colors hover:bg-red-50",
+                disabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
+              )}
               title="Reject payout request"
+              disabled={disabled}
             >
               <Ban className="text-mid-danger h-5 w-5 stroke-3" />
             </button>
@@ -371,11 +424,18 @@ export const useAdminPayoutHistoryColumn = (): TableColumnDefinition<PayoutHisto
       header: "Date & Time",
       accessorKey: "dateTime",
       render: (_, history: PayoutHistory) => {
-        const date = new Date(history.dateTime);
+        const rawDate = history.dateTime;
+        const date = rawDate ? new Date(rawDate) : null;
+        const isValidDate = date instanceof Date && !Number.isNaN(date.getTime());
+
+        if (!isValidDate) {
+          return <span className="text-xs">N/A</span>;
+        }
+
         return (
           <div>
-            <span className="text-xs">{formatDate(date, locale as Locale)}</span> |{" "}
-            <span className="text-xs">{formatTime(date, locale as Locale)}</span>
+            <span className="text-xs">{formatDate(date as Date, locale as Locale)}</span> |{" "}
+            <span className="text-xs">{formatTime(date as Date, locale as Locale)}</span>
           </div>
         );
       },
@@ -478,11 +538,23 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
     {
       header: "Order ID",
       accessorKey: "id",
-      render: (_, order: Order) => (
-        <span className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium" title={order.reference}>
-          {order.reference.length > 10 ? `${order.reference.slice(0, 10)}...` : order.reference}
-        </span>
-      ),
+      render: (_, order: Order) => {
+        const reference = order.reference ?? "";
+        const displayReference = reference
+          ? reference.length > 10
+            ? `${reference.slice(0, 10)}...`
+            : reference
+          : "N/A";
+
+        return (
+          <span
+            className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium"
+            title={reference || "N/A"}
+          >
+            {displayReference}
+          </span>
+        );
+      },
     },
     {
       header: "Date and Time",
@@ -500,10 +572,14 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
       header: "Vendor",
       accessorKey: "order",
       render: (_, order: Order) => {
+        const products: Array<{ vendor?: { name?: string | null } }> = Array.isArray(order.products)
+          ? order.products
+          : [];
+
         const vendors = [
           ...new Set(
-            (order.products || [])
-              .map((product) => product?.vendor?.name)
+            products
+              .map((product) => product.vendor?.name ?? null)
               .filter((name): name is string => Boolean(name && name.trim())),
           ),
         ];
@@ -523,7 +599,10 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
       header: "Total Amount",
       accessorKey: "products",
       render: (_, order: Order) => {
-        const totalAmount = order.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
+        const products: Array<{ price: number; quantity: number }> = Array.isArray(order.products)
+          ? order.products
+          : [];
+        const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity, 0);
         return <span className="text-xs font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
       },
     },
@@ -547,19 +626,23 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
     {
       header: "Delivery Status",
       accessorKey: "deliveryStatus",
-      render: (_, order: Order) => (
-        <span
-          className={cn(
-            `rounded-full px-2 py-1 text-xs capitalize`,
-            order.deliveryStatus === "paid" && "bg-low-success text-mid-success",
-            order.deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
-            order.deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
-            order.deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
-          )}
-        >
-          {order.deliveryStatus}
-        </span>
-      ),
+      render: (_, order: Order) => {
+        const deliveryStatus = String(order.deliveryStatus ?? "");
+
+        return (
+          <span
+            className={cn(
+              `rounded-full px-2 py-1 text-xs capitalize`,
+              deliveryStatus === "paid" && "bg-low-success text-mid-success",
+              deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
+              deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
+            )}
+          >
+            {deliveryStatus || "N/A"}
+          </span>
+        );
+      },
     },
   ];
 };
@@ -571,35 +654,41 @@ export const useAdminProductColumn = (): TableColumnDefinition<Product>[] => {
     {
       header: "Product",
       accessorKey: "name",
-      render: (_, product: Product) => (
-        <div className="flex items-center space-x-2">
-          {product.images.length > 0 && (
-            <BlurImage
-              src={product.images[0]}
-              alt={product.name}
-              width={40}
-              height={40}
-              className="rounded-md object-cover"
-            />
-          )}
-          <div>
-            <div className="text-xs font-medium">{product.name}</div>
-            <div className="text-xs text-gray-500">{product.category}</div>
+      render: (_, product: Product) => {
+        const images = product.images ?? [];
+        const firstImage = images[0];
+
+        return (
+          <div className="flex items-center space-x-2">
+            {firstImage && (
+              <BlurImage
+                src={firstImage}
+                alt={product.name}
+                width={40}
+                height={40}
+                className="rounded-md object-cover"
+              />
+            )}
+            <div>
+              <div className="text-xs font-medium">{product.name}</div>
+              <div className="text-xs text-gray-500">{product.category}</div>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: "Store",
       accessorKey: "store",
-      render: (_, product: Product) => (
-        <span
-          className="inline-block max-w-[150px] cursor-help truncate text-xs font-medium"
-          title={product.store.name}
-        >
-          {product.store.name}
-        </span>
-      ),
+      render: (_, product: Product) => {
+        const storeName = product.store?.name ?? "N/A";
+
+        return (
+          <span className="inline-block max-w-[150px] cursor-help truncate text-xs font-medium" title={storeName}>
+            {storeName}
+          </span>
+        );
+      },
     },
     {
       header: "Price",

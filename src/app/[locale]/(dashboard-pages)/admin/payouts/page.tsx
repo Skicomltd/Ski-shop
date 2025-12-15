@@ -78,8 +78,8 @@ const Payout = () => {
         </div>
       )}
       <section className="space-y-8">
-        <PayoutRequestTable />
         <PayoutHistoryTable />
+        <PayoutRequestTable />
       </section>
     </div>
   );

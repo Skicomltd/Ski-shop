@@ -32,6 +32,25 @@ export class PayoutService {
     });
   }
 
+  /**
+   * Fetch withdrawals for admin views using the generic withdrawals endpoint.
+   *
+   * This maps to the "Find as Admin" request in the API collection
+   * (e.g. GET /withdrawals?status=pending).
+   */
+  async getAdminWithdrawals(filters?: Filters) {
+    return tryCatchWrapper(async () => {
+      const queryString = filters ? this.buildQueryParameters(filters) : "";
+      const url = `/withdrawals${queryString ? `?${queryString}` : ""}`;
+
+      const response = await this.http.get<WithdrawalsResponse>(url);
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to get withdrawals");
+    });
+  }
+
   async initiateWithdrawal(data: { amount: string; bankId: string }) {
     return tryCatchWrapper(async () => {
       const response = await this.http.post<ApiResponse<WithdrawalHistoryItem>>("/withdrawals", data);

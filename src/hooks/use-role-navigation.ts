@@ -44,9 +44,6 @@ export const useRoleNavigation = (): NavItem[] => {
       role === "SUPER_ADMIN" ? "/super-admin/settings" : role === "ADMIN" ? "/admin/settings" : "/dashboard/settings";
 
     const allCommonSettings = [
-      createNavItem("supscription", "Supscription", `${baseRoute}/supscription`, {
-        icon: IoRibbonOutline,
-      }),
       createNavItem("rate-this-app", "Rate This App", "", {
         icon: ThumbsUp,
         actionType: "open-rate-app-modal",
@@ -58,13 +55,13 @@ export const useRoleNavigation = (): NavItem[] => {
         icon: TbUsers,
       }),
       createNavItem("revenue", "Revenue", "/admin/settings/revenue", {
-        icon: TbSettings2,
+        icon: GiWallet,
       }),
       createNavItem("promotion", "Promotion", "/admin/settings/promotion", {
-        icon: TbSettings2,
+        icon: RiAdvertisementLine,
       }),
       createNavItem("play-to-win", "Play to win", "/admin/settings/play-to-win", {
-        icon: TbSettings2,
+        icon: FaGamepad,
       }),
     ];
 
@@ -77,12 +74,17 @@ export const useRoleNavigation = (): NavItem[] => {
       }),
     ];
 
-    const finalSettings: NavItem[] = [...allCommonSettings];
+    const finalSettings: NavItem[] = [];
 
     if (role === "ADMIN") {
-      finalSettings.push(...adminSpecificSettings);
+      // For admins, show General and other admin-specific settings first, then common items
+      finalSettings.push(...adminSpecificSettings, ...allCommonSettings);
     } else if (role === "SUPER_ADMIN") {
-      finalSettings.push(...adminSpecificSettings, ...superAdminSpecificSettings);
+      // For super admins, show General/admin settings first, then super-admin-only, then common items
+      finalSettings.push(...adminSpecificSettings, ...superAdminSpecificSettings, ...allCommonSettings);
+    } else {
+      // For other roles (e.g., vendors), only show common settings
+      finalSettings.push(...allCommonSettings);
     }
 
     return createNavItemWithChildren("settings", "Settings", baseRoute, finalSettings, {

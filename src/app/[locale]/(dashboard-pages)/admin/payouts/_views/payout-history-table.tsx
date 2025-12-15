@@ -7,53 +7,59 @@ import { useAdminPayoutHistoryColumn } from "@/components/shared/dashboard-table
 import { DownloadCsvButton } from "@/components/shared/download-csv-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
-import { useCallback } from "react";
+import { usePayoutService } from "@/services/dashboard/vendor/payouts";
+import { useCallback, useMemo } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
 
 export const PayoutHistoryTable = () => {
-  const { search: searchQuery, setSearch: setSearchQuery, resetToFirstPage } = useDashboardSearchParameters();
+  const {
+    page,
+    limit,
+    search: searchQuery,
+    setSearch: setSearchQuery,
+    resetToFirstPage,
+  } = useDashboardSearchParameters();
+  const { useGetPayouts } = usePayoutService();
 
-  // Mock data for demonstration - in real app this would come from API
-  const mockData: PayoutHistory[] = [
-    {
-      id: "1",
-      userId: "user1",
-      userName: "John's Store",
-      storeName: "John's Electronics",
-      role: "vendor",
-      amount: 2000,
-      dateTime: "2024-09-20T10:00:00Z",
-      status: "completed",
-      transactionId: "TXN-001",
-    },
-    {
-      id: "2",
-      userId: "user2",
-      userName: "Sarah Rider",
-      role: "rider",
-      amount: 800,
-      dateTime: "2024-09-19T15:30:00Z",
-      status: "completed",
-      transactionId: "TXN-002",
-    },
-    {
-      id: "3",
-      userId: "user3",
-      userName: "Mike's Bakery",
-      storeName: "Mike's Bakery",
-      role: "vendor",
-      amount: 1200,
-      dateTime: "2024-09-18T12:15:00Z",
-      status: "failed",
-    },
-  ];
+  const serverFilters: Filters = useMemo(
+    () => ({
+      page,
+      limit,
+      search: searchQuery || undefined,
+    }),
+    [page, limit, searchQuery],
+  );
 
-  const payoutHistory = mockData || [];
-  const totalHistory = mockData?.length || 0;
-  const totalPages = 1;
-  const hasNextPage = false;
-  const hasPreviousPage = false;
+  // Fetch all payouts for admin history using the dedicated payouts endpoint
+  const { data: payoutsData } = useGetPayouts(serverFilters);
+
+  const { payoutHistory, meta } = useMemo(() => {
+    const apiData = payoutsData?.data;
+    const items = (apiData?.items as unknown as PayoutHistory[]) ?? [];
+
+    const query = (searchQuery || "").toLowerCase().trim();
+    let filtered = items;
+
+    if (query) {
+      filtered = items.filter((entry) => {
+        const name = entry.userName?.toLowerCase() ?? "";
+        const store = entry.storeName?.toLowerCase() ?? "";
+        const status = entry.status?.toLowerCase() ?? "";
+        return name.includes(query) || store.includes(query) || status.includes(query);
+      });
+    }
+
+    return {
+      payoutHistory: filtered,
+      meta: apiData?.metadata,
+    };
+  }, [payoutsData, searchQuery]);
+
+  const totalHistory = payoutHistory.length;
+  const totalPages = meta?.totalPages ?? 1;
+  const hasNextPage = meta?.hasNextPage ?? false;
+  const hasPreviousPage = meta?.hasPreviousPage ?? false;
 
   const columns = useAdminPayoutHistoryColumn();
 
