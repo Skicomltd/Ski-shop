@@ -1,52 +1,75 @@
 "use client";
 
-import SkiButton from "@/components/shared/button";
-import { AlertModal } from "@/components/shared/dialog/alert-modal";
-import { ReusableDialog } from "@/components/shared/dialog/Dialog";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Phone, Star } from "lucide-react";
-import { useState } from "react";
-import { FaEnvelope } from "react-icons/fa";
+import { Card, CardContent } from "@/components/ui/card";
 
-import { OrderTrackingData, TrackingStatus } from "../types";
-import { RiderRating } from "./rider-rating";
-import { TrackingMap } from "./tracking-map";
+import { TrackingStatus, TrackingStep } from "../types";
 import { TrackingTimeline } from "./tracking-timeline";
 
 interface OrderTrackingProperties {
-  trackingData: OrderTrackingData;
-  apiKey: string;
-  onStatusUpdate?: (status: TrackingStatus) => void;
-  onRateRider?: (rating: number, review?: string) => Promise<void>;
+  order: unknown;
 }
 
-export const OrderTracking = ({ trackingData, apiKey, onRateRider }: OrderTrackingProperties) => {
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+// no-op: removed unused helper to satisfy linter
 
-  const handleRateRider = async (rating: number, review?: string) => {
-    if (onRateRider) {
-      await onRateRider(rating, review);
-      setSuccessMessage("Thank you for rating! Your rating on your rider has been submitted successfully.");
-      setShowSuccessModal(true);
-    }
-    setShowRatingModal(false);
+export const OrderTracking = ({ order }: OrderTrackingProperties) => {
+  const o = order as {
+    history?: Array<{ orderStatus: string; statusCreationDate: string; statusDescription: string }>;
+    deliveryNo?: string;
+    deliveryStatus?: string;
+    product?: { name?: string };
   };
 
-  const handleDeliverySuccess = () => {
-    setSuccessMessage(
-      "Successful Order! Your Order has been delivered successfully and the sum of ₦57,000 is credited into your wallet.",
-    );
-    setShowSuccessModal(true);
+  const orderedApiStatuses = [
+    "pending",
+    "assigned",
+    "picked_up",
+    "in_transit",
+    "arrived_at_hub",
+    "out_for_delivery",
+    "delivered",
+  ] as const;
+
+  const statusMap = (s: string): TrackingStatus => {
+    if (s === "pending") return "order_confirmed";
+    if (s === "assigned") return "rider_accepted";
+    if (s === "picked_up") return "package_picked_up";
+    if (s === "in_transit" || s === "out_for_delivery") return "rider_on_way";
+    if (s === "arrived_at_hub") return "package_ready";
+    if (s === "delivered") return "package_delivered";
+    return "order_confirmed";
   };
 
-  const canShowMap =
-    trackingData.currentStatus === "rider_on_way" ||
-    trackingData.currentStatus === "package_picked_up" ||
-    trackingData.currentStatus === "package_delivered";
+  // current status mapped (unused; kept for potential future use)
+  // const _current = statusMap(o.deliveryStatus ?? "pending");
+  const historyIndexByStatus: Record<TrackingStatus, number | undefined> = {
+    order_confirmed: undefined,
+    package_ready: undefined,
+    rider_accepted: undefined,
+    rider_at_vendor: undefined,
+    package_picked_up: undefined,
+    rider_on_way: undefined,
+    package_delivered: undefined,
+  };
+  for (const [index, h] of (o.history ?? []).entries()) {
+    const st = statusMap(h.orderStatus);
+    historyIndexByStatus[st] = index;
+  }
 
-  const canRateRider = trackingData.currentStatus === "package_delivered";
+  const steps: TrackingStep[] = orderedApiStatuses.map((apiStatus) => {
+    const mapped = statusMap(apiStatus);
+    const histIndex = historyIndexByStatus[mapped];
+    const hist = typeof histIndex === "number" ? o.history?.[histIndex] : undefined;
+    const completed = typeof histIndex === "number";
+    const titleWords = apiStatus.replaceAll("_", " ").split(" ");
+    const title = titleWords.map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
+    return {
+      status: mapped,
+      title,
+      description: hist?.statusDescription ?? "",
+      completed,
+      timestamp: hist?.statusCreationDate,
+    };
+  });
 
   return (
     <div className="space-y-6 px-4">
@@ -54,118 +77,26 @@ export const OrderTracking = ({ trackingData, apiKey, onRateRider }: OrderTracki
       <div className="flex items-center justify-between">
         <div>
           <h2 className="!text-lg font-bold md:!text-2xl">Live Tracking</h2>
-          <p className="text-sm md:text-base">Order ID: {trackingData.orderId}</p>
+          <p className="text-sm md:text-base">Order ID: {o?.deliveryNo}</p>
+          <p className="muted-foreground text-xs md:text-sm">
+            Current Status: {(o.deliveryStatus ?? "").replaceAll("_", " ")}
+          </p>
+          {(() => {
+            const currentStatus = (o.deliveryStatus ?? "").replaceAll("_", " ");
+            const currentHist = (o.history ?? []).find((h) => h.orderStatus.replaceAll("_", " ") === currentStatus);
+            return currentHist ? (
+              <p className="border text-[10px] md:text-xs">{currentHist.statusDescription}</p>
+            ) : null;
+          })()}
         </div>
-        {/* <Badge className="rounded-full px-6 py-2 text-base">
-          {trackingData.currentStatus.replaceAll("_", " ").replaceAll(/\b\w/g, (l) => l.toUpperCase())}
-        </Badge> */}
       </div>
-
-      {/* Map Section */}
-      <section>
-        <p className="!text-foreground mt-10 text-lg !font-semibold md:!text-2xl">{trackingData.productName}</p>
-        <Card className="p-0 shadow-none">
-          {/* <CardHeader>
-          <CardTitle>Live Tracking</CardTitle>
-          </CardHeader> */}
-          <CardContent className="p-0">
-            <TrackingMap trackingData={trackingData} apiKey={apiKey} showRoute={canShowMap} />
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Rider Information */}
-      <Card className="shadow-none">
-        <CardHeader>
-          <h3 className="!text-lg font-semibold md:!text-2xl">Assigned Rider</h3>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-            <div className="flex items-center space-x-3 md:space-x-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 md:h-16 md:w-16">
-                <span className="text-lg font-bold text-gray-600 md:text-2xl">
-                  {trackingData.rider.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </span>
-              </div>
-              <div>
-                <h6 className="!text-foreground !text-base !font-medium md:!text-xl">{trackingData.rider.name}</h6>
-                <p className="text-xs text-gray-500 md:text-sm">ID: {trackingData.rider.id}</p>
-                <div className="mt-1 flex items-center space-x-1">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 md:h-4 md:w-4" />
-                  <span className="text-xs font-medium md:text-sm">{trackingData.rider.rating}</span>
-                  <span className="text-xs text-gray-500 md:text-sm">({trackingData.rider.reviews} reviews)</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4 lg:flex-row">
-              <SkiButton
-                variant="outline"
-                isLeftIconVisible
-                icon={<Phone className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />}
-                className="text-sm md:text-base"
-              >
-                Call
-              </SkiButton>
-              <SkiButton
-                variant="outline"
-                isLeftIconVisible
-                icon={<FaEnvelope className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />}
-                className="text-sm md:text-base"
-              >
-                Message
-              </SkiButton>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Tracking Timeline */}
       <Card className="shadow-none">
         <CardContent className="pt-6">
-          <TrackingTimeline steps={trackingData.steps} />
+          <TrackingTimeline steps={steps} />
         </CardContent>
       </Card>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col space-y-3 md:flex-row md:space-y-0 md:space-x-3">
-        {canRateRider && (
-          <SkiButton variant="primary" onClick={() => setShowRatingModal(true)} className="flex-1 text-sm md:text-base">
-            Rate Rider
-          </SkiButton>
-        )}
-        {trackingData.currentStatus === "rider_on_way" && (
-          <SkiButton variant="primary" onClick={handleDeliverySuccess} className="flex-1 text-sm md:text-base">
-            Mark as Delivered
-          </SkiButton>
-        )}
-      </div>
-
-      {/* Rating Modal */}
-      <ReusableDialog
-        open={showRatingModal}
-        onOpenChange={setShowRatingModal}
-        title="Rate Rider"
-        description="Share your experience with this rider"
-        className="min-w-xl"
-        trigger={<div />}
-      >
-        <RiderRating rider={trackingData.rider} onSubmit={handleRateRider} onCancel={() => setShowRatingModal(false)} />
-      </ReusableDialog>
-
-      {/* Success Modal */}
-      <AlertModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        onConfirm={() => setShowSuccessModal(false)}
-        type="success"
-        title="Success!"
-        description={successMessage}
-        confirmText="Continue"
-        showCancelButton={false}
-      />
     </div>
   );
 };

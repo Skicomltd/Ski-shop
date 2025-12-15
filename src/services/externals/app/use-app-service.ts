@@ -134,10 +134,10 @@ export const useAppService = () => {
   const useGetOrderById = (id: string, options?: any) =>
     useServiceQuery([...queryKeys.order.details(id)], (service) => service.getOrderById(id), options);
 
-  const useTrackOrderById = (orderId: string, itemId?: string, options?: any) =>
+  const useTrackOrderById = (orderId: string, orderItemId: string, options?: any) =>
     useServiceQuery(
-      ["track-order", orderId, itemId ?? null],
-      (service) => service.getTrackOrderById(orderId, itemId ?? ""),
+      ["track-order", orderId, orderItemId],
+      (service) => service.getTrackOrderById(orderId, orderItemId),
       { staleTime: 1000 * 60, ...options },
     );
 

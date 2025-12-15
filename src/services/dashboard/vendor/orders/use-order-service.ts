@@ -24,6 +24,14 @@ export const useDashboardOrderService = () => {
     return useServiceQuery([...queryKeys.dashboard.orders.details(id)], (service) => service.getOrderById(id), options);
   };
 
+  const useTrackOrder = (orderId: string, orderItemId: string, options?: any) => {
+    return useServiceQuery(
+      [...queryKeys.dashboard.orders.details(`${orderId}:${orderItemId}:track`)],
+      (service) => service.trackOrder(orderId, orderItemId),
+      options,
+    );
+  };
+
   // Mutations
   const useUpdateOrderStatus = (options?: any) => {
     const queryClient = useQueryClient();
@@ -64,5 +72,8 @@ export const useDashboardOrderService = () => {
     // Mutations
     useUpdateOrderStatus,
     useRequestDelivery,
+
+    // Queries
+    useTrackOrder,
   };
 };

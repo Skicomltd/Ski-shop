@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
 import { CreditCard, MapPin, Phone, User } from "lucide-react";
 import Image from "next/image";
-// import Link from "next/link";
+import Link from "next/link";
 import { use, useState } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
@@ -50,11 +50,12 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
-  const { orderId } = use(params);
+  const { orderId, locale } = use(params);
   const { useGetOrderById, useRequestDelivery } = useDashboardOrderService();
   const { data: orderResponse, isLoading, isError, refetch } = useGetOrderById(orderId);
   // const [isAssignRiderModalOpen, setIsAssignRiderModalOpen] = useState(false);
   const [isFulfillmentFeeModalOpen, setIsFulfillmentFeeModalOpen] = useState(false);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
   // const [trackingData, setTrackingData] = useState<OrderTrackingData | null>(null);
   // const [assignedRider, setAssignedRider] = useState<RiderInfo | null>({
   //   id: "1",
@@ -118,10 +119,14 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
     },
   });
 
-  const handleRequestDelivery = () => {
-    const firstItemId = orderResponse?.data?.items?.[0]?.id;
-    if (!firstItemId) return;
-    requestDeliveryMutation.mutate({ orderId, orderItemId: firstItemId });
+  const handleRequestDelivery = (orderItemId: string) => {
+    setActiveItemId(orderItemId);
+    requestDeliveryMutation.mutate(
+      { orderId, orderItemId },
+      {
+        onSettled: () => setActiveItemId(null),
+      },
+    );
   };
 
   if (isLoading) {
@@ -181,42 +186,68 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
-                {order.items.map((item: OrderItem) => (
-                  <div
-                    key={item.id}
-                    className="bg-primary/5 relative flex items-center space-x-3 overflow-hidden rounded-lg p-3 sm:space-x-4 sm:p-4"
-                  >
-                    <div className="flex-shrink-0">
-                      <div className={cn("")}>
-                        <BlurImage
-                          src={item.product.images?.[0] || "/images/placeholder-product.jpg"}
-                          alt={item.product.name}
-                          width={60}
-                          height={60}
-                          className="rounded-lg object-cover sm:h-20 sm:w-20"
-                        />
-                        {item.vendor?.name && (
-                          <Image
-                            src="/images/star-seller.svg"
-                            alt="Seller badge"
-                            width={20}
-                            height={20}
-                            className="pointer-events-none absolute -top-3 -left-0 z-10 size-10 sm:size-20"
+                {order.items.map((item: OrderItem) => {
+                  const isRequestable = item.deliveryStatus === "uninitiated";
+                  const isTrackable = item.deliveryStatus === "pending";
+                  const isProcessing = requestDeliveryMutation.isPending && activeItemId === item.id;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-primary/5 relative flex items-center space-x-3 overflow-hidden rounded-lg p-3 sm:space-x-4 sm:p-4"
+                    >
+                      <div className="flex-shrink-0">
+                        <div>
+                          <BlurImage
+                            src={item.product.images?.[0] || "/images/placeholder-product.jpg"}
+                            alt={item.product.name}
+                            width={60}
+                            height={60}
+                            className="rounded-lg object-cover sm:h-20 sm:w-20"
                           />
-                        )}
+                          {item.vendor?.name && (
+                            <Image
+                              src="/images/star-seller.svg"
+                              alt="Seller badge"
+                              width={20}
+                              height={20}
+                              className="pointer-events-none absolute -top-3 -left-0 z-10 size-10 sm:size-20"
+                            />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="mb-1 !text-sm font-medium text-gray-900 sm:!text-2xl">{item.product.name}</h3>
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500 sm:text-sm">Qty: {item.quantity}</div>
-                        <div className="text-primary text-sm font-medium sm:text-base">
-                          {formatCurrency(item.product.price)}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="mb-1 !text-sm font-medium text-gray-900 sm:!text-2xl">{item.product.name}</h3>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-gray-500 sm:text-sm">Qty: {item.quantity}</div>
+                          <div className="text-primary text-sm font-medium sm:text-base">
+                            {formatCurrency(item.product.price)}
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex w-full justify-end sm:mt-4">
+                          {isTrackable ? (
+                            <Link href={`/${locale}/dashboard/orders/${orderId}/tracking/${item.id}`}>
+                              <SkiButton variant="primary" size="sm" className="min-w-40">
+                                Track Delivery
+                              </SkiButton>
+                            </Link>
+                          ) : (
+                            <SkiButton
+                              variant="primary"
+                              size="sm"
+                              className="min-w-40"
+                              onClick={() => handleRequestDelivery(item.id)}
+                              isDisabled={!isRequestable || isProcessing}
+                            >
+                              {isProcessing ? "Requesting..." : "Request Delivery"}
+                            </SkiButton>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -395,26 +426,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
             </Card>
           )} */}
 
-          {/* Action Buttons */}
-          <div className="sticky bottom-4 z-10 space-y-3 lg:top-6">
-            {/* {trackingData ? (
-              <Link href={`/dashboard/orders/${orderId}/tracking`}>
-                <SkiButton variant="primary" size="xl" className="w-full">
-                  Track Rider
-                </SkiButton>
-              </Link>
-            ) : ( */}
-            <SkiButton
-              variant="primary"
-              size="xl"
-              className="w-full"
-              onClick={handleRequestDelivery}
-              isDisabled={requestDeliveryMutation.isPending}
-            >
-              Request Delivery
-            </SkiButton>
-            {/* )} */}
-          </div>
+          {/* Action Buttons (per-item CTAs now handled above) */}
         </div>
       </div>
       {/* </Wrapper> */}

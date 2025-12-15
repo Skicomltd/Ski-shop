@@ -132,22 +132,35 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
                     )}
                   </div>
 
-                  {isDelivered && product && (
-                    <div className="pt-2">
-                      <RatingModal
-                        product={{
-                          id: product.id,
-                          name: product.name,
-                          images: product.images,
-                          description: "Rate your product",
-                        }}
-                        onRatingSubmit={(rating, review) => handleRatingSubmit(rating, review, product.id)}
-                        triggerStructure={
-                          <SkiButton variant="secondary" size="lg" className="rounded-full">
-                            Rate Product
-                          </SkiButton>
-                        }
-                      />
+                  {/* Item-level CTAs (hidden when uninitiated) */}
+                  {deliveryStatus !== "uninitiated" && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {deliveryStatus !== "delivered" && (
+                        <SkiButton
+                          href={`/shop/cart/orders/${order.id}/tracking/${item.id}`}
+                          variant="primary"
+                          size="lg"
+                          className="rounded-full"
+                        >
+                          Track Order
+                        </SkiButton>
+                      )}
+                      {isDelivered && product && (
+                        <RatingModal
+                          product={{
+                            id: product.id,
+                            name: product.name,
+                            images: product.images,
+                            description: "Rate your product",
+                          }}
+                          onRatingSubmit={(rating, review) => handleRatingSubmit(rating, review, product.id)}
+                          triggerStructure={
+                            <SkiButton variant="secondary" size="lg" className="rounded-full">
+                              Rate Product
+                            </SkiButton>
+                          }
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -179,19 +192,6 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
               <span className="text-base">Total</span>
               <span className="text-primary text-xl font-semibold">{fmt(orderTotal)}</span>
             </div>
-          </div>
-
-          <div className="pt-2">
-            {anyPendingDelivery && (
-              <SkiButton
-                href={`/shop/cart/orders/${order.id}/tracking-order`}
-                variant="primary"
-                size="xl"
-                className="flex w-full items-center gap-2 rounded-full px-8"
-              >
-                Track Order
-              </SkiButton>
-            )}
           </div>
         </div>
       </Wrapper>

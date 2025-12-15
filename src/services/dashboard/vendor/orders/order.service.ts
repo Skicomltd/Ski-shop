@@ -43,6 +43,17 @@ export class DashboardOrderService {
     });
   }
 
+  async trackOrder(orderId: string, orderItemId: string) {
+    return tryCatchWrapper(async () => {
+      const response = await this.http.get<ApiResponse<TrackOrderData>>(`/orders/${orderId}/items/${orderItemId}`);
+
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to fetch order tracking info");
+    });
+  }
+
   async updateOrderStatus(
     id: string,
     status: "pending" | "delivered" | "cancelled",
