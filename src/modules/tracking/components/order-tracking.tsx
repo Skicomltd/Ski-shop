@@ -73,24 +73,6 @@ export const OrderTracking = ({ order }: OrderTrackingProperties) => {
 
   return (
     <div className="space-y-6 px-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="!text-lg font-bold md:!text-2xl">Live Tracking</h2>
-          <p className="text-sm md:text-base">Order ID: {o?.deliveryNo}</p>
-          <p className="muted-foreground text-xs md:text-sm">
-            Current Status: {(o.deliveryStatus ?? "").replaceAll("_", " ")}
-          </p>
-          {(() => {
-            const currentStatus = (o.deliveryStatus ?? "").replaceAll("_", " ");
-            const currentHist = (o.history ?? []).find((h) => h.orderStatus.replaceAll("_", " ") === currentStatus);
-            return currentHist ? (
-              <p className="border text-[10px] md:text-xs">{currentHist.statusDescription}</p>
-            ) : null;
-          })()}
-        </div>
-      </div>
-
       {/* Tracking Timeline */}
       <Card className="shadow-none">
         <CardContent className="pt-6">
