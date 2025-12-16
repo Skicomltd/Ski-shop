@@ -153,7 +153,7 @@ export const CartView = () => {
 
   return (
     <Wrapper>
-      <p className="mb-6 !text-lg !font-bold sm:mb-8 sm:!text-2xl">
+      <p className="mb-6 !text-lg !font-bold sm:mb-8 sm:!text-4xl">
         Cart {cartMetadata && `(${cartMetadata.total} items)`}
       </p>
 
@@ -249,7 +249,7 @@ export const CartView = () => {
               <div className="hidden lg:col-span-2 lg:block">
                 <div className="overflow-hidden rounded-lg border">
                   <table className="w-full">
-                    <thead className="bg-background">
+                    <thead className="bg-muted">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-medium">Product</th>
                         <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
@@ -353,10 +353,10 @@ export const CartView = () => {
                       <span>Subtotal</span>
                       <span>{formatCurrency(subtotal, locale)}</span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span>Shipping</span>
                       <span>{shipping === 0 ? "Free" : `${formatCurrency(shipping, locale)}`}</span>
-                    </div>
+                    </div> */}
                     <div className="border-t pt-4">
                       <div className="flex justify-between font-semibold">
                         <span>Total</span>

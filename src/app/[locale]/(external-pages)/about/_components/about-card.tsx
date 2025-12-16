@@ -8,7 +8,7 @@ interface StrengthProperties {
 
 export const AboutCard = ({ strength }: { strength: StrengthProperties }) => {
   return (
-    <section className={`bg-mid-grey-I dark:bg-background rounded-md text-center lg:text-left`}>
+    <section className={`bg-mid-grey-I dark:bg-muted rounded-md text-center lg:text-left`}>
       <div className={`space-y-4 p-9`}>
         <h3 className={`text-xl`}>{strength.title}</h3>
         <p className={`lg:text-lg`}>{strength.description}</p>

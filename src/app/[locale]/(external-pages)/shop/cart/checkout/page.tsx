@@ -435,10 +435,10 @@ const CheckoutPage = () => {
                     <button
                       type="button"
                       disabled={isCartLoading || isCheckingOut || deliveryMethod === "door"}
-                      className="bg-low-blue text-mid-blue flex w-full items-center justify-between p-4 focus:outline-none"
+                      className="bg-muted text-primary flex w-full items-center justify-between p-4 focus:outline-none"
                       onClick={() => setShowPickupModal(true)}
                     >
-                      <p className="!text-base font-semibold md:!text-lg">Select Pick-up Station</p>
+                      <p className="font-semibold md:!text-lg">Select Pick-up Station</p>
                       <ChevronRight />
                     </button>
                     {deliveryMethod === "station" && selectedStation && (
@@ -476,7 +476,7 @@ const CheckoutPage = () => {
                         <button
                           type="button"
                           disabled={isCartLoading || isCheckingOut || deliveryMethod !== "door"}
-                          className="bg-low-blue text-mid-blue flex w-full items-center justify-between p-4 focus:outline-none"
+                          className="bg-muted text-primary flex w-full items-center justify-between p-4 focus:outline-none"
                           onClick={() => setShowAddressBookModal(true)}
                         >
                           <p className="!text-base font-semibold md:!text-lg">Select From Address Book</p>
@@ -779,10 +779,11 @@ const CheckoutPage = () => {
             ))}
           </div>
 
-          <button
+          <SkiButton
             type="button"
-            className="w-full rounded-full bg-[#0090D0] py-2 !text-base font-semibold text-white md:!text-lg"
-            disabled={!selectedAddress}
+            variant="primary"
+            className="w-full"
+            isDisabled={!selectedAddress}
             onClick={() => {
               if (selectedAddress) {
                 handleAddressSelection(selectedAddress);
@@ -790,7 +791,7 @@ const CheckoutPage = () => {
             }}
           >
             Continue
-          </button>
+          </SkiButton>
 
           <button
             type="button"
@@ -798,7 +799,7 @@ const CheckoutPage = () => {
               setShowAddressBookModal(false);
               setShowAddAddressModal(true);
             }}
-            className="flex w-full items-center justify-center py-2 !text-sm font-medium text-blue-600 md:!text-base"
+            className="text-primary flex w-full items-center justify-center py-2 !text-sm font-medium md:!text-base"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add New Address
@@ -806,7 +807,7 @@ const CheckoutPage = () => {
 
           {/* Display selected address information */}
           {selectedAddress && (
-            <div className="mt-4 rounded-lg bg-gray-50 p-4">
+            <div className="bg-muted mt-4 rounded-lg p-4">
               <h4 className="!text-lg font-semibold text-gray-800 md:!text-xl">Selected Address:</h4>
               <div className="mt-2 space-y-1 !text-xs text-gray-600 md:!text-sm">
                 <p>
@@ -878,12 +879,9 @@ const CheckoutPage = () => {
               <input type="checkbox" {...addressMethods.register("isDefault")} className="h-4 w-4 accent-green-600" />
             </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-full bg-[#0090D0] py-2 !text-base font-semibold text-white md:!text-lg"
-            >
+            <SkiButton type="submit" variant="primary" className="w-full">
               Save Address
-            </button>
+            </SkiButton>
           </form>
         </FormProvider>
       </ReusableDialog>

@@ -75,8 +75,8 @@ export const ShopCard = ({
         "group relative block overflow-hidden rounded-lg bg-no-repeat p-2 md:p-4", // Added 'group' and 'relative' for positioning
         isStarSeller &&
           // "bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/h_100,f_auto,q_auto/v1758641972/skicom/f7ajczgvhobbzpwehd8g.png)]",
-          "bg-[url(/images/star-seller.svg)]",
-        className,
+          // "bg-[url(/images/star-seller.svg)]",
+          className,
       )}
     >
       <ComponentGuard requireAuth={status === "authenticated"} allowedRoles={["CUSTOMER"]}>

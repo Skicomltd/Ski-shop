@@ -33,7 +33,7 @@ const Page = () => {
       <Categories />
       <FeaturedProducts />
       <ReusableBanner
-        textClassName={`max-w-[900px] lg:pr-[40%]`}
+        textClassName={`max-w-[900px] lg:pr-[40%] !text-foreground`}
         action={
           <SkiButton href={`/signup/vendor`} className="px-14" size="xl" variant="primary">
             {t("referEarn.action")}
@@ -44,7 +44,7 @@ const Page = () => {
         imageStyle={`!w-[524px] !h-[418px] absolute !bottom-10 !right-10`}
         tagTitle={t("referEarn.tagTitle")}
         title={t("referEarn.title")}
-        className={`relative bg-[#E2F4FF]`}
+        className={`dark:bg-muted relative bg-[#E2F4FF]`}
       />
 
       <ProductGrid title={t("featuredProducts")} flag="featured" />
@@ -60,7 +60,7 @@ const Page = () => {
         image="https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758641969/skicom/rzixupei0jmxjjfkv6mg.png"
         tagTitle={t("beAVendor.tagTitle")}
         title={t("beAVendor.title")}
-        className={`bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] bg-right bg-no-repeat dark:bg-[#E2F4FF]`}
+        className={`dark:bg-muted bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] bg-right bg-no-repeat`}
         textClassName={`max-w-[1000px] lg:pr-[40%]`}
       />
       <BlackFridayReusableBanner
@@ -105,8 +105,9 @@ const Page = () => {
         image="https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758641975/skicom/qvb0ok9axlax3hjpcg5n.png"
         tagTitle={t("deliveryNetwork.tagTitle")}
         title={t("deliveryNetwork.title")}
-        className={`bg-accent/10`}
+        className={`bg-accent/10 dark:bg-muted overflow-hidden`}
         textClassName={`max-w-[1200px] lg:pr-[40%]`}
+        imageStyle="-top-15"
       />
       <Testimonial />
       <Wrapper className={`flex flex-col justify-evenly gap-10 lg:flex-row`}>

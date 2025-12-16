@@ -8,7 +8,7 @@ export const SectionOne = () => {
 
   return (
     <section
-      className={`bg-accent/10 dark:bg-background flex max-w-[1240px] flex-col-reverse items-center justify-between gap-8 rounded-lg p-6 sm:gap-12 sm:p-8 lg:flex-row lg:gap-20 lg:px-[62px] lg:py-[64px]`}
+      className={`bg-accent/10 dark:bg-muted flex max-w-[1240px] flex-col-reverse items-center justify-between gap-8 rounded-lg p-6 sm:gap-12 sm:p-8 lg:flex-row lg:gap-20 lg:px-[62px] lg:py-[64px]`}
     >
       <div className={`flex-1`}>
         <span className={`!text-primary font-semibold`}>{t("tagTitle")}</span>

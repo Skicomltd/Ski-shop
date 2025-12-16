@@ -215,7 +215,7 @@ export function GlobalSearchInput({
             onKeyDown={handleKeyDown}
             onFocus={() => setOpen(true)}
             disabled={disabled}
-            className="placeholder:text-muted-foreground h-full flex-1 border-none bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+            className="placeholder:text-muted-foreground h-full flex-1 border-none bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none dark:bg-transparent"
           />
           {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 shrink-0 animate-spin" />}
           {searchQuery && !isLoading && (

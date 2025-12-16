@@ -90,7 +90,7 @@ export const NavItems: React.FC<NavItemProperties> = ({ links, isMobile, classNa
           return (
             <NavigationMenuItem key={index}>
               <NavigationMenuLink
-                className={`transition-all hover:bg-transparent hover:text-black hover:underline focus:bg-transparent focus:text-black`}
+                className={`hover:text-primary focus:text-primary transition-all hover:bg-transparent hover:underline focus:bg-transparent`}
                 asChild
               >
                 <LocaleLink

@@ -14,7 +14,7 @@ const PlayToWinBanner = () => {
   return (
     <Wrapper>
       <section
-        className={`bg-accent/20 flex flex-col-reverse items-center justify-between gap-6 rounded-lg p-6 lg:flex-row lg:gap-10 lg:px-[62px] lg:py-[48px]`}
+        className={`bg-accent/20 dark:bg-muted flex flex-col-reverse items-center justify-between gap-6 rounded-lg p-6 lg:flex-row lg:gap-10 lg:px-[62px] lg:py-[48px]`}
       >
         <div className={`max-w-[456px] space-y-[12px]`}>
           <Badge variant={`default`} className={`bg-accent rounded-md px-[12px] py-2`}>

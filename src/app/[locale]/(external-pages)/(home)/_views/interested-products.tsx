@@ -79,7 +79,7 @@ export const InterestedProducts = () => {
   return (
     <Wrapper className="min-h-[480px] py-16">
       <div className="mb-8 flex items-baseline justify-between">
-        <h2 className="!text-lg font-semibold sm:!text-2xl">{`Intrested Products`}</h2>
+        <h2 className="!text-lg font-semibold sm:!text-4xl">{`Intrested Products`}</h2>
       </div>
 
       {renderProductsGrid()}
