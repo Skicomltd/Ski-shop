@@ -77,13 +77,21 @@ export function ComboBox({
         </Button>
       </PopoverTrigger>
       <PopoverContent
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
         className={cn("p-0", contentClassName)}
         style={{ width: "var(--radix-popover-trigger-width)" }}
         align="start"
       >
         <Command className="w-full">
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList className="max-h-[200px]">
+          <CommandList
+            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
+            className="max-h-[200px] overflow-y-auto"
+          >
             <CommandEmpty className="py-6 text-center text-sm">{emptyMessage}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (

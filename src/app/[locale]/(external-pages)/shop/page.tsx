@@ -158,7 +158,7 @@ const Page = () => {
   // Handle page change
   const handlePageChange = (newPage: number) => {
     setPage(newPage.toString());
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   };
 
   if (isCategoriesError || isTopVendorsError) return;

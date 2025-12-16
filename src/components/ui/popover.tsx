@@ -22,6 +22,9 @@ function PopoverContent({
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
         data-slot="popover-content"
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
         align={align}
         sideOffset={sideOffset}
         className={cn(

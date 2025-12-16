@@ -5,6 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "../styles/global.css";
 
+import { LenisProvider } from "@/components/core/miscellaneous/lenis-provider";
 import { AppThemeProvider } from "@/components/core/miscellaneous/theme-provider";
 import { Toast } from "@/components/shared/Toast";
 import { SSEProvider } from "@/context/sse-provider";
@@ -34,7 +35,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <NextTopLoader showSpinner={false} />
                   <Toast />
                   {/* <MockServiceWorkerProvider isEnabled={true}> */}
-                  <PageWrapper>{children}</PageWrapper>
+                  <LenisProvider>
+                    <PageWrapper>{children}</PageWrapper>
+                  </LenisProvider>
                   {/* </MockServiceWorkerProvider> */}
                 </NuqsAdapter>
               </AppThemeProvider>

@@ -50,4 +50,16 @@ export class SettingsService {
       throw new Error("Failed to get all available plans");
     });
   }
+
+  async createPlan(data: { amount: number; name: string; interval: string; savingPercentage: number }) {
+    return tryCatchWrapper(async () => {
+      const response = await this.http.post(`/plans`, data);
+
+      if (response?.status === 201) {
+        return response.data;
+      }
+
+      throw new Error("Failed to create subscription plan");
+    });
+  }
 }

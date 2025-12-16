@@ -384,6 +384,24 @@ body {
   -ms-overflow-style: scrollbar;
 }
 
+/* Lenis smooth scroll integration */
+html.lenis {
+  height: auto;
+}
+
+html.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+html.lenis.lenis-stopped,
+body.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body.lenis {
+  min-height: 100%;
+}
+
 /* Heading styles with fluid typography and proper hierarchy */
 h1,
 h2,
@@ -519,10 +537,9 @@ p {
 }
 
 /* Accessibility improvements */
-/* Do not globally disable animations. Respect reduced motion by removing smooth scrolling only.
-   Use Tailwind's motion-reduce utilities or add .motion-reduce on specific components if needed. */
+/* Respect users that prefer reduced motion: ensure default non-smooth scrolling. */
 @media (prefers-reduced-motion: reduce) {
-  html:focus-within {
+  html {
     scroll-behavior: auto !important;
   }
 }

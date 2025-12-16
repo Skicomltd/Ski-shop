@@ -27,10 +27,16 @@ export const useSettingsService = () => {
       service.createSubscriptions(data),
     );
 
+  const useCreatePlan = () =>
+    useServiceMutation((service, data: { amount: number; name: string; interval: string; savingPercentage: number }) =>
+      service.createPlan(data),
+    );
+
   return {
     useGetSubscriptions,
     useGetSubscriptionOverview,
     useGetAllAvailablePlans,
     useCreateSubscriptions,
+    useCreatePlan,
   };
 };

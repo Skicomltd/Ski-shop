@@ -110,14 +110,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className="transition-all duration-300 ease-in-out"
         />
         <SidebarInset className="min-w-0 flex-1">
-          <div className="flex h-full min-h-0 flex-col">
-            <header className="bg-background sticky top-0 z-50 flex h-20 w-full shrink-0 items-center gap-2 overflow-hidden border-b px-4 py-5">
+          {/* Make this the scroll container so the sticky header works correctly */}
+          <div className="flex h-full min-h-0 flex-col overflow-auto">
+            <header className="bg-background !sticky top-0 z-50 flex h-20 w-full shrink-0 items-center gap-2 overflow-hidden border-b px-4 py-5">
               <SidebarTrigger className="text-primary -ml-1 size-9" />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 bg-red-600">
                 <TopBar notificationsCount={0} className="w-full min-w-0 px-6" />
               </div>
             </header>
-            <main className="flex-1 overflow-auto bg-[#F8F8F9] p-6 dark:bg-[#111111]">
+            <main className="flex-1 bg-[#F8F8F9] p-6 dark:bg-[#111111]">
               <section className="mx-auto max-w-[1240px]">{children}</section>
             </main>
           </div>

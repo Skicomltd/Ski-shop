@@ -47,7 +47,7 @@ export const DashboardTable = <T extends DataItem>({
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage.toString());
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   };
 
   // Convert currentPage string to number for comparisons

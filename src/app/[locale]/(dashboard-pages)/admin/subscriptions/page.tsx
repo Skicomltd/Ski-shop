@@ -3,16 +3,24 @@
 import Loading from "@/app/Loading";
 import { Icons } from "@/components/core/miscellaneous/icons";
 import { SearchInput } from "@/components/core/miscellaneous/search-input";
+import SkiButton from "@/components/shared/button";
 import { DashboardTable } from "@/components/shared/dashboard-table";
+import { ReusableDialog } from "@/components/shared/dialog/Dialog";
 import { DownloadCsvButton } from "@/components/shared/download-csv-button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency } from "@/lib/i18n/utils";
 // import { orderStatusOptions } from "@/lib/constants";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { useSettingsService } from "@/services/dashboard/vendor/settings/use-settings-service";
 import { useLocale } from "next-intl";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { GiWallet } from "react-icons/gi";
+import { toast } from "sonner";
 
 import { DashboardHeader } from "../../_components/dashboard-header";
 // import { FilterDropdown } from "../../_components/dashboard-table/_components/filter-dropdown";
@@ -20,8 +28,16 @@ import { OverViewCard } from "../../_components/overview-card";
 import { TableSkeleton } from "../home/_components/page-skeleton";
 import { useSubscriptionHistoryColumns } from "./_components/subscription-history-columns";
 
+type CreatePlanFormValues = {
+  name: string;
+  interval: "monthly" | "quarterly" | "yearly";
+  amount: number;
+  savingPercentage: number;
+};
+
 const Page = () => {
   const locale = useLocale();
+  const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
   const {
     // page: currentPage,
     search: searchQuery,
@@ -32,7 +48,18 @@ const Page = () => {
     resetToFirstPage,
   } = useDashboardSearchParameters();
 
-  const { useGetSubscriptions } = useSettingsService();
+  const { useGetSubscriptions, useCreatePlan } = useSettingsService();
+
+  const createPlanMutation = useCreatePlan();
+
+  const createPlanForm = useForm<CreatePlanFormValues>({
+    defaultValues: {
+      name: "",
+      interval: "monthly",
+      amount: 0,
+      savingPercentage: 0,
+    },
+  });
 
   const {
     data: subscriptionHistory,
@@ -45,6 +72,33 @@ const Page = () => {
   const handleSearchChange = (newSearch: string) => {
     setSearchQuery(newSearch);
     resetToFirstPage(); // Reset to first page when search changes
+  };
+
+  const handleCreatePlanSubmit = (values: CreatePlanFormValues) => {
+    const payload = {
+      name: values.name.trim(),
+      interval: values.interval,
+      amount: Number(values.amount),
+      savingPercentage: Number(values.savingPercentage),
+    };
+
+    createPlanMutation.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Plan created successfully");
+        setIsCreatePlanOpen(false);
+        createPlanForm.reset({
+          name: "",
+          interval: "monthly",
+          amount: 0,
+          savingPercentage: 0,
+        });
+      },
+      onError: (error: Error) => {
+        toast.error("Failed to create plan", {
+          description: error.message,
+        });
+      },
+    });
   };
 
   // const handleStatusChange = (newStatus: string) => {
@@ -64,6 +118,11 @@ const Page = () => {
         subtitle="Track Skishop subscriptions"
         showSubscriptionBanner={false}
         icon={<Icons.ribbonOutline className="size-6" />}
+        actionComponent={
+          <SkiButton variant="primary" size="xl" onClick={() => setIsCreatePlanOpen(true)}>
+            Create Plan
+          </SkiButton>
+        }
       />
       {/* Overview Cards Section */}
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -153,6 +212,119 @@ const Page = () => {
           </section>
         )}
       </section>
+
+      <ReusableDialog
+        open={isCreatePlanOpen}
+        onOpenChange={setIsCreatePlanOpen}
+        title="Create subscription plan"
+        description="Configure a new subscription plan for vendors."
+        className="sm:max-w-md"
+        headerClassName="!text-xl font-semibold"
+      >
+        <Form {...createPlanForm}>
+          <form onSubmit={createPlanForm.handleSubmit(handleCreatePlanSubmit)} className="mt-4 w-full space-y-4">
+            <FormField
+              control={createPlanForm.control}
+              name="name"
+              rules={{ required: "Plan name is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plan name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Monthly Plan" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={createPlanForm.control}
+              name="interval"
+              rules={{ required: "Interval is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Billing interval</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select interval" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={createPlanForm.control}
+                name="amount"
+                rules={{
+                  required: "Amount is required",
+                  min: { value: 1, message: "Amount must be greater than 0" },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount (NGN)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step="100"
+                        {...field}
+                        onChange={(event) => field.onChange(Number(event.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={createPlanForm.control}
+                name="savingPercentage"
+                rules={{
+                  required: "Saving percentage is required",
+                  min: { value: 0, message: "Cannot be negative" },
+                  max: { value: 100, message: "Cannot be more than 100%" },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Saving %</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="1"
+                        {...field}
+                        onChange={(event) => field.onChange(Number(event.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <SkiButton variant="outline" size="xl" type="button" onClick={() => setIsCreatePlanOpen(false)}>
+                Cancel
+              </SkiButton>
+              <SkiButton variant="primary" size="xl" type="submit" isLoading={createPlanMutation.isPending}>
+                Create Plan
+              </SkiButton>
+            </div>
+          </form>
+        </Form>
+      </ReusableDialog>
     </main>
   );
 };

@@ -406,7 +406,7 @@ export function DashboardSidebar({
       <SidebarHeader className="h-28 items-center justify-center">
         <Logo width={logoProperties.width} height={logoProperties.height} className={logoProperties.className} />
       </SidebarHeader>
-      <SidebarContent className="hide-scrollbar">
+      <SidebarContent className="hide-scrollbar" data-lenis-prevent>
         <SidebarMenu className={cn(`space-y-2 p-4`, state === "collapsed" && "p-0")}>
           {navItems.map((item) => renderMenuItem(item))}
         </SidebarMenu>
