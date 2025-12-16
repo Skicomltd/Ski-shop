@@ -3,14 +3,13 @@
 import { Wrapper } from "@/components/core/layout/wrapper";
 import SkiButton from "@/components/shared/button";
 import { EmptyState, ErrorState } from "@/components/shared/empty-state";
-import { Paginations } from "@/components/shared/pagination/pagination";
 import { CustomSelect } from "@/components/shared/select-dropdown";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { useTranslations } from "next-intl";
 import { useQueryState } from "nuqs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PiFunnel } from "react-icons/pi";
 import { useDebounce } from "use-debounce";
 
@@ -116,10 +115,89 @@ const Page = () => {
   const isError = isHandpickedMode ? isHandpickedError : isProductError;
   const refetch = isHandpickedMode ? refetchHandpicked : refetchProducts;
 
-  const products = activeData?.data?.items || [];
+  const products = useMemo(() => (activeData?.data?.items ?? []) as Product[], [activeData?.data?.items]);
   const totalProducts = activeData?.data?.metadata.total || 0;
   const totalPages = activeData?.data?.metadata.totalPages || 0;
   const categories = categoriesData?.data || [];
+
+  // Infinite scroll state
+  const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
+  const loadMoreReference = useRef<HTMLDivElement | null>(null);
+  const isRequestingNextPageReference = useRef(false);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const currentPageNumber = page ? Number.parseInt(page) : 1;
+
+  // Accumulate products across pages for infinite scroll
+  useEffect(() => {
+    if (products.length === 0) {
+      if (currentPageNumber === 1) {
+        setDisplayProducts((previousProducts) => (previousProducts.length === 0 ? previousProducts : []));
+      }
+      return;
+    }
+
+    if (currentPageNumber === 1) {
+      setDisplayProducts((previousProducts) => {
+        const nextProducts = products as Product[];
+        if (previousProducts.length !== nextProducts.length) return nextProducts;
+        for (let index = 0; index < nextProducts.length; index++) {
+          if (previousProducts[index]?.id !== nextProducts[index]?.id) return nextProducts;
+        }
+        return previousProducts;
+      });
+      return;
+    }
+
+    setDisplayProducts((previousProducts) => {
+      const existingIds = new Set(previousProducts.map((product) => product.id));
+      const newItems = (products as Product[]).filter((product) => !existingIds.has(product.id));
+      if (newItems.length === 0) return previousProducts;
+      return [...previousProducts, ...newItems];
+    });
+  }, [products, currentPageNumber]);
+
+  // Reset the request lock whenever loading finishes
+  useEffect(() => {
+    if (!isLoading) {
+      isRequestingNextPageReference.current = false;
+      setIsFetchingNextPage(false);
+    }
+  }, [isLoading]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (isHandpickedMode) return; // handpicked mode already returns all
+    if (!loadMoreReference.current) return;
+    if (currentPageNumber >= totalPages) return;
+
+    const target = loadMoreReference.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (!first.isIntersecting) return;
+
+        if (isLoading) return;
+        if (isRequestingNextPageReference.current) return;
+
+        const nextPage = currentPageNumber + 1;
+        if (nextPage <= totalPages) {
+          isRequestingNextPageReference.current = true;
+          setIsFetchingNextPage(true);
+          // Defer to avoid nested updates during commit/ref attachment.
+          window.setTimeout(() => {
+            setPage(nextPage.toString(), { history: "replace", shallow: true, scroll: false });
+          }, 0);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [currentPageNumber, isLoading, totalPages, setPage, isHandpickedMode]);
 
   // Handle category change
   const handleCategoryChange = async (value: string) => {
@@ -183,12 +261,6 @@ const Page = () => {
       // No default
     }
     setPage("1"); // Reset to first page when changing sort
-  };
-
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage.toString());
-    window.scrollTo({ top: 0 });
   };
 
   if (isCategoriesError || isTopVendorsError) return;
@@ -364,41 +436,62 @@ const Page = () => {
                   </div>
                 </article>
 
-                {/* Products grid */}
+                {/* Products grid with infinite scroll */}
                 <section className="mb-6 sm:mb-8 lg:mb-12">
                   <div className="xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4">
-                    {isLoading && Array.from({ length: 12 }).map((_, index) => <ShopCardSkeleton key={index} />)}
+                    {isLoading &&
+                      currentPageNumber === 1 &&
+                      displayProducts.length === 0 &&
+                      Array.from({ length: 12 }).map((_, index) => <ShopCardSkeleton key={index} />)}
 
-                    {!isLoading && !products?.length && (
+                    {!isLoading && !displayProducts?.length && (
                       <div className="col-span-full py-10 text-center">
                         <EmptyState />
                       </div>
                     )}
 
-                    {!isLoading &&
-                      products.map((product: Product) => (
-                        <ShopCard
-                          key={product.id.toString()}
-                          id={product.id.toString()}
-                          category={product.category}
-                          title={product.name}
-                          rating={product.rating}
-                          price={product.price}
-                          discount={product.discountPrice || 0}
-                          image={product.images[0]}
-                          name={product.store.name || "Skicom"}
-                        />
-                      ))}
+                    {displayProducts.map((product: Product) => (
+                      <ShopCard
+                        key={product.id.toString()}
+                        id={product.id.toString()}
+                        category={product.category}
+                        title={product.name}
+                        rating={product.rating}
+                        price={product.price}
+                        discount={product.discountPrice || 0}
+                        image={product.images[0]}
+                        name={product.store.name || "Skicom"}
+                      />
+                    ))}
+
+                    {/* Reserve space while fetching the next page to reduce layout shift */}
+                    {!isHandpickedMode &&
+                      isFetchingNextPage &&
+                      Array.from({
+                        length: Math.min(24, Number.parseInt(limit ?? "12") || 12),
+                      }).map((_, index) => <ShopCardSkeleton key={`next-page-skeleton-${index}`} />)}
                   </div>
 
-                  {/* Pagination */}
-                  {!isLoading && totalPages > 1 && (
-                    <div className="mt-6 sm:mt-10 lg:mt-12">
-                      <Paginations
-                        currentPage={page ? Number.parseInt(page) : 1}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                      />
+                  {/* Infinite scroll sentinel (always reserves height to avoid jump when it mounts/unmounts) */}
+                  {!isHandpickedMode && (
+                    <div className="mt-6 flex min-h-[56px] items-center justify-center py-4 text-sm text-gray-500">
+                      <div ref={loadMoreReference} className="flex items-center gap-2">
+                        {currentPageNumber < totalPages ? (
+                          isFetchingNextPage ? (
+                            <>
+                              <span
+                                className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700"
+                                aria-hidden
+                              />
+                              <span>Loading more products…</span>
+                            </>
+                          ) : (
+                            <span className="opacity-70">Scroll to load more</span>
+                          )
+                        ) : (
+                          <span className="opacity-70">You’ve reached the end</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </section>

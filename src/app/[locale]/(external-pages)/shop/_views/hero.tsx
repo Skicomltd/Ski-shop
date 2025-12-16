@@ -30,7 +30,7 @@ export const Hero = ({ leftAd, mainAd, rightTopAd, rightBottomAd }: HeroAdLayout
 
   const defaultRightBottomAd = <div className="h-full bg-black/50"></div>;
   return (
-    <section className="bg-primary flex min-h-[70dvh] w-full items-stretch bg-center bg-no-repeat text-white xl:bg-cover">
+    <section className="bg-primary flex min-h-[70dvh] w-full items-stretch bg-[url('/images/shop/shop-hero.svg')] bg-center bg-no-repeat text-white xl:bg-cover">
       <div className="mx-auto flex w-full flex-col gap-6 px-4 sm:gap-8 md:px-6 lg:px-0">
         {/* Advert layout (Jumia‑style hero) */}
         <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-5">

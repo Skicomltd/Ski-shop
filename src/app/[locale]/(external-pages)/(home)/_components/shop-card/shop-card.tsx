@@ -115,11 +115,11 @@ export const ShopCard = ({
 
       <div className="relative z-[-1] mb-3 aspect-square overflow-hidden rounded-lg md:mb-4">
         <Image
-          priority
           src={image}
           alt={title}
           width={400}
           height={400}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
         />
       </div>
