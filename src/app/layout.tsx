@@ -8,6 +8,7 @@ import "../styles/global.css";
 import { LenisProvider } from "@/components/core/miscellaneous/lenis-provider";
 import { AppThemeProvider } from "@/components/core/miscellaneous/theme-provider";
 import { Toast } from "@/components/shared/Toast";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SSEProvider } from "@/context/sse-provider";
 import { PageWrapper } from "@/lib/animation";
 import { ReactQueryProvider } from "@/lib/react-query/query-provider";
@@ -31,15 +32,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SSEProvider>
             <ReactQueryProvider>
               <AppThemeProvider>
-                <NuqsAdapter>
-                  <NextTopLoader showSpinner={false} />
-                  <Toast />
-                  {/* <MockServiceWorkerProvider isEnabled={true}> */}
-                  <LenisProvider>
-                    <PageWrapper>{children}</PageWrapper>
-                  </LenisProvider>
-                  {/* </MockServiceWorkerProvider> */}
-                </NuqsAdapter>
+                <TooltipProvider>
+                  <NuqsAdapter>
+                    <NextTopLoader showSpinner={false} />
+                    <Toast />
+                    {/* <MockServiceWorkerProvider isEnabled={true}> */}
+                    <LenisProvider>
+                      <PageWrapper>{children}</PageWrapper>
+                    </LenisProvider>
+                    {/* </MockServiceWorkerProvider> */}
+                  </NuqsAdapter>
+                </TooltipProvider>
               </AppThemeProvider>
             </ReactQueryProvider>
           </SSEProvider>

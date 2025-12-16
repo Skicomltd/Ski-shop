@@ -5,9 +5,15 @@ import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import { UniversalSwiper } from "@/components/shared/carousel";
 import { ErrorState } from "@/components/shared/empty-state";
 import { Ratings } from "@/components/shared/ratings";
+import { SetToolTip } from "@/components/shared/tool-tip";
 import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { StarFilledIcon } from "@radix-ui/react-icons";
+
+const truncateStoreName = (name: string, maxLength = 18) => {
+  if (!name) return "";
+  return name.length > maxLength ? `${name.slice(0, maxLength)}...` : name;
+};
 
 export const TopVendors = () => {
   const { useGetAllProducts } = useAppService();
@@ -45,10 +51,12 @@ export const TopVendors = () => {
                   alt={product.name}
                 />
               </div>
-              <p>{product.name}</p>
+              <SetToolTip content={product.store?.name || ""}>
+                <p className="text-center">{truncateStoreName(product.store?.name || "")}</p>
+              </SetToolTip>
               <div className={`flex items-center gap-4`}>
-                <Ratings rating={3} />
-                <p>({`${product?.stockCount}` || 0})</p>
+                <Ratings rating={product?.rating} />
+                <p>({`${product?.rating}` || 0})</p>
               </div>
             </section>
           )}

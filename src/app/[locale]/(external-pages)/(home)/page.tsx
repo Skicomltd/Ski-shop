@@ -28,7 +28,7 @@ const Page = () => {
     <>
       <Hero />
       <ProductGrid title={t("skicomProducts")} storeId={skishop?.id} />
-      <ProductGrid title={t("topSellers")} hasAction={false} flag="top" />
+      <ProductGrid title={t("topSellers")} flag="top" />
       <PlayToWinBanner />
       <Categories />
       <FeaturedProducts />
@@ -48,7 +48,7 @@ const Page = () => {
       />
 
       <ProductGrid title={t("featuredProducts")} flag="featured" />
-      <ProductGrid title={t("handPickedForYou")} dataSource="handpicked" hasAction />
+      <ProductGrid title={t("handPickedForYou")} dataSource="handpicked" hasAction actionHref="/shop?flag=handpicked" />
       <TopVendors />
       <ReusableBanner
         action={

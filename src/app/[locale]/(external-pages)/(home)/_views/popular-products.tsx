@@ -34,7 +34,7 @@ export const ProductGrid = ({
   headerStyle,
   hasAction = true,
   actionText,
-  actionHref = "/shop",
+  actionHref,
   wrapperClassName,
   gridClassName,
   limit = 4,
@@ -63,6 +63,29 @@ export const ProductGrid = ({
 
   const products = data?.data?.items || [];
 
+  const computedActionHref = (() => {
+    // If a custom href is provided, always respect it
+    if (actionHref) return actionHref;
+
+    const parameters = new URLSearchParams();
+
+    // When viewing handpicked products, route to the shop with a handpicked flag
+    if (dataSource === "handpicked") {
+      parameters.set("flag", "handpicked");
+    } else if (flag) {
+      // For other product flags (e.g. featured, top, blackFriday), propagate the flag
+      parameters.set("flag", flag);
+    }
+
+    // Propagate store context (e.g. "Skishop products") to the shop page
+    if (storeId) {
+      parameters.set("storeId", storeId);
+    }
+
+    const queryString = parameters.toString();
+    return queryString ? `/shop?${queryString}` : "/shop";
+  })();
+
   const renderLoadingSkeletons = () => (
     <div
       className={cn(
@@ -83,7 +106,7 @@ export const ProductGrid = ({
         gridClassName,
       )}
     >
-      {products.map((product: Product) => (
+      {products.slice(0, limit).map((product: Product) => (
         <ShopCard
           key={product.id.toString()}
           id={product.id.toString()}
@@ -133,7 +156,7 @@ export const ProductGrid = ({
             title
           )}
           {hasAction && (
-            <LocaleLink href={actionHref} className="text-primary font-medium lg:text-2xl">
+            <LocaleLink href={computedActionHref} className="text-primary font-medium lg:text-2xl">
               {actionText || t("seeAll")}
             </LocaleLink>
           )}

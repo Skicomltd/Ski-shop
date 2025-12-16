@@ -21,7 +21,8 @@ import { OptionsSelector } from "./_components/option/options";
 import { Hero } from "./_views/hero";
 
 const Page = () => {
-  const { useGetAllProducts, useGetAllProductCategory, useGetTopVendors } = useAppService();
+  const { useGetAllProducts, useGetAllProductCategory, useGetTopVendors, useGetAllhandPickedProducts } =
+    useAppService();
   const t = useTranslations("shopPage");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const sortOldest = t("search.sort.oldest");
@@ -36,6 +37,7 @@ const Page = () => {
   const [rating, setRatings] = useQueryState("ratings");
   const [limit] = useQueryState("limit", { defaultValue: "12" });
   const [vendor] = useQueryState("vendor");
+  const [flag] = useQueryState("flag");
 
   // Debounce search input for better UX
   const [debouncedSearch] = useDebounce(search || "", 500);
@@ -55,7 +57,9 @@ const Page = () => {
   });
 
   // Prepare filters for API call
-  const filters = useMemo<Filters>(() => {
+  const isHandpickedMode = flag === "handpicked";
+
+  const productFilters = useMemo<Filters>(() => {
     return {
       page: page ? Number.parseInt(page) : 1,
       ...(category && category !== t("filters.allCategories") && { categories: category }),
@@ -63,17 +67,38 @@ const Page = () => {
       ...(storeId && { storeId }),
       ...(sortBy && { sortBy }),
       ...(rating && { rating }),
+      // Pass flag to the generic products endpoint, except when we are in handpicked mode
+      ...(flag && flag !== "handpicked" && { flag }),
       ...(limit && { limit: Number.parseInt(limit) }),
     };
-  }, [page, category, debouncedSearch, storeId, sortBy, rating, limit, t]);
+  }, [page, category, debouncedSearch, storeId, sortBy, rating, limit, flag, t]);
+
+  // For handpicked view, we intentionally omit the limit so that the backend returns all
+  // handpicked products ("see all" behaviour).
+  const handpickedFilters = useMemo<Filters>(() => {
+    return {
+      ...(category && category !== t("filters.allCategories") && { categories: category }),
+      ...(debouncedSearch && { search: debouncedSearch }),
+      ...(storeId && { storeId }),
+      ...(sortBy && { sortBy }),
+      ...(rating && { rating }),
+    };
+  }, [category, debouncedSearch, storeId, sortBy, rating, t]);
 
   // Queries
+  const {
+    data: handpickedData,
+    isLoading: isLoadingHandpicked,
+    isError: isHandpickedError,
+    refetch: refetchHandpicked,
+  } = useGetAllhandPickedProducts(handpickedFilters, { enabled: isHandpickedMode });
+
   const {
     data: productData,
     isLoading: isLoadingProducts,
     isError: isProductError,
     refetch: refetchProducts,
-  } = useGetAllProducts(filters, { enabled: true });
+  } = useGetAllProducts(productFilters, { enabled: !isHandpickedMode });
 
   // Handle vendor query param
   useEffect(() => {
@@ -86,9 +111,14 @@ const Page = () => {
   }, [vendor, topVendorsData, setStoreId]);
 
   // Derived state
-  const products = productData?.data?.items || [];
-  const totalProducts = productData?.data?.metadata.total || 0;
-  const totalPages = productData?.data?.metadata.totalPages || 0;
+  const activeData = isHandpickedMode ? handpickedData : productData;
+  const isLoading = isHandpickedMode ? isLoadingHandpicked : isLoadingProducts;
+  const isError = isHandpickedMode ? isHandpickedError : isProductError;
+  const refetch = isHandpickedMode ? refetchHandpicked : refetchProducts;
+
+  const products = activeData?.data?.items || [];
+  const totalProducts = activeData?.data?.metadata.total || 0;
+  const totalPages = activeData?.data?.metadata.totalPages || 0;
   const categories = categoriesData?.data || [];
 
   // Handle category change
@@ -177,8 +207,8 @@ const Page = () => {
     <>
       <Hero />
       <Wrapper className="my-6 sm:my-12 lg:my-16">
-        {isProductError ? (
-          <ErrorState className={`mx-auto max-w-[1240px]`} onRetry={() => refetchProducts()} />
+        {isError ? (
+          <ErrorState className={`mx-auto max-w-[1240px]`} onRetry={() => refetch()} />
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between sm:mb-6 lg:hidden">
@@ -300,7 +330,7 @@ const Page = () => {
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-4">
                     {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.sortBy")}</p> */}
-                    <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.filterLabel")}</p>
+                    {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.filterLabel")}</p> */}
                     <CustomSelect
                       options={[sortOldest, sortNewest]}
                       placeholder={t("search.chooseSortOption")}
@@ -337,16 +367,15 @@ const Page = () => {
                 {/* Products grid */}
                 <section className="mb-6 sm:mb-8 lg:mb-12">
                   <div className="xs:grid-cols-2 grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-4">
-                    {isLoadingProducts &&
-                      Array.from({ length: 12 }).map((_, index) => <ShopCardSkeleton key={index} />)}
+                    {isLoading && Array.from({ length: 12 }).map((_, index) => <ShopCardSkeleton key={index} />)}
 
-                    {!isLoadingProducts && !products?.length && (
+                    {!isLoading && !products?.length && (
                       <div className="col-span-full py-10 text-center">
                         <EmptyState />
                       </div>
                     )}
 
-                    {!isLoadingProducts &&
+                    {!isLoading &&
                       products.map((product: Product) => (
                         <ShopCard
                           key={product.id.toString()}
@@ -363,7 +392,7 @@ const Page = () => {
                   </div>
 
                   {/* Pagination */}
-                  {!isLoadingProducts && totalPages > 1 && (
+                  {!isLoading && totalPages > 1 && (
                     <div className="mt-6 sm:mt-10 lg:mt-12">
                       <Paginations
                         currentPage={page ? Number.parseInt(page) : 1}
