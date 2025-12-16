@@ -93,7 +93,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
         <section className={cn("mx-auto max-w-[1240px]")}>
           <div
             className={cn(
-              "bg-background flex items-center justify-between rounded-none px-4 transition-all duration-300 lg:mt-7 lg:rounded-full lg:px-7",
+              "bg-background flex items-center justify-between rounded-none px-4 shadow-2xl transition-all duration-300 lg:mt-7 lg:rounded-full lg:px-7",
               "h-16 md:h-20",
               className,
             )}
