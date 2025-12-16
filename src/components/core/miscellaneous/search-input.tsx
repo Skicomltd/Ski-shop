@@ -1,175 +1,325 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { SearchIcon, X } from "lucide-react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type InputHTMLAttributes,
-  type KeyboardEvent,
-  type RefObject,
-} from "react";
+import { Clock, Loader2, Search, SearchIcon, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { GoLinkExternal } from "react-icons/go";
 import { useDebounce } from "use-debounce";
 
-export interface SearchInputProperties extends InputHTMLAttributes<HTMLInputElement> {
-  onSearch?: (query: string) => void;
-  delay?: number;
+interface SearchInputProperties {
+  placeholder?: string;
+  onSearch: (query: string) => void;
+  delay?: number; // debounce delay in ms
   className?: string;
-  initialValue?: string;
-  showClear?: boolean;
-  minLength?: number;
-  triggerOnMount?: boolean;
-  onClear?: () => void;
-  /**
-   * Optional external ref to the underlying input.
-   */
-  inputRef?: RefObject<HTMLInputElement>;
+  isDisabled?: boolean;
 }
 
-/**
- * Simple, robust SearchInput component.
- *
- * - Works controlled (pass `value`) or uncontrolled (`initialValue` / `defaultValue`).
- * - Debounces calls to `onSearch`.
- * - Calls `onSearch` immediately on Enter.
- * - Clears on Escape or when clear button is clicked.
- */
-export function SearchInput({
+export const SearchInput = ({
   placeholder = "Search...",
   onSearch,
   delay = 300,
   className = "",
-  initialValue = "",
-  value,
-  defaultValue,
-  showClear = false,
-  minLength = 0,
-  triggerOnMount = false,
-  onClear,
-  inputRef,
-  onChange,
-  ...rest
-}: SearchInputProperties) {
-  const isControlled = value !== undefined;
-
-  const [internalQuery, setInternalQuery] = useState<string>(() =>
-    isControlled ? (value as string) : ((defaultValue as string) ?? initialValue ?? ""),
-  );
-
-  const localReference = useRef<HTMLInputElement | null>(null);
-  const referenceToUse = inputRef ?? localReference;
-
-  const currentValue = (isControlled ? ((value as string) ?? "") : internalQuery) ?? "";
-
-  const [debouncedQuery] = useDebounce(currentValue, delay);
-
-  const mountedReference = useRef(false);
-  const isUserTyping = useRef(false);
+  isDisabled = false,
+}: SearchInputProperties) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery] = useDebounce(searchQuery, delay);
 
   useEffect(() => {
-    if (!isUserTyping.current && !isControlled) {
-      setInternalQuery(initialValue ?? "");
-    }
-  }, [initialValue, isControlled]);
-
-  /**
-   * Avoid re-triggering search due to unstable onSearch function identity from parents.
-   * We store the latest onSearch in a ref and only depend on the debouncedQuery and config values.
-   */
-  const onSearchReference = useRef<SearchInputProperties["onSearch"]>(onSearch);
-  useEffect(() => {
-    onSearchReference.current = onSearch;
-  }, [onSearch]);
-
-  useEffect(() => {
-    const searchFunction = onSearchReference.current;
-    if (!searchFunction) {
-      mountedReference.current = true;
-      return;
-    }
-
-    if (!mountedReference.current) {
-      mountedReference.current = true;
-      if (triggerOnMount && (debouncedQuery.length >= minLength || debouncedQuery.length === 0)) {
-        searchFunction?.(debouncedQuery);
-      }
-      return;
-    }
-
-    if (debouncedQuery.length >= minLength || debouncedQuery.length === 0) {
-      searchFunction?.(debouncedQuery);
-    }
-    // Intentionally exclude onSearch from deps to prevent effect from firing on every parent render
-  }, [debouncedQuery, minLength, triggerOnMount]);
-
-  useEffect(() => {
-    if (isControlled) {
-      setInternalQuery((value as string) ?? "");
-    }
-  }, [value, isControlled]);
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    isUserTyping.current = true;
-    if (isControlled) {
-      onChange?.(event);
-    } else {
-      setInternalQuery(event.target.value);
-      onChange?.(event);
-    }
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      onSearchReference.current?.(currentValue);
-    } else if (event.key === "Escape") {
-      clear();
-    }
-
-    rest.onKeyDown?.(event as any);
-  };
-
-  const clear = () => {
-    if (isControlled) {
-      const event_ = { target: { value: "" } } as unknown as ChangeEvent<HTMLInputElement>;
-      onChange?.(event_);
-    } else {
-      setInternalQuery("");
-    }
-
-    onClear?.();
-    referenceToUse.current?.focus();
-    onSearchReference.current?.("");
-  };
+    onSearch(debouncedQuery);
+  }, [debouncedQuery, onSearch]);
 
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={`relative ${className}`}>
       <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
       <Input
-        {...rest}
-        ref={referenceToUse as any}
+        disabled={isDisabled}
         type="search"
         placeholder={placeholder}
-        className={cn("rounded-sm border border-black/10 pr-4 pl-10 shadow-none", className)}
-        value={currentValue}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        aria-label={rest["aria-label"] ?? placeholder}
+        className="border-border h-full border-none pr-4 pl-10 shadow-none"
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
       />
-      {showClear && currentValue.length > 0 && (
-        <button
-          type="button"
-          aria-label="Clear search"
-          title="Clear"
-          onClick={clear}
-          className="text-muted-foreground hover:bg-muted/10 absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded bg-transparent"
-        >
-          <X className="h-3 w-3" />
-        </button>
-      )}
     </div>
+  );
+};
+
+export interface SearchResult {
+  id: string;
+  title: string;
+  description?: string;
+  category?: string;
+  icon?: React.ReactNode;
+  url?: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface GlobalSearchInputProperties {
+  className?: string;
+  placeholder?: string;
+  onSearch?: (query: string) => void;
+  /**
+   * Called when the user submits the current query explicitly (e.g. presses Enter
+   * without a specific result selected). This allows parent components to perform
+   * full-page navigations or more complex searches.
+   */
+  onSubmit?: (query: string) => void;
+  onResultSelect?: (result: SearchResult) => void;
+  results?: SearchResult[];
+  isLoading?: boolean;
+  disabled?: boolean;
+  recentSearches?: string[];
+  onClearRecent?: () => void;
+  emptyMessage?: string;
+  delay?: number;
+}
+
+function highlightQuery(text: string, query: string) {
+  if (!text || !query) return text;
+
+  const lowerText = text.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  const matchIndex = lowerText.indexOf(lowerQuery);
+
+  if (matchIndex === -1) return text;
+
+  const before = text.slice(0, matchIndex);
+  const match = text.slice(matchIndex, matchIndex + query.length);
+  const after = text.slice(matchIndex + query.length);
+
+  return (
+    <>
+      {before}
+      <span className="bg-accent font-semibold text-black">{match}</span>
+      {after}
+    </>
+  );
+}
+
+export function GlobalSearchInput({
+  className,
+  placeholder = "Search anything...",
+  onSearch,
+  onSubmit,
+  onResultSelect,
+  results = [],
+  isLoading = false,
+  disabled = false,
+  recentSearches = [],
+  onClearRecent,
+  emptyMessage = "Try searching with different keywords.",
+  delay = 300,
+}: GlobalSearchInputProperties) {
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery] = useDebounce(searchQuery, delay);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputReference = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      onSearch?.(debouncedQuery);
+    }
+  }, [debouncedQuery, onSearch]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchQuery(value);
+    setSelectedIndex(-1);
+
+    if (value.trim()) {
+      setOpen(true);
+    }
+  };
+
+  const handleResultClick = (result: SearchResult) => {
+    onResultSelect?.(result);
+    setSearchQuery("");
+    setOpen(false);
+    inputReference.current?.blur();
+  };
+
+  const handleRecentSearchClick = (query: string) => {
+    setSearchQuery(query);
+    inputReference.current?.focus();
+    onSearch?.(query);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open) return;
+
+    const totalResults = results.length;
+
+    switch (event.key) {
+      case "ArrowDown": {
+        event.preventDefault();
+        setSelectedIndex((previous) => (previous < totalResults - 1 ? previous + 1 : previous));
+        break;
+      }
+      case "ArrowUp": {
+        event.preventDefault();
+        setSelectedIndex((previous) => (previous > 0 ? previous - 1 : -1));
+        break;
+      }
+      case "Enter": {
+        event.preventDefault();
+        const trimmedQuery = searchQuery.trim();
+
+        if (selectedIndex >= 0 && results[selectedIndex]) {
+          // When a result is highlighted, prefer selecting that result.
+          handleResultClick(results[selectedIndex]);
+        } else if (trimmedQuery && onSubmit) {
+          // Fallback: submit the raw query to the parent when no specific
+          // result is selected. This mirrors a traditional search bar
+          // behavior (press Enter to search).
+          onSubmit(trimmedQuery);
+          setOpen(false);
+          setSearchQuery("");
+          inputReference.current?.blur();
+        }
+        break;
+      }
+      case "Escape": {
+        event.preventDefault();
+        setOpen(false);
+        setSearchQuery("");
+        inputReference.current?.blur();
+        break;
+      }
+    }
+  };
+
+  const showDropdown = open && (searchQuery.trim() !== "" || recentSearches.length > 0);
+  const hasResults = results.length > 0;
+  const showRecent = searchQuery.trim() === "" && recentSearches.length > 0;
+
+  return (
+    <Popover open={showDropdown} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div
+          className={cn(
+            "relative flex h-12 w-full items-center gap-2 rounded-md bg-transparent px-3 transition-colors",
+            disabled && "cursor-not-allowed opacity-50",
+            className,
+          )}
+        >
+          <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+          <Input
+            ref={inputReference}
+            type="text"
+            placeholder={placeholder}
+            value={searchQuery}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setOpen(true)}
+            disabled={disabled}
+            className="placeholder:text-muted-foreground h-full flex-1 border-none bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+          />
+          {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 shrink-0 animate-spin" />}
+          {searchQuery && !isLoading && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                inputReference.current?.focus();
+              }}
+              className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        // sideOffset={16}
+        // align="start"
+        className="min-w-2xl p-0"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+      >
+        {/*
+          Use a plain scrollable div so Lenis can be prevented on the actual
+          scrolling element. This fixes trackpad/wheel scrolling inside the
+          popover when Lenis smooth scrolling is enabled globally.
+        */}
+        <div
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          className="max-h-[500px] overflow-y-auto"
+        >
+          {showRecent && (
+            <div className="p-2">
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <span className="text-muted-foreground text-xs font-medium">Recent Searches</span>
+                {onClearRecent && (
+                  <button
+                    type="button"
+                    onClick={onClearRecent}
+                    className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="space-y-1">
+                {recentSearches.map((query, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleRecentSearchClick(query)}
+                    className="hover:bg-accent flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+                  >
+                    <Clock className="text-muted-foreground h-4 w-4 shrink-0" />
+                    <span className="flex-1 truncate">{query}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {searchQuery.trim() && !isLoading && !hasResults && (
+            <EmptyState
+              className="text-primary"
+              // icon={<Search className="text-primary" />}
+              title="No results found."
+              description={emptyMessage}
+            />
+          )}
+
+          {searchQuery.trim() && hasResults && (
+            <div className="p-2">
+              <div className="space-y-1">
+                {results.map((result, index) => (
+                  <section key={result.id}>
+                    <div className="flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => handleResultClick(result)}
+                        className={cn(
+                          "hover:bg-primary/10 flex w-full items-center gap-3 rounded-sm px-2 py-2.5 text-left transition-colors",
+                          selectedIndex === index && "bg-accent",
+                        )}
+                      >
+                        <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm">{highlightQuery(result.title, searchQuery.trim())}</p>
+                          {/* {result.description && <p className="text-muted-foreground text-xs">{result.description}</p>} */}
+                        </div>
+                        <span>
+                          <GoLinkExternal className="text-primary size-3 shrink-0 stroke-1" />
+                        </span>
+                      </button>
+                    </div>
+                    <hr className="my-1 opacity-40" />
+                  </section>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-// import { SearchInput } from "@/components/core/miscellaneous/search-input";
+import { SearchInput } from "@/components/core/miscellaneous/search-input";
 import { ModernThemeSwitcher } from "@/components/core/miscellaneous/theme-variant-switcher";
 import { UserAvatarProfile } from "@/components/core/miscellaneous/user-avatar-profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import SkiButton from "../button";
 import { LanguageToggle } from "../language-toggle";
 import { Logo } from "../logo";
-// import { SearchDialog } from "./_components/search-modal";
+import { SearchDialog } from "./_components/search-modal";
 import { NavItems } from "./nav-menu-item";
 
 interface NavbarProperties {
@@ -109,9 +109,9 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 md:gap-3">
               {/* Search - Hidden on very small screens */}
-              {/* <div className="hidden sm:block">
+              <div className="hidden sm:block">
                 <SearchDialog />
-              </div> */}
+              </div>
 
               {/* Enhanced Cart Button with Badge */}
               <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
@@ -219,9 +219,9 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                       </div>
                     )}
                     {/* Mobile Search - Prominent placement */}
-                    {/* <div className="space-y-3">
+                    <div className="space-y-3">
                       <SearchInput onSearch={() => {}} className="!w-full" />
-                    </div> */}
+                    </div>
 
                     {/* Main Navigation Section - Direct mobile-friendly links */}
                     <div className="space-y-3">

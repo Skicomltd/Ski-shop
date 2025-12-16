@@ -83,7 +83,7 @@ export default function TopBar({ className = "" }: TopBarProperties) {
       <header className={`bg-background flex h-16 items-center justify-between ${className}`}>
         <div className="relative hidden min-w-0 flex-1 md:block">
           <SearchInput
-            disabled
+            isDisabled
             className={`bg-muted w-full max-w-xl min-w-0 rounded-md border-none`}
             onSearch={() => {}}
           />
