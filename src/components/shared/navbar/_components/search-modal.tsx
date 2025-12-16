@@ -22,8 +22,8 @@ export const SearchDialog = () => {
 
   const filters = useMemo<Filters>(
     () => ({
-      page: 1,
-      limit: 8,
+      // page: 1,
+      limit: 50,
       ...(trimmedSearchTerm && { search: trimmedSearchTerm }),
     }),
     [trimmedSearchTerm],
