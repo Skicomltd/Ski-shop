@@ -32,24 +32,51 @@ interface NavbarProperties {
 }
 
 // Custom hook for scroll behavior
+// Optimized to avoid excessive state updates and re-renders,
+// which can interfere with smooth scroll libraries like Lenis.
 const useScrollBehavior = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
-  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // useRef here so we don't re-subscribe the scroll listener on every change
+  const lastScrollYRef = React.useRef(0);
+  const tickingRef = React.useRef(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const isScrollingDown = currentScrollY > lastScrollY;
+    const updateScrollState = () => {
+      const currentScrollY = window.scrollY || 0;
 
-      setIsScrolled(currentScrollY > 500);
-      setScrollDirection(isScrollingDown ? "down" : "up");
-      setLastScrollY(currentScrollY);
+      // Only update isScrolled when the value actually changes
+      setIsScrolled((prev) => {
+        const next = currentScrollY > 500;
+        return prev === next ? prev : next;
+      });
+
+      const lastScrollY = lastScrollYRef.current;
+      const delta = currentScrollY - lastScrollY;
+
+      // Add a small threshold so tiny scrolls don't constantly flip direction
+      if (Math.abs(delta) > 4) {
+        setScrollDirection(delta > 0 ? "down" : "up");
+        lastScrollYRef.current = currentScrollY;
+      }
+
+      tickingRef.current = false;
+    };
+
+    const handleScroll = () => {
+      if (!tickingRef.current) {
+        tickingRef.current = true;
+        window.requestAnimationFrame(updateScrollState);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return { isScrolled, scrollDirection };
 };
@@ -109,11 +136,12 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
       <nav
         ref={reference}
         className={cn(
-          "w-full transition-all duration-500 ease-in-out",
+          // Keep transforms stable so the browser can optimize them better
+          "w-full transform-gpu transition-transform duration-300 ease-in-out will-change-transform",
           sticky && "fixed top-0 z-50",
           isScrolled && "bg-background shadow-lg backdrop-blur-md",
-          scrollDirection === "down" && isScrolled && "-translate-y-full transform",
-          scrollDirection === "up" && isScrolled && "translate-y-0 transform",
+          isScrolled && scrollDirection === "down" && "-translate-y-full",
+          (!isScrolled || scrollDirection === "up") && "translate-y-0",
           navbarStyle,
         )}
       >
