@@ -13,7 +13,7 @@ import { ClipboardList, Menu, ShoppingCartIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useState } from "react";
 import { MdOutlineFavorite } from "react-icons/md";
 import { toast } from "sonner";
 
@@ -31,55 +31,9 @@ interface NavbarProperties {
   sticky?: boolean;
 }
 
-// Custom hook for scroll behavior
-// Optimized to avoid excessive state updates and re-renders,
-// which can interfere with smooth scroll libraries like Lenis.
-const useScrollBehavior = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
-
-  // useRef here so we don't re-subscribe the scroll listener on every change
-  const lastScrollYRef = React.useRef(0);
-  const tickingRef = React.useRef(false);
-
-  useEffect(() => {
-    const updateScrollState = () => {
-      const currentScrollY = window.scrollY || 0;
-
-      // Only update isScrolled when the value actually changes
-      setIsScrolled((prev) => {
-        const next = currentScrollY > 500;
-        return prev === next ? prev : next;
-      });
-
-      const lastScrollY = lastScrollYRef.current;
-      const delta = currentScrollY - lastScrollY;
-
-      // Add a small threshold so tiny scrolls don't constantly flip direction
-      if (Math.abs(delta) > 4) {
-        setScrollDirection(delta > 0 ? "down" : "up");
-        lastScrollYRef.current = currentScrollY;
-      }
-
-      tickingRef.current = false;
-    };
-
-    const handleScroll = () => {
-      if (!tickingRef.current) {
-        tickingRef.current = true;
-        window.requestAnimationFrame(updateScrollState);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  return { isScrolled, scrollDirection };
-};
+// NOTE: Scroll-based navbar behavior has been intentionally disabled
+// to avoid interfering with Lenis smooth scrolling. The navbar now
+// remains static and does not respond to scroll position.
 
 export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
   (
@@ -102,7 +56,6 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
     const pathname = usePathname();
     const locale = useLocale();
     const { data: session, status } = useSession();
-    const { isScrolled, scrollDirection } = useScrollBehavior();
     const { useGetCart, useGetSavedProducts, useGetOrders } = useAppService();
     const t = useTranslations("navbar");
 
@@ -135,25 +88,13 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
     return (
       <nav
         ref={reference}
-        className={cn(
-          // Keep transforms stable so the browser can optimize them better
-          "w-full transform-gpu transition-transform duration-300 ease-in-out will-change-transform",
-          sticky && "fixed top-0 z-50",
-          isScrolled && "bg-background shadow-lg backdrop-blur-md",
-          isScrolled && scrollDirection === "down" && "-translate-y-full",
-          (!isScrolled || scrollDirection === "up") && "translate-y-0",
-          navbarStyle,
-        )}
+        className={cn("w-full transition-all duration-500 ease-in-out", sticky && "fixed top-0 z-50", navbarStyle)}
       >
-        {/* Full-width background when scrolled */}
-        {isScrolled && <div className="bg-background absolute inset-0 -z-10 backdrop-blur-md" />}
-
         <section className={cn("mx-auto max-w-[1240px]")}>
           <div
             className={cn(
               "bg-background flex items-center justify-between rounded-none px-4 transition-all duration-300 lg:mt-7 lg:rounded-full lg:px-7",
               "h-16 md:h-20",
-              isScrolled && `!mt-0 rounded-none lg:px-0`,
               className,
             )}
           >
@@ -163,11 +104,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
             </div>
 
             {/* Desktop Navigation */}
-            <NavItems
-              links={links}
-              pathname={pathname}
-              className={cn("hidden transition-all duration-300 lg:flex", isScrolled && "scale-95")}
-            />
+            <NavItems links={links} pathname={pathname} className={cn("hidden transition-all duration-300 lg:flex")} />
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2 md:gap-3">
@@ -184,7 +121,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                     variant="ghost"
                     size="icon"
                     isIconOnly
-                    icon={<ShoppingCartIcon size={isScrolled ? 18 : 20} />}
+                    icon={<ShoppingCartIcon size={20} />}
                     aria-label={t("cart.ariaLabel", { count: cartItemCount })}
                     className="transition-all duration-300"
                   />
@@ -492,7 +429,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                     <SkiButton
                       href={`/${locale}/login`}
                       variant="outline"
-                      size={isScrolled ? "lg" : "xl"}
+                      size="xl"
                       className="transition-all duration-300"
                     >
                       {t("auth.signIn")}
@@ -501,7 +438,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                       className="bg-accent transition-all duration-300"
                       variant="primary"
                       href={`/${locale}/signup`}
-                      size={isScrolled ? "lg" : "xl"}
+                      size="xl"
                     >
                       {t("auth.signUp")}
                     </SkiButton>
