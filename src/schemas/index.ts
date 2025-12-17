@@ -58,9 +58,9 @@ export const simpleProductSchema = z.object({
   weight: z.number().min(0, "Weight must be positive").default(1),
   fragile: z
     .union([z.boolean(), z.string()])
-    .transform((val) => {
-      if (typeof val === "string") return val === "true";
-      return val;
+    .transform((value) => {
+      if (typeof value === "string") return value === "true";
+      return value;
     })
     .default(false),
 });

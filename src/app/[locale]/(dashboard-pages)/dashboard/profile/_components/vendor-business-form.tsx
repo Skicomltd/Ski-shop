@@ -17,12 +17,12 @@ const businessTypes = [
   { value: "llc", label: "LLC" },
 ];
 
-const kycTypes = [
-  { value: "passport", label: "Passport" },
-  { value: "drivers_license", label: "Driver's License" },
-  { value: "national_id", label: "National ID" },
-  { value: "other", label: "Other" },
-];
+// const kycTypes = [
+//   { value: "passport", label: "Passport" },
+//   { value: "drivers_license", label: "Driver's License" },
+//   { value: "national_id", label: "National ID" },
+//   { value: "other", label: "Other" },
+// ];
 
 const countries = [
   { value: "nigeria", label: "🇳🇬 Nigeria" },
@@ -72,21 +72,21 @@ export const VendorBusinessForm = ({
   const updateProfileMutation = useUpdateVendorProfile();
 
   const { data: profileResponse } = useGetVendorProfile();
+  const profile = initialData ?? profileResponse?.data;
 
   useEffect(() => {
-    const fetchedProfile = profileResponse?.data;
-    if (fetchedProfile?.business) {
+    if (profile?.business) {
       reset({
         business: {
-          type: fetchedProfile.business.type ?? "individual",
-          businessRegNumber: fetchedProfile.business.businessRegNumber ?? "",
-          country: fetchedProfile.business.country ?? "",
-          state: fetchedProfile.business.state ?? "",
-          address: fetchedProfile.business.address ?? "",
+          type: profile.business.type ?? "individual",
+          businessRegNumber: profile.business.businessRegNumber ?? "",
+          country: profile.business.country ?? "",
+          state: profile.business.state ?? "",
+          address: profile.business.address ?? "",
         },
       });
     }
-  }, [initialData, reset, profileResponse]);
+  }, [profile, reset]);
 
   const handleFormSubmit = async (data: VendorBusinessFormData) => {
     try {
@@ -96,10 +96,19 @@ export const VendorBusinessForm = ({
             data: {
               business: {
                 type: data.business.type,
+                // Fields captured in this form
                 businessRegNumber: data.business.businessRegNumber,
                 country: data.business.country,
                 state: data.business.state,
                 address: data.business.address,
+
+                // Required fields not captured in this form; preserve existing values where possible
+                contactNumber: profile?.business?.contactNumber ?? "",
+                kycVerificationType: profile?.business?.kycVerificationType ?? "other",
+                identificationNumber: profile?.business?.identificationNumber ?? "",
+
+                // Optional fields
+                name: profile?.business?.name,
               },
             },
           }));

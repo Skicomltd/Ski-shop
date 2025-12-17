@@ -1,7 +1,6 @@
 import { createServiceHooks } from "@/lib/react-query/use-service-query";
 import { dependencies } from "@/lib/tools/dependencies";
 import { BankPayoutFormData, BusinessInfoFormData, StoreFormData } from "@/schemas";
-import { useRef } from "react";
 
 import { OnboardingUserService } from "./onboarding-user.service";
 import { PhoneVerificationService } from "./phone-verification.service";
@@ -50,7 +49,7 @@ let phoneServiceInstance: PhoneVerificationService | null = null;
 // Phone verification service hooks - using singleton pattern to persist across pages
 export const usePhoneVerificationService = () => {
   if (typeof window !== "undefined" && !phoneServiceInstance) {
-    console.log("🔧 Creating new PhoneVerificationService singleton instance");
+    // console.log("🔧 Creating new PhoneVerificationService singleton instance");
     phoneServiceInstance = new PhoneVerificationService();
   }
 

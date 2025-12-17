@@ -21,16 +21,13 @@ let app: FirebaseApp;
 let auth: Auth;
 
 if (typeof window !== "undefined") {
-  if (!isFirebaseConfigValid()) {
-    console.warn("Firebase configuration is incomplete. Phone verification will not work.");
-  } else {
+  if (isFirebaseConfigValid()) {
     // Initialize Firebase only if not already initialized
-    if (!getApps().length) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
-    }
+    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn("Firebase configuration is incomplete. Phone verification will not work.");
   }
 }
 
