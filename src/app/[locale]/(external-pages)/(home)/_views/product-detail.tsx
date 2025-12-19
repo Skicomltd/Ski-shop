@@ -10,15 +10,17 @@ import { Ratings } from "@/components/shared/ratings";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatDate } from "@/lib/i18n/utils";
+import { Editor } from "@/lib/rich-text-editor";
 import { ComponentGuard } from "@/lib/routes/component-guard";
 import { cn } from "@/lib/utils";
 import { useSaveProduct } from "@/mocks/handlers/products/use-save-product";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { useQueryClient } from "@tanstack/react-query";
+import { SerializedEditorState } from "lexical";
 import { Heart, Minus, Plus, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { ProductBreadcrumb } from "../_components/product-breadcrumb";
@@ -26,6 +28,47 @@ import { ShopCardSkeleton } from "./popular-products";
 import { SimilarProducts } from "./similar-products";
 
 type Tab = "description" | "reviews";
+
+const toSerializedEditorState = (description?: string): SerializedEditorState | undefined => {
+  if (!description) return undefined;
+
+  try {
+    const parsed: unknown = JSON.parse(description);
+    if (parsed && typeof parsed === "object" && "root" in parsed) return parsed as SerializedEditorState;
+  } catch {
+    // legacy plain text
+  }
+
+  return {
+    root: {
+      children: [
+        {
+          children: [
+            {
+              detail: 0,
+              format: 0,
+              mode: "normal",
+              style: "",
+              text: description,
+              type: "text",
+              version: 1,
+            },
+          ],
+          direction: "ltr",
+          format: "",
+          indent: 0,
+          type: "paragraph",
+          version: 1,
+        },
+      ],
+      direction: "ltr",
+      format: "",
+      indent: 0,
+      type: "root",
+      version: 1,
+    },
+  } as unknown as SerializedEditorState;
+};
 
 export const ProductDetail = ({ product, isLoading = false }: any) => {
   const locale = useLocale() as Locale;
@@ -41,6 +84,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
   const { isSaved, isPending: isSaving, toggleSave } = useSaveProduct(product?.id || "");
   const [activeTab, setActiveTab] = useState<Tab>("description");
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
+  const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
   const queryClient = useQueryClient();
 
   const { mutate: deleteReview } = useDeleteReview({
@@ -287,7 +331,18 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                   </div>
                 ) : (
                   <div className="prose max-w-none">
-                    <p className={`text-sm lg:text-base`}>{product.description}</p>
+                    {descriptionState ? (
+                      <Editor
+                        readOnly
+                        hideToolbar
+                        editorSerializedState={descriptionState}
+                        placeholder=""
+                        containerClassName="border-0 bg-transparent"
+                        contentClassName="prose max-w-4xl min-h-0 rounded-none bg-transparent px-0 py-0 focus:outline-none justify"
+                      />
+                    ) : (
+                      <p className={`justify text-sm lg:text-base`}>{product.description}</p>
+                    )}
                   </div>
                 )
               ) : (

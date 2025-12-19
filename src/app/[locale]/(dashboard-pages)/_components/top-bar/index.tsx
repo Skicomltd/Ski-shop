@@ -84,7 +84,7 @@ export default function TopBar({ className = "" }: TopBarProperties) {
         <div className="relative hidden min-w-0 flex-1 md:block">
           <SearchInput
             isDisabled
-            className={`bg-muted w-full max-w-xl min-w-0 rounded-md border-none`}
+            className={`bg-muted h-12 w-full max-w-xl min-w-0 rounded-md border-none`}
             onSearch={() => {}}
           />
         </div>

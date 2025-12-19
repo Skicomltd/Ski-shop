@@ -111,7 +111,7 @@ export function PromoteProductModal({ isOpen, onClose, product }: PromoteProduct
               type="select"
               placeholder={isLoading ? "Loading promotions..." : "Select promotion type"}
               disabled={isLoading || promotions.length === 0}
-              className="!h-12 w-full"
+              className="!h-12 w-full bg-transparent"
               options={promotions.map((promo) => ({
                 value: promo.id,
                 label: promo.name,
@@ -125,7 +125,7 @@ export function PromoteProductModal({ isOpen, onClose, product }: PromoteProduct
               type="number"
               disabled
               placeholder="0.00"
-              className="!h-12 border-none !ring-0"
+              className="!h-12 border-none !bg-transparent !ring-0"
               containerClassName="w-full border-border w-full border rounded-md px-4"
               leftAddon={<span className="text-gray-500">₦</span>}
               onChange={(event) => setPromotionPrice(event.target.value)}
@@ -147,7 +147,7 @@ export function PromoteProductModal({ isOpen, onClose, product }: PromoteProduct
 
             {/* Promotion Details */}
             {selectedPromotion && (
-              <div className="rounded-lg bg-gray-50 p-4">
+              <div className="!bg-muted rounded-lg p-4">
                 <h4 className="mb-2 font-medium text-gray-900">Promotion Details</h4>
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex justify-between">

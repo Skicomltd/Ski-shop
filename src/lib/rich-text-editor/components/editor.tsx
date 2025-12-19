@@ -24,30 +24,48 @@ export function Editor({
   editorSerializedState,
   onChange,
   onSerializedChange,
+  readOnly = false,
+  hideToolbar = false,
+  placeholder,
+  containerClassName,
+  contentClassName,
 }: {
   editorState?: EditorState;
   editorSerializedState?: SerializedEditorState;
   onChange?: (editorState: EditorState) => void;
   onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
+  readOnly?: boolean;
+  hideToolbar?: boolean;
+  placeholder?: string;
+  containerClassName?: string;
+  contentClassName?: string;
 }) {
   return (
-    <div className="bg-background overflow-hidden rounded-lg border">
+    <div className={containerClassName ?? "bg-background overflow-hidden rounded-lg border"}>
       <LexicalComposer
         initialConfig={{
           ...editorConfig,
+          editable: !readOnly,
           ...(editorState ? { editorState } : {}),
           ...(editorSerializedState ? { editorState: JSON.stringify(editorSerializedState) } : {}),
         }}
       >
         <TooltipProvider>
-          <Plugins />
-          <OnChangePlugin
-            ignoreSelectionChange={true}
-            onChange={(editorState) => {
-              onChange?.(editorState);
-              onSerializedChange?.(editorState.toJSON());
-            }}
+          <Plugins
+            hideToolbar={hideToolbar}
+            placeholder={placeholder}
+            contentClassName={contentClassName}
+            readOnly={readOnly}
           />
+          {readOnly || (!onChange && !onSerializedChange) ? null : (
+            <OnChangePlugin
+              ignoreSelectionChange={true}
+              onChange={(editorState) => {
+                onChange?.(editorState);
+                onSerializedChange?.(editorState.toJSON());
+              }}
+            />
+          )}
         </TooltipProvider>
       </LexicalComposer>
     </div>

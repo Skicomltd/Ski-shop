@@ -48,34 +48,6 @@ const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
   event.preventDefault();
 };
 
-const extractTextFromEditorState = (editorState: SerializedEditorState): string => {
-  try {
-    const root = editorState?.root;
-    if (!root?.children) return "";
-
-    let text = "";
-    const extractTextFromNode = (node: any) => {
-      if (node.text) {
-        text += node.text;
-      }
-      if (node.children) {
-        for (const child of node.children) {
-          extractTextFromNode(child);
-        }
-      }
-    };
-
-    for (const child of root.children) {
-      extractTextFromNode(child);
-    }
-    return text;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Error extracting text from editor state:", error);
-    return "";
-  }
-};
-
 const SortableImage = ({ id, file, onRemove, isMain, onClick, isSelected }: SortableImageProperties) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
@@ -445,9 +417,8 @@ export const AddProductForm = () => {
                   editorSerializedState={descriptionEditorState}
                   onSerializedChange={(value) => {
                     setDescriptionEditorState(value);
-                    // Convert rich text content to plain text for form validation
-                    const plainText = extractTextFromEditorState(value);
-                    setValue("description", plainText, { shouldValidate: true });
+                    // Store Lexical serialized state as a string so formatting is preserved in the backend.
+                    setValue("description", JSON.stringify(value), { shouldValidate: true });
                   }}
                 />
               </div>

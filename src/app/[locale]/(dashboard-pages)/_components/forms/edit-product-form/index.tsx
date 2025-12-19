@@ -86,32 +86,49 @@ const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
   event.preventDefault();
 };
 
-const extractTextFromEditorState = (editorState: SerializedEditorState): string => {
+const toSerializedEditorState = (description?: string): SerializedEditorState => {
+  if (!description) return {} as SerializedEditorState;
+
+  // Prefer Lexical serialized JSON stored as a string.
   try {
-    const root = editorState?.root;
-    if (!root?.children) return "";
-
-    let text = "";
-    const extractTextFromNode = (node: any) => {
-      if (node.text) {
-        text += node.text;
-      }
-      if (node.children) {
-        for (const child of node.children) {
-          extractTextFromNode(child);
-        }
-      }
-    };
-
-    for (const child of root.children) {
-      extractTextFromNode(child);
+    const parsed: unknown = JSON.parse(description);
+    if (parsed && typeof parsed === "object" && "root" in parsed) {
+      return parsed as SerializedEditorState;
     }
-    return text;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Error extracting text from editor state:", error);
-    return "";
+  } catch {
+    // fall back to plain text
   }
+
+  // Legacy plain-text description -> wrap into a minimal Lexical state.
+  return {
+    root: {
+      children: [
+        {
+          children: [
+            {
+              detail: 0,
+              format: 0,
+              mode: "normal",
+              style: "",
+              text: description,
+              type: "text",
+              version: 1,
+            },
+          ],
+          direction: "ltr",
+          format: "",
+          indent: 0,
+          type: "paragraph",
+          version: 1,
+        },
+      ],
+      direction: "ltr",
+      format: "",
+      indent: 0,
+      type: "root",
+      version: 1,
+    },
+  } as unknown as SerializedEditorState;
 };
 
 const SortableImage = ({ id, file, url, onRemove, isMain, onClick, isSelected }: SortableImageProperties) => {
@@ -204,38 +221,7 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
   const originalUrlsReference = useRef<string[]>(product.images ?? []);
   const originalCountReference = useRef<number>(product.images?.length ?? 0);
   const [descriptionEditorState, setDescriptionEditorState] = useState<SerializedEditorState>(() => {
-    if (product.description) {
-      return {
-        root: {
-          children: [
-            {
-              children: [
-                {
-                  detail: 0,
-                  format: 0,
-                  mode: "normal",
-                  style: "",
-                  text: product.description,
-                  type: "text",
-                  version: 1,
-                },
-              ],
-              direction: "ltr",
-              format: "",
-              indent: 0,
-              type: "paragraph",
-              version: 1,
-            },
-          ],
-          direction: "ltr",
-          format: "",
-          indent: 0,
-          type: "root",
-          version: 1,
-        },
-      } as unknown as SerializedEditorState;
-    }
-    return {} as SerializedEditorState;
+    return toSerializedEditorState(product.description);
   });
   const images = watch("images") || [];
 
@@ -583,9 +569,8 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
                   editorSerializedState={descriptionEditorState}
                   onSerializedChange={(value) => {
                     setDescriptionEditorState(value);
-                    // Convert rich text content to plain text for form validation
-                    const plainText = extractTextFromEditorState(value);
-                    setValue("description", plainText, { shouldValidate: true });
+                    // Persist rich text as Lexical serialized JSON string
+                    setValue("description", JSON.stringify(value), { shouldValidate: true });
                   }}
                 />
               </div>

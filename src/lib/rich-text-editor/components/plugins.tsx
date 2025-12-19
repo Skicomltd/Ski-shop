@@ -8,7 +8,17 @@ import { useState } from "react";
 
 import { Toolbar } from "./toolbar";
 
-export function Plugins() {
+export function Plugins({
+  hideToolbar = false,
+  placeholder = "Start typing your content here...",
+  contentClassName,
+  readOnly = false,
+}: {
+  hideToolbar?: boolean;
+  placeholder?: string;
+  contentClassName?: string;
+  readOnly?: boolean;
+}) {
   const [_, setFloatingAnchorElement] = useState<HTMLDivElement | null>(null);
 
   const onReference = (_floatingAnchorElement: HTMLDivElement) => {
@@ -20,15 +30,19 @@ export function Plugins() {
   return (
     <div className="relative">
       {/* Toolbar */}
-      <Toolbar />
+      {hideToolbar || readOnly ? null : <Toolbar />}
 
       {/* Editor Content */}
       <div className="relative">
         <RichTextPlugin
           contentEditable={
-            <div className="min-h-[300px]">
+            <div className={readOnly ? "" : "min-h-[300px]"}>
               <div className="" ref={onReference}>
-                <ContentEditable placeholder={"Start typing your content here..."} />
+                <ContentEditable
+                  placeholder={placeholder}
+                  className={contentClassName}
+                  placeholderClassName={readOnly ? "hidden" : undefined}
+                />
               </div>
             </div>
           }
@@ -36,7 +50,7 @@ export function Plugins() {
         />
 
         {/* Additional Plugins */}
-        <HistoryPlugin />
+        {readOnly ? null : <HistoryPlugin />}
         <ListPlugin />
       </div>
     </div>

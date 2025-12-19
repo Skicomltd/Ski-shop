@@ -7,11 +7,13 @@ import { AlertModal } from "@/components/shared/dialog/alert-modal";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatDate } from "@/lib/i18n/utils";
+import { Editor } from "@/lib/rich-text-editor";
 import { useDashboardProductService } from "@/services/dashboard/vendor/products/use-product-service";
+import { SerializedEditorState } from "lexical";
 import { EyeOff, Megaphone, Star } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { ProductActionsDropdown } from "../_components/product-actions-dropdown";
@@ -26,6 +28,47 @@ const isStarSeller = (product: Product) => {
   const storeName = product.store.name.toLowerCase();
 
   return starSellerIndicators.some((indicator) => storeName.includes(indicator));
+};
+
+const toSerializedEditorState = (description?: string): SerializedEditorState | undefined => {
+  if (!description) return undefined;
+
+  try {
+    const parsed: unknown = JSON.parse(description);
+    if (parsed && typeof parsed === "object" && "root" in parsed) return parsed as SerializedEditorState;
+  } catch {
+    // legacy plain text
+  }
+
+  return {
+    root: {
+      children: [
+        {
+          children: [
+            {
+              detail: 0,
+              format: 0,
+              mode: "normal",
+              style: "",
+              text: description,
+              type: "text",
+              version: 1,
+            },
+          ],
+          direction: "ltr",
+          format: "",
+          indent: 0,
+          type: "paragraph",
+          version: 1,
+        },
+      ],
+      direction: "ltr",
+      format: "",
+      indent: 0,
+      type: "root",
+      version: 1,
+    },
+  } as unknown as SerializedEditorState;
 };
 
 export default function ProductDetailPage() {
@@ -44,6 +87,7 @@ export default function ProductDetailPage() {
   const { mutateAsync: updateProductStatus } = useUpdateProductStatus();
   const { mutateAsync: editProduct } = useEditProduct();
   const product = productResponse?.data;
+  const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
 
   // Determine if this is a star seller product
   const isStarSellerProduct = product ? isStarSeller(product) : false;
@@ -146,6 +190,9 @@ export default function ProductDetailPage() {
     );
   }
 
+  const images = (product.images ?? []) as string[];
+  const weight = (product as unknown as { weight?: number | string }).weight;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -188,8 +235,8 @@ export default function ProductDetailPage() {
                 <div className="absolute inset-0 bg-[url('/images/star-seller.svg')] bg-cover bg-no-repeat opacity-20" />
               )}
 
-              {product.images.length > 0 ? (
-                <BlurImage src={product.images[0]} alt={product.name} fill className="h-full w-full object-contain" />
+              {images.length > 0 ? (
+                <BlurImage src={images[0]} alt={product.name} fill className="h-full w-full object-contain" />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gray-100">
                   <svg className="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,9 +259,9 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Thumbnail Images */}
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="grid grid-cols-3 gap-3">
-                {product.images.slice(0, 3).map((image, index) => (
+                {images.slice(0, 3).map((image, index) => (
                   <div
                     key={index}
                     className="bg-background relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-colors hover:border-blue-300"
@@ -252,13 +299,24 @@ export default function ProductDetailPage() {
             <div className="border-border space-y-4 border-t pt-4">
               <div>
                 <h4 className="mb-2 !text-lg font-semibold text-gray-900">Description</h4>
-                <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
+                {descriptionState ? (
+                  <Editor
+                    readOnly
+                    hideToolbar
+                    editorSerializedState={descriptionState}
+                    placeholder=""
+                    containerClassName="border-0 bg-transparent"
+                    contentClassName="prose prose-sm max-w-none min-h-0 rounded-none bg-transparent px-0 py-0 focus:outline-none"
+                  />
+                ) : (
+                  <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500">Weight:</span>
-                  <p className="font-medium text-gray-900">{product.weight}KG</p>
+                  <p className="font-medium text-gray-900">{weight ? `${weight}KG` : "-"}</p>
                 </div>
                 <div>
                   <span className="text-gray-500">Store:</span>

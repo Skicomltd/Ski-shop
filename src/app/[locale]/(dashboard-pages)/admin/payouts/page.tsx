@@ -9,7 +9,7 @@ import { Clock, DollarSign, Wallet } from "lucide-react";
 
 import { DashboardHeader } from "../../_components/dashboard-header";
 import { OverViewCard } from "../../_components/overview-card";
-import { PayoutHistoryTable } from "./_views/payout-history-table";
+// import { PayoutHistoryTable } from "./_views/payout-history-table";
 import { PayoutRequestTable } from "./_views/payout-request-table";
 import PayoutSkeleton from "./_views/payout-skeleton";
 
@@ -78,7 +78,7 @@ const Payout = () => {
         </div>
       )}
       <section className="space-y-8">
-        <PayoutHistoryTable />
+        {/* <PayoutHistoryTable /> */}
         <PayoutRequestTable />
       </section>
     </div>

@@ -1,5 +1,37 @@
 import * as z from "zod";
 
+const extractPlainTextFromLexicalDescription = (value: string): string => {
+  if (!value) return "";
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!parsed || typeof parsed !== "object") return value;
+
+    const root = (parsed as Record<string, unknown>).root;
+    if (!root || typeof root !== "object") return value;
+
+    const rootChildren = (root as Record<string, unknown>).children;
+    if (!Array.isArray(rootChildren)) return value;
+
+    const parts: string[] = [];
+    const walk = (node: unknown) => {
+      if (!node || typeof node !== "object") return;
+      const record = node as Record<string, unknown>;
+
+      if (typeof record.text === "string") parts.push(record.text);
+      if (Array.isArray(record.children)) {
+        for (const child of record.children) walk(child);
+      }
+    };
+
+    for (const child of rootChildren) walk(child);
+    return parts.join("");
+  } catch {
+    // Not JSON (legacy plain-text description)
+    return value;
+  }
+};
+
 export const registerSchema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -50,7 +82,19 @@ export const simpleProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   price: z.number().min(0, "Price must be positive"),
   discountPrice: z.number().min(0, "Discount price must be positive").optional(),
-  description: z.string().min(1, "Description is required"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .superRefine((value, context) => {
+      // Support Lexical serialized JSON stored as a string while still validating actual human text content.
+      const plainText = extractPlainTextFromLexicalDescription(value).trim();
+      if (!plainText) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Description is required",
+        });
+      }
+    }),
   category: z.string().min(1, "Category is required"),
   stockCount: z.number().min(0, "Stock count must be positive"),
   images: z.array(z.any()).min(1, "At least one image is required").max(4, "Maximum 4 images allowed"),

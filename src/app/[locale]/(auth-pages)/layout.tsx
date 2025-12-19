@@ -22,7 +22,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       )}
     >
       {/* Content Section */}
-      <section className="flex flex-1 flex-col overflow-y-auto">
+      <section
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
+        className="flex flex-1 flex-col overflow-y-auto"
+      >
         {/* Mobile Image */}
         <div className={`relative h-[10rem] flex-shrink-0 lg:hidden`}>
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />

@@ -1,18 +1,5 @@
-"use client";
-
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 
 export const Toast = () => {
-  return (
-    <Toaster
-      richColors
-      position={`bottom-center`}
-      theme={"light"}
-      // toastOptions={{
-      //   classNames: {
-      //     toast: "!bg-accent !w-full !absolute",
-      //   },
-      // }}
-    />
-  );
+  return <Toaster closeButton position="bottom-center" expand={false} duration={5000} />;
 };
