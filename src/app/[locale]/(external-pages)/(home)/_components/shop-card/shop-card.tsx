@@ -66,7 +66,9 @@ export const ShopCard = ({
   const discountPercentage = discount ? Math.round(((price - discount) / price) * 100) : 0;
   // Don't render save button if no ID
   const shouldShowSaveButton = showSaveButton && id;
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const role = session?.user?.role?.name?.toUpperCase();
+  const isAddToCartBlockedRole = role === "VENDOR" || role === "ADMIN" || role === "SUPER_ADMIN";
 
   return (
     <LocaleLink
@@ -155,9 +157,11 @@ export const ShopCard = ({
           )}
         </div>
         {id && (
-          <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
-          </div>
+          <ComponentGuard customCondition={() => !isAddToCartBlockedRole}>
+            <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
+            </div>
+          </ComponentGuard>
         )}
       </div>
     </LocaleLink>

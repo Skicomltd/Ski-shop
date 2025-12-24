@@ -12,7 +12,6 @@ import { useTranslations } from "next-intl";
 
 import { MobileDownloadBanner } from "../_components/mobile-download-banner";
 import { OptioinCard } from "./_components/option-card";
-import { Testimonial } from "./_components/testimonial/testimonial";
 import { Categories } from "./_views/categories";
 import { FeaturedProducts } from "./_views/featured-products";
 import { Hero } from "./_views/hero";
@@ -109,7 +108,7 @@ const Page = () => {
         textClassName={`max-w-[1200px] lg:pr-[40%]`}
         imageStyle="-top-15"
       />
-      <Testimonial />
+      {/* <Testimonial /> */}
       <Wrapper className={`flex flex-col justify-evenly gap-10 lg:flex-row`}>
         <OptioinCard
           title={t("features.freeDelivery.title")}

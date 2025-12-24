@@ -340,11 +340,11 @@ export const Hero = ({ leftAd, mainAd, rightTopAd, rightBottomAd }: HeroAdLayout
   return (
     <section className="relative flex min-h-[70dvh] w-full items-stretch overflow-hidden bg-black bg-center bg-no-repeat text-white xl:bg-cover">
       {/* Holiday theming overlays */}
-      <div className="pointer-events-none absolute inset-0 [background-image:url('/images/black-friday-bg.svg')] bg-cover bg-center opacity-25" />
+      {/* <div className="pointer-events-none absolute inset-0 [background-image:url('/images/black-friday-bg.svg')] bg-cover bg-center opacity-25" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-red-500/15 via-transparent to-black/45" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.18),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.10),transparent_45%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.18),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.10),transparent_45%)]" /> */}
       {/* <section className="bg-primary flex min-h-[70dvh] w-full items-stretch bg-[url('/images/shop/shop-hero.svg')] bg-center bg-no-repeat text-white xl:bg-cover"> */}
-      <div className="relative z-10 mx-auto flex w-full flex-col gap-6 px-4 sm:gap-8 md:px-6 lg:px-0">
+      <div className="relative z-10 mx-auto flex w-full flex-col gap-6 px-0 sm:gap-8 md:px-6 lg:px-0">
         {/* Advert layout (Jumia‑style hero) */}
         <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-5">
           {/* Left tall advert */}

@@ -10,6 +10,8 @@ import { PromotionService } from "@/services/dashboard/vendor/promotions/promoti
 import { SettingsService } from "@/services/dashboard/vendor/settings/settings.service";
 import { DashboardProfileService } from "@/services/dashboard/vendor/users/profile.service";
 import { AppService } from "@/services/externals/app/app.service";
+import { ContactService } from "@/services/externals/contact/contact.service";
+import { NewsletterService } from "@/services/externals/newsletter/newsletter.service";
 import { NotificationService } from "@/services/externals/notifications/notification.service";
 import { OnboardingUserService } from "@/services/externals/onboarding/onboarding-user.service";
 import { UserService } from "@/services/externals/user/user.service";
@@ -19,6 +21,8 @@ import { HttpAdapter } from "../http/http-adapter";
 const dependencies = {
   HTTP_ADAPTER: Symbol("httpAdapter"),
   APP_SERVICE: Symbol("AppService"),
+  CONTACT_SERVICE: Symbol("ContactService"),
+  NEWSLETTER_SERVICE: Symbol("NewsletterService"),
   AUTH_SERVICE: Symbol("AuthService"),
   HOME_SERVICE: Symbol("HomeService"),
   USER_SERVICE: Symbol("UserService"),
@@ -39,6 +43,8 @@ const dependencies = {
 
 const httpAdapter = new HttpAdapter();
 const appService = new AppService(httpAdapter);
+const contactService = new ContactService(httpAdapter);
+const newsletterService = new NewsletterService(httpAdapter);
 const authService = new AuthService(httpAdapter);
 const homeService = new HomeService(httpAdapter);
 const userService = new UserService(httpAdapter);
@@ -72,6 +78,8 @@ const container = new DependencyContainer();
 
 container.add(dependencies.HTTP_ADAPTER, httpAdapter);
 container.add(dependencies.APP_SERVICE, appService);
+container.add(dependencies.CONTACT_SERVICE, contactService);
+container.add(dependencies.NEWSLETTER_SERVICE, newsletterService);
 container.add(dependencies.AUTH_SERVICE, authService);
 container.add(dependencies.HOME_SERVICE, homeService);
 container.add(dependencies.USER_SERVICE, userService);

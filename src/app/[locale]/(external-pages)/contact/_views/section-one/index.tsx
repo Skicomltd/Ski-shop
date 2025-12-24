@@ -6,9 +6,23 @@ import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import SkiButton from "@/components/shared/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { handleError } from "@/lib/tools/errorHandler";
+import { contactSchema, type ContactFormData } from "@/schemas";
+import { useContactService } from "@/services/externals/contact/use-contact-service";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { LuFacebook, LuInstagram, LuMail, LuMapPin, LuPhoneCall, LuTwitter } from "react-icons/lu";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { LuMail, LuMapPin, LuPhoneCall } from "react-icons/lu";
+import { toast } from "sonner";
 
+// import Apple from "~/images/Apple.png";
+import facebook from "~/images/facebook.png";
+import instagram from "~/images/instagram.png";
+import tiktok from "~/images/tiktok.png";
+// import Playstore from "~/images/Playstore.png";
+import twitter from "~/images/twitter.png";
+import youtube from "~/images/youtube.png";
 import { GoogleMap } from "../map/google-map";
 
 const location = {
@@ -23,6 +37,41 @@ const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 export const SectionOne = () => {
   const t = useTranslations("contact.sectionOne");
+
+  const { useContactUs } = useContactService();
+  const contactMutation = useContactUs();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty, isValid },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    mode: "onChange",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      const response = await contactMutation.mutateAsync(data);
+      if (response?.success === false) {
+        throw new Error(response.message || "Failed to send message");
+      }
+
+      toast.success(t("form.sendMessage"), {
+        description: "Message sent successfully",
+      });
+      reset();
+    } catch (error: unknown) {
+      handleError(error);
+    }
+  };
 
   return (
     <section className="bg-high-grey-I pt-14 dark:bg-[#111111]">
@@ -40,17 +89,25 @@ export const SectionOne = () => {
             <div className="mt-32 space-y-9">
               <div className="flex items-center gap-5">
                 <LuPhoneCall size={18} />
-                <a href="tel:+2348130054558" className="text-[17px] xl:text-[20px]">
-                  {t("contactInfo.phone")}
+                <a href="tel:+2347075366539" className="text-[17px] xl:text-[20px]">
+                  07075366539
                 </a>
               </div>
 
-              <div className="flex items-center gap-5">
-                <LuMail size={18} />
-                <a href="mailto:skicom001@gmail.com" className="text-[17px] xl:text-[20px]">
-                  {t("contactInfo.email")}
-                </a>
-              </div>
+              <section>
+                <div className="flex items-center gap-5">
+                  <LuMail size={18} />
+                  <a href="mailto:contact@skicomltd.com" className="text-[17px] xl:text-[20px]">
+                    contact@skicomltd.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-5">
+                  <LuMail size={18} />
+                  <a href="mailto:info@skicomltd.com" className="text-[17px] xl:text-[20px]">
+                    info@skicomltd.com
+                  </a>
+                </div>
+              </section>
 
               <div className="flex items-center gap-5">
                 <LuMapPin size={18} />
@@ -59,21 +116,46 @@ export const SectionOne = () => {
             </div>
 
             <div className="absolute bottom-7 flex flex-1 items-center gap-8">
-              <div className="h-fit w-fit rounded-full border p-1.5">
-                <a href="">
-                  <LuTwitter size={20} />
+              <div className="mt-5 flex items-center gap-4">
+                <a
+                  href="https://www.instagram.com/skishop_official/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={instagram} alt="Instagram" className="h-[25px] w-[25px] rounded-full" />
                 </a>
-              </div>
-
-              <div className="h-fit w-fit rounded-full border p-1.5">
-                <a href="">
-                  <LuFacebook size={20} />
+                <a
+                  href="https://business.facebook.com/latest/posts/published_posts/?business_id=1171025464209400"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={facebook} alt="Facebook" className="h-[25px] w-[25px] rounded-full" />
                 </a>
-              </div>
-
-              <div className="h-fit w-fit rounded-full border p-1.5">
-                <a href="">
-                  <LuInstagram size={20} />
+                <a
+                  href="https://x.com/Skicomlimited"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={twitter} alt="Twitter" className="h-[25px] w-[25px] rounded-full" />
+                </a>
+                <a
+                  href="https://www.tiktok.com/@skishop_official"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={tiktok} alt="TikTok" className="h-[25px] w-[25px] rounded-full" />
+                </a>
+                <a
+                  href="https://www.youtube.com/@SkiShop_Official"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={youtube} alt="YouTube" className="h-[25px] w-[25px] rounded-full" />
                 </a>
               </div>
             </div>
@@ -98,28 +180,42 @@ export const SectionOne = () => {
 
           <div className="mx-auto max-w-md py-10 lg:max-w-full lg:py-0">
             {/* form */}
-            <form className="w-full space-y-[23px]">
+            <form className="w-full space-y-[23px]" onSubmit={handleSubmit(onSubmit)}>
               <Input
                 type="text"
                 className="h-14 bg-[#FFFFFF] placeholder:text-sm lg:w-[500px] lg:bg-transparent dark:bg-[#111111]"
                 placeholder={t("form.fullName")}
+                aria-invalid={!!errors.fullName}
+                {...register("fullName")}
               />
               <Input
                 type="email"
                 className="h-14 bg-[#FFFFFF] placeholder:text-sm lg:w-[500px] lg:bg-transparent dark:bg-[#111111]"
                 placeholder={t("form.emailAddress")}
+                aria-invalid={!!errors.email}
+                {...register("email")}
               />
               <Input
                 type="text"
                 className="h-14 bg-[#FFFFFF] placeholder:text-sm lg:w-[500px] lg:bg-transparent dark:bg-[#111111]"
                 placeholder={t("form.subject")}
+                aria-invalid={!!errors.subject}
+                {...register("subject")}
               />
 
               <Textarea
                 className="resize-non1 h-[280px] resize-none bg-[#FFFFFF] placeholder:text-sm lg:w-[500px] lg:bg-transparent dark:bg-[#111111]"
                 placeholder={t("form.message")}
+                aria-invalid={!!errors.message}
+                {...register("message")}
               />
-              <SkiButton variant="primary" className="mt-3 w-full rounded-full">
+              <SkiButton
+                type="submit"
+                variant="primary"
+                className="mt-3 w-full rounded-full"
+                isDisabled={!isDirty || !isValid || contactMutation.isPending}
+                isLoading={contactMutation.isPending}
+              >
                 {t("form.sendMessage")}
               </SkiButton>
             </form>

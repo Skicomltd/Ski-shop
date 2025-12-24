@@ -9,8 +9,10 @@ import { usePathname } from "next/navigation";
 // import Apple from "~/images/Apple.png";
 import facebook from "~/images/facebook.png";
 import instagram from "~/images/instagram.png";
+import tiktok from "~/images/tiktok.png";
 // import Playstore from "~/images/Playstore.png";
 import twitter from "~/images/twitter.png";
+import youtube from "~/images/youtube.png";
 import { NewsLetter } from "./news-letter/news-letter";
 
 export const Footer = () => {
@@ -69,28 +71,59 @@ export const Footer = () => {
                 className={`rounded-md bg-white p-1`}
               />
               <div className="mt-5 flex items-center gap-4">
-                <a href="" className="rounded-full border p-2">
+                <a
+                  href="https://www.instagram.com/skishop_official/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
                   <Image src={instagram} alt="Instagram" className="h-[25px] w-[25px] rounded-full" />
                 </a>
-                <a href="" className="rounded-full border p-2">
+                <a
+                  href="https://business.facebook.com/latest/posts/published_posts/?business_id=1171025464209400"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
                   <Image src={facebook} alt="Facebook" className="h-[25px] w-[25px] rounded-full" />
                 </a>
-                <a href="" className="rounded-full border p-2">
+                <a
+                  href="https://x.com/Skicomlimited"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
                   <Image src={twitter} alt="Twitter" className="h-[25px] w-[25px] rounded-full" />
+                </a>
+                <a
+                  href="https://www.tiktok.com/@skishop_official"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={tiktok} alt="TikTok" className="h-[25px] w-[25px] rounded-full" />
+                </a>
+                <a
+                  href="https://www.youtube.com/@SkiShop_Official"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border p-2"
+                >
+                  <Image src={youtube} alt="YouTube" className="h-[25px] w-[25px] rounded-full" />
                 </a>
               </div>
             </div>
 
             <div className="mt-10 flex flex-col items-center justify-center xl:mt-0 xl:block">
               <h6 className="text-sm font-semibold !text-white uppercase">{t("contactInfo.title")}</h6>
-              <p className="mt-5 text-sm text-white">{t("contactInfo.address")}</p>
+              <p className="mt-5 text-sm text-white">49 Adeyemi Street, Otubu Bus Stop, Agege, Lagos.</p>
               <div className="mt-2 flex items-center gap-1">
                 <a href={`tel:${t("contactInfo.phone1")}`} className="text-sm text-white">
-                  {t("contactInfo.phone1")},
+                  07075366539,
                 </a>
-                <a href={`tel:${t("contactInfo.phone2")}`} className="text-sm text-white">
+                {/* <a href={`tel:${t("contactInfo.phone2")}`} className="text-sm text-white">
                   {t("contactInfo.phone2")}
-                </a>
+                </a> */}
               </div>
             </div>
 
