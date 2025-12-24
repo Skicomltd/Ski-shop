@@ -14,7 +14,14 @@ interface SearchInputProperties {
   onSearch: (query: string) => void;
   delay?: number; // debounce delay in ms
   className?: string;
+  /** @deprecated Prefer `disabled` */
   isDisabled?: boolean;
+  disabled?: boolean;
+  /**
+   * Initial value for the input (e.g. from URL query params). The component
+   * keeps its own internal state but will sync when this changes.
+   */
+  initialValue?: string;
 }
 
 export const SearchInput = ({
@@ -23,19 +30,36 @@ export const SearchInput = ({
   delay = 300,
   className = "",
   isDisabled = false,
+  disabled,
+  initialValue,
 }: SearchInputProperties) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialValue ?? "");
   const [debouncedQuery] = useDebounce(searchQuery, delay);
 
+  // Avoid infinite request loops when parent recreates `onSearch` each render.
+  const onSearchReference = useRef(onSearch);
+  const lastEmittedQueryReference = useRef<string | null>(null);
+
   useEffect(() => {
-    onSearch(debouncedQuery);
-  }, [debouncedQuery, onSearch]);
+    onSearchReference.current = onSearch;
+  }, [onSearch]);
+
+  useEffect(() => {
+    const next = initialValue ?? "";
+    setSearchQuery((previous) => (previous === next ? previous : next));
+  }, [initialValue]);
+
+  useEffect(() => {
+    if (lastEmittedQueryReference.current === debouncedQuery) return;
+    lastEmittedQueryReference.current = debouncedQuery;
+    onSearchReference.current(debouncedQuery);
+  }, [debouncedQuery]);
 
   return (
     <div className={`relative ${className}`}>
       <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
       <Input
-        disabled={isDisabled}
+        disabled={disabled ?? isDisabled}
         type="search"
         placeholder={placeholder}
         className="border-border h-full border-none pr-4 pl-10 shadow-none"

@@ -36,7 +36,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/callback?code=${credentials.code}`;
 
-          const response = await axios.get(callbackUrl);
+          const response = await axios.get(callbackUrl, {
+            headers: {
+              "x-client-type": "web",
+            },
+          });
 
           if (response.data.success) {
             return {

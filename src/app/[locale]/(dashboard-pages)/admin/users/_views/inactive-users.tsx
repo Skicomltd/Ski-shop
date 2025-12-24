@@ -44,7 +44,7 @@ export const InactiveUsers = () => {
       <div className="mb-2 flex items-center justify-between gap-2">
         <h6 className={`!text-lg font-semibold`}>Inactive Users</h6>
         <div className={`flex items-center gap-2`}>
-          <SearchInput className={``} onSearch={handleSearchChange} initialValue={searchQuery} />
+          <SearchInput className={``} onSearch={handleSearchChange} />
           <DownloadCsvButton
             data={(userData?.data?.items || []) as Record<string, unknown>[]}
             filename="inactive-users"

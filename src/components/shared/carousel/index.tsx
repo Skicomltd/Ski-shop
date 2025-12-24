@@ -2,11 +2,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { A11y, Autoplay, FreeMode, Navigation, Pagination, Scrollbar, Thumbs } from "swiper/modules";
+import { A11y, Autoplay, EffectFade, FreeMode, Navigation, Pagination, Scrollbar, Thumbs } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper/types";
 
 import "swiper/css";
+import "swiper/css/effect-fade";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/free-mode";
@@ -67,6 +68,7 @@ export const UniversalSwiper = <T,>({
     ...(showScrollbar ? [Scrollbar] : []),
     ...(freeMode ? [FreeMode] : []),
     ...(thumbsSwiper ? [Thumbs] : []),
+    ...(swiperOptions?.effect === "fade" ? [EffectFade] : []),
     Autoplay,
     A11y,
   ];
