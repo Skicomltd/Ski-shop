@@ -258,7 +258,7 @@ export const Hero = ({ leftAd, mainAd, rightTopAd, rightBottomAd }: HeroAdLayout
   })();
 
   const defaultLeftAd = (
-    <div className="h-full min-h-[320px] bg-black md:min-h-[520px]">
+    <div className="relative h-full min-h-[320px] bg-black md:min-h-[520px]">
       <UniversalSwiper
         items={leftSlides}
         showNavigation
@@ -274,6 +274,16 @@ export const Hero = ({ leftAd, mainAd, rightTopAd, rightBottomAd }: HeroAdLayout
         swiperClassName="h-full"
         slideClassName="h-full"
         renderItem={(slide) => <EcomSlideCard slide={slide} />}
+      />
+
+      {/* Big Sale dangling tag (Black Friday style) */}
+      <BlurImage
+        priority
+        src="/images/big-sale-tag.svg"
+        alt="Big Sale"
+        width={244}
+        height={323}
+        className="animate-swing pointer-events-none absolute -top-1 right-2 z-20 h-[88px] w-[88px] object-contain md:h-[112px] md:w-[112px]"
       />
     </div>
   );
@@ -328,9 +338,13 @@ export const Hero = ({ leftAd, mainAd, rightTopAd, rightBottomAd }: HeroAdLayout
     </div>
   );
   return (
-    <section className="flex min-h-[70dvh] w-full items-stretch bg-black bg-center bg-no-repeat text-white xl:bg-cover">
+    <section className="relative flex min-h-[70dvh] w-full items-stretch overflow-hidden bg-black bg-center bg-no-repeat text-white xl:bg-cover">
+      {/* Holiday theming overlays */}
+      <div className="pointer-events-none absolute inset-0 [background-image:url('/images/black-friday-bg.svg')] bg-cover bg-center opacity-25" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-red-500/15 via-transparent to-black/45" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.18),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.10),transparent_45%)]" />
       {/* <section className="bg-primary flex min-h-[70dvh] w-full items-stretch bg-[url('/images/shop/shop-hero.svg')] bg-center bg-no-repeat text-white xl:bg-cover"> */}
-      <div className="mx-auto flex w-full flex-col gap-6 px-4 sm:gap-8 md:px-6 lg:px-0">
+      <div className="relative z-10 mx-auto flex w-full flex-col gap-6 px-4 sm:gap-8 md:px-6 lg:px-0">
         {/* Advert layout (Jumia‑style hero) */}
         <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-5">
           {/* Left tall advert */}
