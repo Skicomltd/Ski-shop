@@ -1,7 +1,11 @@
 "use client";
 
 import { GlobalSearchInput, type SearchResult } from "@/components/core/miscellaneous/search-input";
+import { DialogClose } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
+import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -12,6 +16,7 @@ import { ReusableDialog } from "../../dialog/Dialog";
 export const SearchDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const isMobile = useIsMobile();
 
   const t = useTranslations("shopPage");
   const locale = useLocale();
@@ -86,9 +91,37 @@ export const SearchDialog = () => {
       onOpenChange={setIsOpen}
       // title={t("search.placeholder")}
       wrapperClassName="hidden"
-      className="bg-background top-12 min-w-2xl py-0"
+      className={cn(
+        // NOTE:
+        // - Mobile: full-screen (no awkward margins, better keyboard handling).
+        // - Desktop: keeps the original dropdown-like positioning under the navbar.
+        "bg-background translate-y-0 overflow-hidden p-0",
+        isMobile
+          ? "inset-0 h-[100dvh] w-screen max-w-none translate-x-0 rounded-none"
+          : "top-4 max-h-[calc(100vh-2rem)] sm:top-12 sm:max-h-[85vh] sm:max-w-2xl sm:min-w-2xl sm:rounded-lg",
+      )}
     >
-      <div className="w-full">
+      <div
+        className={cn(
+          "flex w-full flex-col",
+          isMobile
+            ? "h-full px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+            : "max-h-[calc(100vh-2rem)] p-4 sm:max-h-none sm:p-0",
+        )}
+      >
+        {isMobile && (
+          <div className="flex items-center justify-end pb-3">
+            <DialogClose asChild>
+              <button
+                type="button"
+                aria-label="Close search"
+                className="hover:bg-accent focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </DialogClose>
+          </div>
+        )}
         <GlobalSearchInput
           placeholder={t("search.placeholder")}
           onSearch={handleSearch}
@@ -96,7 +129,8 @@ export const SearchDialog = () => {
           onResultSelect={handleResultSelect}
           results={searchResults}
           isLoading={isSuggestionsLoading}
-          className="px-0"
+          mode={isMobile ? "inline" : "popover"}
+          className="border-border w-full rounded-md border"
         />
       </div>
     </ReusableDialog>

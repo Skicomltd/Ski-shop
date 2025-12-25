@@ -83,6 +83,12 @@ export interface SearchResult {
 interface GlobalSearchInputProperties {
   className?: string;
   placeholder?: string;
+  /**
+   * How the results are presented.
+   * - `popover` (default): results appear in a Radix popover.
+   * - `inline`: results render directly under the input (better for mobile modals).
+   */
+  mode?: "popover" | "inline";
   onSearch?: (query: string) => void;
   /**
    * Called when the user submits the current query explicitly (e.g. presses Enter
@@ -98,6 +104,8 @@ interface GlobalSearchInputProperties {
   onClearRecent?: () => void;
   emptyMessage?: string;
   delay?: number;
+  /** Optional className override for the results dropdown container. */
+  popoverContentClassName?: string;
 }
 
 function highlightQuery(text: string, query: string) {
@@ -125,6 +133,7 @@ function highlightQuery(text: string, query: string) {
 export function GlobalSearchInput({
   className,
   placeholder = "Search anything...",
+  mode = "popover",
   onSearch,
   onSubmit,
   onResultSelect,
@@ -135,6 +144,7 @@ export function GlobalSearchInput({
   onClearRecent,
   emptyMessage = "Try searching with different keywords.",
   delay = 300,
+  popoverContentClassName,
 }: GlobalSearchInputProperties) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -219,6 +229,129 @@ export function GlobalSearchInput({
   const hasResults = results.length > 0;
   const showRecent = searchQuery.trim() === "" && recentSearches.length > 0;
 
+  const resultsContent = (
+    <div
+      data-lenis-prevent
+      data-lenis-prevent-wheel
+      data-lenis-prevent-touch
+      className="max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-contain sm:max-h-[500px]"
+    >
+      {showRecent && (
+        <div className="p-2">
+          <div className="flex items-center justify-between px-2 py-1.5">
+            <span className="text-muted-foreground text-xs font-medium">Recent Searches</span>
+            {onClearRecent && (
+              <button
+                type="button"
+                onClick={onClearRecent}
+                className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="space-y-1">
+            {recentSearches.map((query, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleRecentSearchClick(query)}
+                className="hover:bg-accent flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+              >
+                <Clock className="text-muted-foreground h-4 w-4 shrink-0" />
+                <span className="flex-1 truncate">{query}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {searchQuery.trim() && !isLoading && !hasResults && (
+        <EmptyState
+          className="text-primary"
+          // icon={<Search className="text-primary" />}
+          title="No results found."
+          description={emptyMessage}
+        />
+      )}
+
+      {searchQuery.trim() && hasResults && (
+        <div className="p-2">
+          <div className="space-y-1">
+            {results.map((result, index) => (
+              <section key={result.id}>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => handleResultClick(result)}
+                    className={cn(
+                      "hover:bg-primary/10 flex w-full items-center gap-3 rounded-sm px-2 py-2.5 text-left transition-colors",
+                      selectedIndex === index && "bg-accent",
+                    )}
+                  >
+                    <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm">{highlightQuery(result.title, searchQuery.trim())}</p>
+                      {/* {result.description && <p className="text-muted-foreground text-xs">{result.description}</p>} */}
+                    </div>
+                    <span>
+                      <GoLinkExternal className="text-primary size-3 shrink-0 stroke-1" />
+                    </span>
+                  </button>
+                </div>
+                <hr className="my-1 opacity-40" />
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (mode === "inline") {
+    return (
+      <div className="w-full">
+        <div
+          className={cn(
+            "relative flex h-12 w-full items-center gap-2 rounded-md bg-transparent px-3 transition-colors",
+            disabled && "cursor-not-allowed opacity-50",
+            className,
+          )}
+        >
+          <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+          <Input
+            ref={inputReference}
+            type="text"
+            placeholder={placeholder}
+            value={searchQuery}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setOpen(true)}
+            disabled={disabled}
+            className="placeholder:text-muted-foreground h-full flex-1 border-none bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none dark:bg-transparent"
+          />
+          {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 shrink-0 animate-spin" />}
+          {searchQuery && !isLoading && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                inputReference.current?.focus();
+              }}
+              className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {showDropdown && (
+          <div className="border-border bg-background mt-2 overflow-hidden rounded-md border">{resultsContent}</div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <Popover open={showDropdown} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -259,90 +392,10 @@ export function GlobalSearchInput({
       <PopoverContent
         // sideOffset={16}
         // align="start"
-        className="min-w-2xl p-0"
+        className={cn("min-w-2xl p-0", popoverContentClassName)}
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        {/*
-          Use a plain scrollable div so Lenis can be prevented on the actual
-          scrolling element. This fixes trackpad/wheel scrolling inside the
-          popover when Lenis smooth scrolling is enabled globally.
-        */}
-        <div
-          data-lenis-prevent
-          data-lenis-prevent-wheel
-          data-lenis-prevent-touch
-          className="max-h-[500px] overflow-y-auto"
-        >
-          {showRecent && (
-            <div className="p-2">
-              <div className="flex items-center justify-between px-2 py-1.5">
-                <span className="text-muted-foreground text-xs font-medium">Recent Searches</span>
-                {onClearRecent && (
-                  <button
-                    type="button"
-                    onClick={onClearRecent}
-                    className="text-muted-foreground hover:text-foreground text-xs transition-colors"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="space-y-1">
-                {recentSearches.map((query, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleRecentSearchClick(query)}
-                    className="hover:bg-accent flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
-                  >
-                    <Clock className="text-muted-foreground h-4 w-4 shrink-0" />
-                    <span className="flex-1 truncate">{query}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {searchQuery.trim() && !isLoading && !hasResults && (
-            <EmptyState
-              className="text-primary"
-              // icon={<Search className="text-primary" />}
-              title="No results found."
-              description={emptyMessage}
-            />
-          )}
-
-          {searchQuery.trim() && hasResults && (
-            <div className="p-2">
-              <div className="space-y-1">
-                {results.map((result, index) => (
-                  <section key={result.id}>
-                    <div className="flex items-center">
-                      <button
-                        type="button"
-                        onClick={() => handleResultClick(result)}
-                        className={cn(
-                          "hover:bg-primary/10 flex w-full items-center gap-3 rounded-sm px-2 py-2.5 text-left transition-colors",
-                          selectedIndex === index && "bg-accent",
-                        )}
-                      >
-                        <Search className="text-muted-foreground h-4 w-4 shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm">{highlightQuery(result.title, searchQuery.trim())}</p>
-                          {/* {result.description && <p className="text-muted-foreground text-xs">{result.description}</p>} */}
-                        </div>
-                        <span>
-                          <GoLinkExternal className="text-primary size-3 shrink-0 stroke-1" />
-                        </span>
-                      </button>
-                    </div>
-                    <hr className="my-1 opacity-40" />
-                  </section>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {resultsContent}
       </PopoverContent>
     </Popover>
   );
