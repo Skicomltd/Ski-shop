@@ -63,13 +63,15 @@ export const Footer = () => {
 
           <div className="mt-10 items-center justify-between text-center text-white xl:flex xl:text-left">
             <div className="flex flex-col items-center justify-center xl:block">
-              <Image
-                src={`https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1759015059/skicom/zgwlfx3dkbzstxdgcrvj.svg`}
-                alt={"Skicom Logo"}
-                height={50}
-                width={100}
-                className={`rounded-md bg-white p-1`}
-              />
+              <Link href="/">
+                <Image
+                  src={`https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1759015059/skicom/zgwlfx3dkbzstxdgcrvj.svg`}
+                  alt={"Skicom Logo"}
+                  height={50}
+                  width={100}
+                  className={`rounded-md bg-white p-1`}
+                />
+              </Link>
               <div className="mt-5 flex items-center gap-4">
                 <a
                   href="https://www.instagram.com/skishop_official/"
@@ -164,14 +166,14 @@ export const Footer = () => {
               {/* <div className="flex items-center gap-20"> */}
               <div className="mt-5 flex flex-col gap-2">
                 <Link
-                  href="/live-chat"
-                  className={`text-sm ${normalizedPath.startsWith("/live-chat") ? "text-primary font-bold" : ""}`}
+                  href="/privacy-policy"
+                  className={`text-sm ${normalizedPath.startsWith("/privacy-policy") ? "text-primary font-bold" : ""}`}
                 >
-                  {t("liveChat")}
+                  {"Privacy Policy"}
                 </Link>
                 <Link
-                  href="/terms-condition"
-                  className={`text-sm ${normalizedPath.startsWith("/terms-condition") ? "text-primary font-bold" : ""}`}
+                  href="/terms-and-condition"
+                  className={`text-sm ${normalizedPath.startsWith("/terms-and-condition") ? "text-primary font-bold" : ""}`}
                 >
                   {t("terms")}
                 </Link>

@@ -92,12 +92,7 @@ export const LoginForm = () => {
 
   const handleGoogleSignIn = () => {
     startGoogleTransition(async () => {
-      router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`); //MY INITIAL SETUP
-      // await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`, {
-      //   headers: {
-      //     "x-client-type": "web", //MY CURRENT SETUP
-      //   },
-      // });
+      router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
     });
   };
 
@@ -173,6 +168,20 @@ export const LoginForm = () => {
               {tAuth("signup")}
             </LocaleLink>
           </p>
+
+          <section className="text-muted-foreground mt-3 text-center text-xs sm:text-sm">
+            <p>
+              By continuing, you agree to our{" "}
+              <LocaleLink href="/privacy-policy" className="text-primary hover:underline">
+                Privacy Policy
+              </LocaleLink>{" "}
+              and{" "}
+              <LocaleLink href="/terms-and-condition" className="text-primary hover:underline">
+                Terms &amp; Conditions
+              </LocaleLink>
+              .
+            </p>
+          </section>
         </form>
       </FormProvider>
     </section>

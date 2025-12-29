@@ -418,11 +418,11 @@
     "blackFriday": {
       "tagTitle": "Massive Discounts. Limited Time.",
       "title": "Hits Ski-Shop Every Year",
-      "description": "Every October, we roll out exclusive deals across gadgets, fashion, home essentials, and more. It's our annual tradition—don't miss it!💃",
+      "description": "Every October, we roll out exclusive deals across gadgets, fashion, home essentials, and more. It's our annual tradition—don't miss it!",
       "comingSoon": {
         "tagTitle": "Black Friday Is Coming...",
         "title": "Coupons, Freebies & Fire Deals Await!",
-        "description": "Every October, we roll out exclusive deals across gadgets, fashion, home essentials, and more. It's our annual tradition—don't miss it!💃"
+        "description": "Every October, we roll out exclusive deals across gadgets, fashion, home essentials, and more. It's our annual tradition—don't miss it!"
       }
     },
     "deliveryNetwork": {
@@ -634,7 +634,7 @@
     "about": "About",
     "contact": "Contact Us",
     "help": "Help",
-    "terms": "Terms & Condition",
+    "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
     "cookies": "Cookie Policy",
     "shipping": "Shipping Information",
@@ -648,7 +648,7 @@
     "socialMedia": "Social Media",
     "copyright": "© Copyright {year}. All Rights Reserved by SKICOM",
     "poweredBy": "Powered by",
-    "madeWith": "Made with ❤️ by",
+    "madeWith": "Made by",
     "getItOn": "GET IT ON",
     "googlePlay": "Google Play",
     "downloadOnThe": "Download on the",

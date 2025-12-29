@@ -17,7 +17,7 @@ import { MdOutlineFavorite } from "react-icons/md";
 import { toast } from "sonner";
 
 import SkiButton from "../button";
-import { LanguageToggle } from "../language-toggle";
+// import { LanguageToggle } from "../language-toggle";
 import { Logo } from "../logo";
 import { SearchDialog } from "./_components/search-modal";
 import { NavItems } from "./nav-menu-item";
@@ -396,29 +396,24 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                     </div>
 
                     {/* Additional Features Section */}
-                    <div className="border-t pt-4">
+                    {/* <div className="border-t pt-4">
                       <div className="space-y-3">
                         <h3 className="!text-primary text-sm font-medium">More</h3>
                         <div className="space-y-2">
-                          <SkiButton
-                            href={`/${locale}/help`}
-                            variant="ghost"
-                            className="w-full justify-start"
-                            size="sm"
-                          >
+                          <SkiButton href={`/contact`} variant="ghost" className="w-full justify-start" size="sm">
                             Help Center
                           </SkiButton>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Language Toggle - Bottom placement */}
-                    <div className="border-t pt-4">
+                    {/* <div className="border-t pt-4">
                       <div className="space-y-3">
                         <h3 className="!text-primary text-sm font-medium">Language</h3>
                         <LanguageToggle />
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </DrawerContent>
               </Drawer>
@@ -457,9 +452,9 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
               </div>
 
               {/* Language Toggle */}
-              <div className="hidden lg:block">
+              {/* <div className="hidden lg:block">
                 <LanguageToggle />
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

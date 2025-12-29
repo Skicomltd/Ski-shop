@@ -6,6 +6,15 @@ import { PiUsersThreeLight } from "react-icons/pi";
 import { RiAdvertisementLine, RiShoppingCartLine, RiUserLine } from "react-icons/ri";
 import { TbSettings2, TbShoppingBag } from "react-icons/tb";
 
+export {
+  policies,
+  PRIVACY_POLICY_INTRO,
+  PRIVACY_POLICY_META,
+  TERMS_AND_CONDITIONS_INTRO,
+  TERMS_AND_CONDITIONS_META,
+  termsandconditions,
+} from "./legal-documents";
+
 export const NAV_LINKS: NavLink[] = [
   {
     id: 1,

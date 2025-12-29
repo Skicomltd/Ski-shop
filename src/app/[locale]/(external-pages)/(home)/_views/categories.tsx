@@ -14,10 +14,13 @@ interface CategoryItemProperties {
   href: string;
 }
 
-const CategoryItem = ({ title, href }: CategoryItemProperties) => {
+const CategoryItem = ({ title, image, href }: CategoryItemProperties) => {
   return (
     <Link href={href}>
-      <div className="flex h-[200px] items-center justify-center overflow-hidden rounded-lg bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758668597/skicom/t2kc2sioj4vt4xgiesnw.svg)] bg-[50%] px-10 md:h-[400px]">
+      <div
+        className="flex h-[200px] items-center justify-center overflow-hidden rounded-lg bg-cover bg-center px-10 md:h-[400px]"
+        style={{ backgroundImage: `url(${image})` }}
+      >
         <span className="text-center !text-xs font-semibold tracking-[1px] text-white lg:!text-xl lg:tracking-normal">
           {title}
         </span>
@@ -36,13 +39,23 @@ export const Categories = () => {
   const { useGetAllProductCategory } = useAppService();
   const { data: categoriesResponse, isLoading, isError, refetch } = useGetAllProductCategory();
 
+  const categoryImages = [
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/acy6r3gqyetxcghfyxlv.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/fhepjmapqqt46a5leibn.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042749/skicom/gcd8pkx2hvotfwij61hz.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/acy6r3gqyetxcghfyxlv.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/zeprdyempmavqdvl1k2w.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/zeprdyempmavqdvl1k2w.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042748/skicom/tns0s6h7ginairv3egta.png",
+    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042748/skicom/tns0s6h7ginairv3egta.png",
+  ];
+
   const categories =
-    categoriesResponse?.data?.map((category) => {
+    categoriesResponse?.data?.map((category, index) => {
       const formattedTitle = formatCategory(category);
       return {
         title: formattedTitle,
-        image:
-          "https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758668597/skicom/t2kc2sioj4vt4xgiesnw.svg",
+        image: categoryImages[index % categoryImages.length],
         href: `/shop?category=${encodeURIComponent(category)}`,
       };
     }) || [];
@@ -99,7 +112,9 @@ export const Categories = () => {
   return (
     <Wrapper className="gap-6 py-0">
       <div className="flex items-baseline justify-center">
-        <h2 className={cn("!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]")}>{`Categories`}</h2>
+        <h2
+          className={cn("!text-xl lg:!text-4xl lg:!leading-[41.62px] lg:!tracking-[1px]")}
+        >{`Browse Our Categories`}</h2>
       </div>
       {renderCategoriesGrid()}
     </Wrapper>

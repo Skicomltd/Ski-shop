@@ -169,7 +169,7 @@ export const ProductGrid = ({
 
 export const ShopCardSkeleton = () => (
   <div className="border-border animate-pulse space-y-3 rounded-lg border p-4">
-    <Skeleton className="h-40 rounded-md"></Skeleton>
+    <Skeleton className="h-40 rounded-md lg:h-70"></Skeleton>
     <Skeleton className="h-4 rounded" />
     <Skeleton className="h-4 w-3/4 rounded"></Skeleton>
     <Skeleton className="h-4 w-1/2 rounded"></Skeleton>

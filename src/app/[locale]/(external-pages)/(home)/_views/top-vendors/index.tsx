@@ -3,7 +3,7 @@
 import { Wrapper } from "@/components/core/layout/wrapper";
 import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import { UniversalSwiper } from "@/components/shared/carousel";
-import { ErrorState } from "@/components/shared/empty-state";
+// import { ErrorState } from "@/components/shared/empty-state";
 import { Ratings } from "@/components/shared/ratings";
 import { SetToolTip } from "@/components/shared/tool-tip";
 import { cn } from "@/lib/utils";
@@ -17,13 +17,13 @@ const truncateStoreName = (name: string, maxLength = 18) => {
 
 export const TopVendors = () => {
   const { useGetAllProducts } = useAppService();
-  const { isLoading, isError, data, refetch } = useGetAllProducts({ flag: "top" });
+  const { isLoading, data } = useGetAllProducts({ flag: "top" });
 
   const products: Product[] = data?.data?.items || [];
 
-  if (isError) {
-    return <ErrorState className={`mx-auto mb-10 max-w-[1240px]`} retryText={"retry"} onRetry={() => refetch()} />;
-  }
+  // if (isError) {
+  //   return <ErrorState className={`mx-auto mb-10 max-w-[1240px]`} retryText={"retry"} onRetry={() => refetch()} />;
+  // }
 
   if (products.length === 0) {
     return null;

@@ -72,7 +72,7 @@ const HeroSlide = ({
           </div>
           <div className="mx-auto mt-8 flex flex-col items-center gap-4 lg:mx-0 lg:flex-row">
             <SkiButton
-              href={`/shop`}
+              href={`/signup/vendor`}
               size={`xl`}
               className={cn(
                 "w-[220px]",
