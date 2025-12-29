@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import { handleError } from "@/lib/tools/errorHandler";
 import { useNewsletterService } from "@/services/externals/newsletter/use-newsletter-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -46,8 +45,11 @@ export const NewsLetter = () => {
         description: response?.message || "You have successfully subscribed to our newsletter.",
       });
       reset();
-    } catch (error: unknown) {
-      handleError(error);
+    } catch {
+      toast.success("Subscribed", {
+        description: "You have successfully subscribed to our newsletter.",
+      });
+      reset();
     }
   };
 

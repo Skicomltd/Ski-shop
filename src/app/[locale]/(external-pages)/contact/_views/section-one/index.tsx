@@ -1,4 +1,4 @@
-/* eslint-disable unicorn/no-negated-condition */
+// /* eslint-disable unicorn/no-negated-condition */
 "use client";
 
 import { Wrapper } from "@/components/core/layout/wrapper";
@@ -23,17 +23,18 @@ import tiktok from "~/images/tiktok.png";
 // import Playstore from "~/images/Playstore.png";
 import twitter from "~/images/twitter.png";
 import youtube from "~/images/youtube.png";
-import { GoogleMap } from "../map/google-map";
 
-const location = {
-  address: "49, Adeyemi Street, Otubu Bus Stop, Agege, Lagos.",
-  lat: 6.535_77,
-  lng: 3.365_96,
-};
+// import { GoogleMap } from "../map/google-map";
+
+// const location = {
+//   address: "49, Adeyemi Street, Otubu Bus Stop, Agege, Lagos.",
+//   lat: 6.535_77,
+//   lng: 3.365_96,
+// };
 
 // You'll need to add your Google Maps API key to your environment variables
 // Add this to your .env.local file: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
-const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+// const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 export const SectionOne = () => {
   const t = useTranslations("contact.sectionOne");
@@ -74,7 +75,7 @@ export const SectionOne = () => {
   };
 
   return (
-    <section className="bg-high-grey-I pt-14 dark:bg-[#111111]">
+    <section className="bg-high-grey-I py-14 dark:bg-[#111111]">
       <Wrapper className={``}>
         <div className="mx-auto max-w-[1000px] space-y-4 text-center">
           <h2 className={`!text-2xl md:!text-4xl`}>{t("title")}</h2>
@@ -223,7 +224,7 @@ export const SectionOne = () => {
           </div>
         </section>
       </Wrapper>
-      <div className="my-5 px-4 lg:mt-20 lg:px-0">
+      {/* <div className="my-5 px-4 lg:mt-20 lg:px-0">
         <div className="">
           {!GOOGLE_MAPS_API_KEY ? (
             <GoogleMap location={location} apiKey={GOOGLE_MAPS_API_KEY} />
@@ -236,7 +237,7 @@ export const SectionOne = () => {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </section>
   );
 };

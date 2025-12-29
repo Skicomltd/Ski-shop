@@ -3,7 +3,7 @@
 import { Wrapper } from "@/components/core/layout/wrapper";
 import { ReusableBanner } from "@/components/shared/banner";
 import { BlackFridayReusableBanner } from "@/components/shared/banner/black-friday";
-import { CountdownTimer } from "@/components/shared/banner/black-friday/_components/countdown-timer";
+// import { CountdownTimer } from "@/components/shared/banner/black-friday/_components/countdown-timer";
 import SkiButton from "@/components/shared/button";
 import PlayToWinBanner from "@/modules/play-to-win/banner";
 import { useAppService } from "@/services/externals/app/use-app-service";
@@ -34,8 +34,8 @@ const Page = () => {
       <ReusableBanner
         textClassName={`max-w-[900px] lg:pr-[40%] !text-foreground`}
         action={
-          <SkiButton href={`/signup/vendor`} className="px-14" size="xl" variant="primary">
-            {t("referEarn.action")}
+          <SkiButton isDisabled className="px-14" size="xl" variant="primary">
+            {`Invite Now`}
           </SkiButton>
         }
         description={t("referEarn.description")}
@@ -59,7 +59,7 @@ const Page = () => {
         image="https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758641969/skicom/rzixupei0jmxjjfkv6mg.png"
         tagTitle={t("beAVendor.tagTitle")}
         title={t("beAVendor.title")}
-        className={`dark:bg-muted bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] bg-right bg-no-repeat`}
+        className={`dark:bg-muted mt-20 bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] bg-right bg-no-repeat`}
         textClassName={`max-w-[1000px] lg:pr-[40%]`}
       />
       <BlackFridayReusableBanner
@@ -73,7 +73,7 @@ const Page = () => {
           </h1>
         }
       />
-      <BlackFridayReusableBanner
+      {/* <BlackFridayReusableBanner
         asChild
         showSalesTag
         description={t("blackFriday.comingSoon.description")}
@@ -87,7 +87,7 @@ const Page = () => {
             <CountdownTimer id="sales-countdown" duration="5d 0h 0m 0s" />
           </div>
         </div>
-      </BlackFridayReusableBanner>
+      </BlackFridayReusableBanner> */}
       <ProductGrid
         title={t("blackFridayDeals")}
         headerStyle="bg-black !text-white rounded-se-lg rounded-ss-lg px-[10px]"
@@ -96,8 +96,8 @@ const Page = () => {
       />
       <ReusableBanner
         action={
-          <SkiButton href={`/signup/vendor`} className="px-14" size="xl" variant="primary">
-            {t("deliveryNetwork.action")}
+          <SkiButton isDisabled className="px-14" size="xl" variant="primary">
+            {`Join Now`}
           </SkiButton>
         }
         description={t("deliveryNetwork.description")}

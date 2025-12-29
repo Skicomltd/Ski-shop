@@ -97,11 +97,11 @@ export const BaseSignupForm = () => {
       <div className="text-muted-foreground text-xs sm:text-sm">
         <p className="leading-relaxed">
           {tAuth("termsAccepted")}{" "}
-          <LocaleLink href={`/${locale}/privacy`} className="text-primary hover:underline">
+          <LocaleLink href="/privacy-policy" className="text-primary hover:underline">
             {tAuth("privacy")}
           </LocaleLink>
           ,{" "}
-          <LocaleLink href={`/${locale}/terms`} className="text-primary hover:underline">
+          <LocaleLink href="/terms-and-condition" className="text-primary hover:underline">
             {tAuth("terms")}
           </LocaleLink>
         </p>
