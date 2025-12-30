@@ -26,6 +26,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "loremflickr.com",
       },
+      {
+        hostname: "lon1.digitaloceanspaces.com",
+      },
     ],
   },
 };

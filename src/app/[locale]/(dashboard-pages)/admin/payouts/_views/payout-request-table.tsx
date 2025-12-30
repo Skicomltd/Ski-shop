@@ -2,6 +2,7 @@
 
 import { Icons } from "@/components/core/miscellaneous/icons";
 import { SearchInput } from "@/components/core/miscellaneous/search-input";
+import SkiButton from "@/components/shared/button";
 import { DashboardTable } from "@/components/shared/dashboard-table";
 import { useAdminPayoutRequestColumn } from "@/components/shared/dashboard-table/admin/admin-table-data";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -106,12 +107,9 @@ export const PayoutRequestTable = () => {
       titleClassName="!text-2xl"
       descriptionClassName="text-base mb-4"
       actionButton={
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-primary hover:bg-primary/90 text-background rounded-md px-4 py-2"
-        >
+        <SkiButton onClick={() => window.location.reload()} variant={`primary`}>
           Refresh
-        </button>
+        </SkiButton>
       }
     />
   );

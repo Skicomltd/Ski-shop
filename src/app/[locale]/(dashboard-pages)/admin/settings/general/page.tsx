@@ -6,6 +6,8 @@ import { FormField, SwitchField } from "@/components/shared/inputs/FormFields";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAdminSettingsService } from "@/services/dashboard/admin/settings/use-admin-settings-service";
+import { useAppService } from "@/services/externals/app/use-app-service";
+import { MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -21,11 +23,24 @@ type GeneralFormData = {
   alternativeContactEmail?: string | null;
 };
 
+type PickupStationFormData = {
+  name: string;
+  contactPerson: string;
+  address: string;
+  state: string;
+  phoneNumber: string;
+  status: "active" | "inactive";
+};
+
 const Pages = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { useGetMySettings, useUpdateSettings, useCreateSettings } = useAdminSettingsService();
+  const { useCreatePickupStation, useGetDeliveryStates } = useAppService();
   const { data } = useGetMySettings({ staleTime: 30_000 });
+  const { data: deliveryStatesResponse } = useGetDeliveryStates({ staleTime: 1000 * 60 * 5 });
+
+  const deliveryStates = useMemo(() => deliveryStatesResponse?.data ?? [], [deliveryStatesResponse?.data]);
 
   const updateMutation = useUpdateSettings({
     onSuccess: () => toast.success("General settings updated"),
@@ -51,7 +66,26 @@ const Pages = () => {
     mode: "onChange",
   });
 
+  const pickupStationMethods = useForm<PickupStationFormData>({
+    defaultValues: {
+      name: "",
+      contactPerson: "",
+      address: "",
+      state: "",
+      phoneNumber: "",
+      status: "active",
+    },
+    mode: "onChange",
+  });
+
   const { handleSubmit, reset } = methods;
+
+  const createPickupStationMutation = useCreatePickupStation({
+    onSuccess: () => {
+      toast.success("Pickup station created");
+      pickupStationMethods.reset();
+    },
+  });
 
   useEffect(() => {
     if (data?.success) reset(defaults);
@@ -87,6 +121,24 @@ const Pages = () => {
   };
 
   const isSubmitting = isLoading || updateMutation.isPending || createMutation.isPending;
+  const isCreatingPickupStation = createPickupStationMutation.isPending;
+
+  const onCreatePickupStation = async (values: PickupStationFormData) => {
+    try {
+      await createPickupStationMutation.mutateAsync({
+        name: values.name,
+        contactPerson: values.contactPerson,
+        address: values.address,
+        state: values.state,
+        phoneNumber: values.phoneNumber,
+        status: values.status,
+      });
+    } catch (error) {
+      toast.error("Failed to create pickup station", {
+        description: (error as Error)?.message ?? "Unknown error",
+      });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -183,6 +235,82 @@ const Pages = () => {
                 </MainButton>
                 <MainButton variant="primary" type="submit" isDisabled={isSubmitting} className="sm:w-auto">
                   {isSubmitting ? "Saving..." : "Save"}
+                </MainButton>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </FormProvider>
+
+      <FormProvider {...pickupStationMethods}>
+        <form onSubmit={pickupStationMethods.handleSubmit(onCreatePickupStation)} className="space-y-6">
+          <Card className="border-none shadow-none">
+            <CardHeader className="space-y-1">
+              <DashboardHeader
+                title={`Pickup Stations`}
+                titleClassName={`text-xl`}
+                subtitle={`Create a new pickup station for customers.`}
+                icon={<MapPin className={`size-4`} />}
+                showSubscriptionBanner={false}
+              />
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField label="Station Name" name="name" placeholder="Ikeja Pickup Station" className="h-12" />
+
+                <FormField label="Contact Person" name="contactPerson" placeholder="John Doe" className="h-12" />
+
+                <FormField label="Phone Number" name="phoneNumber" placeholder="+234..." className="h-12" />
+
+                <FormField
+                  label="State"
+                  name="state"
+                  type="select"
+                  placeholder={deliveryStates.length > 0 ? "Select state" : "Loading states..."}
+                  disabled={deliveryStates.length === 0}
+                  options={deliveryStates.map((state) => ({ value: state, label: state }))}
+                  className="!h-12"
+                />
+
+                <FormField
+                  label="Status"
+                  name="status"
+                  type="select"
+                  placeholder="Select status"
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                  ]}
+                  className="!h-12"
+                />
+              </div>
+
+              <FormField
+                label="Address"
+                name="address"
+                type="textarea"
+                placeholder="Full pickup station address"
+                className="min-h-[120px]"
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-none">
+            <CardContent className="pt-6">
+              <Separator className="mb-6" />
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <MainButton
+                  variant="outline"
+                  type="button"
+                  onClick={() => pickupStationMethods.reset()}
+                  isDisabled={isCreatingPickupStation}
+                  className="sm:w-auto"
+                >
+                  Clear
+                </MainButton>
+                <MainButton variant="primary" type="submit" isDisabled={isCreatingPickupStation} className="sm:w-auto">
+                  {isCreatingPickupStation ? "Creating..." : "Create Pickup Station"}
                 </MainButton>
               </div>
             </CardContent>

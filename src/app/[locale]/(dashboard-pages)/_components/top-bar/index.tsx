@@ -1,9 +1,9 @@
 "use client";
 
-import { SearchInput } from "@/components/core/miscellaneous/search-input";
+// import { SearchInput } from "@/components/core/miscellaneous/search-input";
 import { ModernThemeSwitcher } from "@/components/core/miscellaneous/theme-variant-switcher";
 import { UserAvatarProfile } from "@/components/core/miscellaneous/user-avatar-profile";
-import { LanguageToggle } from "@/components/shared/language-toggle";
+// import { LanguageToggle } from "@/components/shared/language-toggle";
 import { NotificationWidget, type Notification } from "@/components/shared/notification-widget";
 import { AppEventsListener } from "@/components/shared/notification-widget/app-events-listener";
 import { useSSE } from "@/context/sse-provider";
@@ -82,11 +82,11 @@ export default function TopBar({ className = "" }: TopBarProperties) {
     <>
       <header className={`bg-background flex h-16 items-center justify-between ${className}`}>
         <div className="relative hidden min-w-0 flex-1 md:block">
-          <SearchInput
+          {/* <SearchInput
             isDisabled
-            className={`bg-muted h-12 w-full max-w-xl min-w-0 rounded-md border-none`}
+            className={`bg-muted h-full w-full max-w-xl min-w-0 rounded-md border-none`}
             onSearch={() => {}}
-          />
+          /> */}
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <NotificationWidget
@@ -100,7 +100,7 @@ export default function TopBar({ className = "" }: TopBarProperties) {
             <UserAvatarProfile showInfo />
           </div>
           <ModernThemeSwitcher />
-          <LanguageToggle />
+          {/* <LanguageToggle /> */}
         </div>
       </header>
       <AppEventsListener />

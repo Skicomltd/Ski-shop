@@ -49,7 +49,7 @@ export function NotificationWidget({
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-primary-75 relative rounded-full"
+          className="hover:bg-primary relative rounded-full hover:text-white"
           aria-label="Notifications"
         >
           <Bell className="size-6" />

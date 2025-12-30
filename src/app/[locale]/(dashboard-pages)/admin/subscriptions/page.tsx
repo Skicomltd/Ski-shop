@@ -11,12 +11,12 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Locale } from "@/lib/i18n/config";
-import { formatCurrency } from "@/lib/i18n/utils";
+// import { Locale } from "@/lib/i18n/config";
+// import { formatCurrency } from "@/lib/i18n/utils";
 // import { orderStatusOptions } from "@/lib/constants";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { useSettingsService } from "@/services/dashboard/vendor/settings/use-settings-service";
-import { useLocale } from "next-intl";
+// import { useLocale } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { GiWallet } from "react-icons/gi";
@@ -36,7 +36,7 @@ type CreatePlanFormValues = {
 };
 
 const Page = () => {
-  const locale = useLocale();
+  // const locale = useLocale();
   const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
   const {
     // page: currentPage,
@@ -128,25 +128,26 @@ const Page = () => {
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <OverViewCard
           title={"Total Star Sellers"}
-          value={150}
+          value={"-"}
           icon={<GiWallet />}
           iconClassName="bg-[#F2EBFB] text-[24px] text-purple"
         />
         <OverViewCard
           title={"Monthly Active Plans"}
-          value={120}
+          value={"-"}
           icon={<GiWallet />}
           iconClassName="bg-low-blue text-[24px] blue text-primary"
         />
         <OverViewCard
           title={"Yearly Active Plans"}
-          value={20}
+          value={"-"}
           icon={<GiWallet />}
           iconClassName="bg-low-success text-[24px] text-mid-success"
         />
         <OverViewCard
           title={"Subscription Revenue"}
-          value={formatCurrency(5000, locale as Locale)}
+          // value={formatCurrency(5000, locale as Locale)}
+          value={"-"}
           icon={<GiWallet />}
           iconClassName="bg-low-warning/20 text-[24px] text-mid-warning"
         />
