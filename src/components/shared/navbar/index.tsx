@@ -70,7 +70,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
     const savedItemsCount = savedProductsResponse?.data?.metadata?.total || 0;
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const isShopRoute = pathname.includes("/shop");
+    const isShopRoute = pathname === "/ng/shop";
     const shouldStick = sticky && !isShopRoute;
 
     const isActiveLink = (href: string) => (href === "/" ? pathname === href : pathname.includes(href));
@@ -103,7 +103,6 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
               "bg-background flex items-center justify-between rounded-none px-4 transition-all duration-300",
               // Default (floating) look
               !isShopRoute && "shadow-2xl lg:mt-7 lg:rounded-full lg:px-7",
-              // Shop page look (non-floating, like Jumia)
               isShopRoute && "border-border border-b shadow-none lg:mt-0 lg:rounded-none lg:px-4",
               "h-16 md:h-20",
               className,

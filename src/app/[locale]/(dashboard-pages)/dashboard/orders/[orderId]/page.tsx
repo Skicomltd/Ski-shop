@@ -13,7 +13,9 @@ import { cn } from "@/lib/utils";
 // import { OrderTrackingData, RiderInfo } from "@/modules/tracking/types";
 // import { createTrackingData } from "@/modules/tracking/utils/tracking-utils";
 import { useDashboardOrderService } from "@/services/dashboard/vendor/orders/use-order-service";
+import { useDashboardProfileService } from "@/services/dashboard/vendor/users/use-profile-service";
 import { CreditCard, MapPin, Phone, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { use, useState } from "react";
@@ -52,6 +54,11 @@ const getStatusColor = (status: string) => {
 export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
   const { orderId, locale } = use(params);
   const { useGetOrderById, useRequestDelivery } = useDashboardOrderService();
+  const { data: session } = useSession();
+  const userId = session?.user?.id as string | undefined;
+  const { useGetVendorProfileInfo } = useDashboardProfileService();
+  const { data: vendorProfileInfoResponse } = useGetVendorProfileInfo(userId);
+  const isStarSellerVendor = Boolean(vendorProfileInfoResponse?.data?.store?.isStarSeller);
   const { data: orderResponse, isLoading, isError, refetch } = useGetOrderById(orderId);
   // const [isAssignRiderModalOpen, setIsAssignRiderModalOpen] = useState(false);
   const [isFulfillmentFeeModalOpen, setIsFulfillmentFeeModalOpen] = useState(false);
@@ -205,7 +212,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                             height={60}
                             className="rounded-lg object-cover sm:h-20 sm:w-20"
                           />
-                          {item.vendor?.name && (
+                          {isStarSellerVendor && (
                             <Image
                               src="/images/star-seller.svg"
                               alt="Seller badge"

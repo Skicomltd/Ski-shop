@@ -6,8 +6,12 @@ import { UserAvatarProfile } from "@/components/core/miscellaneous/user-avatar-p
 // import { LanguageToggle } from "@/components/shared/language-toggle";
 import { NotificationWidget, type Notification } from "@/components/shared/notification-widget";
 import { AppEventsListener } from "@/components/shared/notification-widget/app-events-listener";
+import { Badge } from "@/components/ui/badge";
 import { useSSE } from "@/context/sse-provider";
+import { useDashboardProfileService } from "@/services/dashboard/vendor/users/use-profile-service";
 import { useNotificationService } from "@/services/externals/notifications/use-notification-service";
+import { Star } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -19,6 +23,15 @@ type TopBarProperties = {
 export default function TopBar({ className = "" }: TopBarProperties) {
   const router = useRouter();
   const { on } = useSSE();
+  const { data: session } = useSession();
+
+  const roleName = session?.user?.role?.name?.toLowerCase();
+  const isVendor = roleName === "vendor";
+  const userId = session?.user?.id as string | undefined;
+
+  const { useGetVendorProfileInfo } = useDashboardProfileService();
+  const { data: vendorProfileInfoResponse } = useGetVendorProfileInfo(isVendor ? userId : undefined);
+  const isStarSeller = Boolean(vendorProfileInfoResponse?.data?.store?.isStarSeller);
 
   const { useGetNotifications, useMarkNotificationAsRead, useMarkAllAsRead, useClearAllNotifications } =
     useNotificationService();
@@ -89,6 +102,12 @@ export default function TopBar({ className = "" }: TopBarProperties) {
           /> */}
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          {isVendor && isStarSeller && (
+            <Badge className="border-border bg-background text-primary flex items-center gap-1 border font-semibold">
+              <Star className="h-3.5 w-3.5 fill-current" />
+              Star Seller
+            </Badge>
+          )}
           <NotificationWidget
             notifications={notifications}
             onNotificationClick={handleNotificationClick}
