@@ -9,16 +9,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useTransition } from "react";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 
 export const LoginForm = () => {
   const tAuth = useTranslations("auth");
   // const tCommon = useTranslations("common");
   const locale = useLocale();
-  const [isGooglePending, startGoogleTransition] = useTransition();
+  // const [isGooglePending, startGoogleTransition] = useTransition();
   const router = useRouter();
   const searchParameters = useSearchParams();
 
@@ -90,11 +90,11 @@ export const LoginForm = () => {
     router.push(`/${locale}/dashboard/home`);
   };
 
-  const handleGoogleSignIn = () => {
-    startGoogleTransition(async () => {
-      router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
-    });
-  };
+  // const handleGoogleSignIn = () => {
+  //   startGoogleTransition(async () => {
+  //     router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
+  //   });
+  // };
 
   return (
     <section className="w-full">
@@ -145,7 +145,7 @@ export const LoginForm = () => {
             >
               {tAuth("login")}
             </SkiButton>
-            <span className="text-muted-foreground text-xs sm:text-sm">
+            {/* <span className="text-muted-foreground text-xs sm:text-sm">
               -------------------- OR --------------------
             </span>
             <SkiButton
@@ -159,7 +159,7 @@ export const LoginForm = () => {
               onClick={handleGoogleSignIn}
             >
               {tAuth("signInWithGoogle")}
-            </SkiButton>
+            </SkiButton> */}
           </section>
 
           <p className="text-muted-foreground mt-6 text-center text-sm sm:text-base">

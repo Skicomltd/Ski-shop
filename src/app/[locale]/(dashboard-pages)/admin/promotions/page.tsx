@@ -1,18 +1,24 @@
 "use client";
 
 import { Icons } from "@/components/core/miscellaneous/icons";
+import SkiButton from "@/components/shared/button";
 import { formatCurrency } from "@/lib/i18n/utils";
 import { usePromotionService } from "@/services/dashboard/vendor/promotions/use-promotion-service";
 import { Clock, DollarSign } from "lucide-react";
+import { useState } from "react";
 
 import { DashboardHeader } from "../../_components/dashboard-header";
 import { OverViewCard } from "../../_components/overview-card";
+import { PromotionFormModal } from "./_views/promotion-form-modal";
 import { PromotionHistoryTable } from "./_views/promotion-history-table";
 import { PromotionRequestsTable } from "./_views/promotion-request-table";
 
 const Promotions = () => {
   const { useGetAllAvailablePromotions } = usePromotionService();
   const { data } = useGetAllAvailablePromotions();
+
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
 
   const promotions = (data?.data?.items ?? []) as Promotion[];
   const metadata = data?.data?.metadata;
@@ -32,6 +38,17 @@ const Promotions = () => {
           subtitle="Manage promotions, approve requests and monitor revenue"
           showSubscriptionBanner={false}
           icon={<Icons.promotion className={`size-6`} />}
+          actionComponent={
+            <SkiButton
+              variant="primary"
+              onClick={() => {
+                setEditingPromotion(null);
+                setIsPromotionModalOpen(true);
+              }}
+            >
+              Create Promotion
+            </SkiButton>
+          }
         />
       </div>
 
@@ -64,9 +81,20 @@ const Promotions = () => {
       </div>
 
       <section className="space-y-8">
-        <PromotionRequestsTable />
+        <PromotionRequestsTable
+          onEditPromotion={(promotion) => {
+            setEditingPromotion(promotion as Promotion);
+            setIsPromotionModalOpen(true);
+          }}
+        />
         <PromotionHistoryTable />
       </section>
+
+      <PromotionFormModal
+        open={isPromotionModalOpen}
+        onOpenChange={setIsPromotionModalOpen}
+        initialPromotion={editingPromotion ?? undefined}
+      />
     </div>
   );
 };
