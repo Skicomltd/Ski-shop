@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Globe } from "lucide-react";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 
 export default function AccountPreferencesPage() {
   const t = useTranslations();
   const locale = useLocale();
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
 
   return (
     <section className="space-y-8">
