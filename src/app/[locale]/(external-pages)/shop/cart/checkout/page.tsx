@@ -146,20 +146,27 @@ const CheckoutPage = () => {
       station: raw?.station ?? raw?.code ?? raw?.slug ?? "",
       price: typeof raw?.price === "number" ? raw.price : Number(raw?.price ?? 0) || 0,
     }));
+
     setStations(normalized);
-    if (!selectedStation && normalized.length > 0) {
-      setSelectedStation(normalized[0]);
-      setSelectedStateForStation(normalized[0]?.state || "");
+
+    // Only set defaults if user hasn't already selected something.
+    if (normalized.length > 0) {
+      setSelectedStation((previous: any) => previous ?? normalized[0]);
+      setSelectedStateForStation((previous) => previous || normalized[0]?.state || "");
     }
-  }, [pickupStationList, selectedStation]);
+  }, [pickupStationList]);
 
   // Re-select station when user changes selected state in modal
   useEffect(() => {
     if (!selectedStateForStation) return;
     const inState = stations.filter((s) => s.state === selectedStateForStation);
-    if (inState.length > 0) {
-      setSelectedStation(inState[0]);
-    }
+    if (inState.length === 0) return;
+
+    const next = inState[0];
+    setSelectedStation((previous: any) => {
+      if (previous?.id && next?.id && previous.id === next.id) return previous;
+      return next;
+    });
   }, [selectedStateForStation, stations]);
 
   useEffect(() => {
@@ -411,10 +418,10 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Delivery and Payment Section */}
           <div>
-            <h4 className="!text-lg md:!text-xl">Delivery Method</h4>
+            <h4 className="!text-primary !text-lg md:!text-2xl">Delivery Method</h4>
 
             <form onSubmit={handleFormSubmit}>
-              <div className="space-y-10">
+              <div className="mt-4 space-y-10">
                 <label className="block cursor-pointer">
                   <div className={`flex items-start space-y-2`}>
                     <input
@@ -438,7 +445,7 @@ const CheckoutPage = () => {
                       className="bg-muted text-primary flex w-full items-center justify-between p-4 focus:outline-none"
                       onClick={() => setShowPickupModal(true)}
                     >
-                      <p className="font-semibold md:!text-lg">Select Pick-up Station</p>
+                      <p className="font-semibold md:!text-lg">Selected Pick-up Station</p>
                       <ChevronRight />
                     </button>
                     {deliveryMethod === "station" && selectedStation && (
@@ -447,9 +454,9 @@ const CheckoutPage = () => {
                           {selectedStation?.place ?? "Select Pick-up Station"}
                         </span>
                         <div className="!text-xs text-gray-500 md:!text-sm">{selectedStation?.address ?? ""}</div>
-                        <div className="mt-1 !text-sm font-bold text-[#FF9900] md:!text-base">
+                        {/* <div className="mt-1 !text-sm font-bold text-[#FF9900] md:!text-base">
                           {formatCurrency(selectedStation?.price ?? 0, locale as Locale)}
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>
@@ -479,7 +486,7 @@ const CheckoutPage = () => {
                           className="bg-muted text-primary flex w-full items-center justify-between p-4 focus:outline-none"
                           onClick={() => setShowAddressBookModal(true)}
                         >
-                          <p className="!text-base font-semibold md:!text-lg">Select From Address Book</p>
+                          <p className="!text-base font-semibold md:!text-lg">Selected From Address Book</p>
                           <ChevronRight />
                         </button>
                         {selectedAddress ? (
@@ -510,8 +517,8 @@ const CheckoutPage = () => {
               </div>
 
               {/* Payment Method */}
-              <div className="mt-6 rounded-lg border p-4">
-                <h4 className="!text-lg md:!text-xl">Payment Method</h4>
+              <div className="mt-20 rounded-lg border p-4">
+                <h4 className="!text-primary !text-lg md:!text-2xl">Payment Method</h4>
                 <div className="mt-2 space-y-2">
                   <label className="flex cursor-pointer items-center gap-3 py-2">
                     <input
@@ -523,10 +530,10 @@ const CheckoutPage = () => {
                       className="h-4 w-4"
                     />
                     <Image src="/images/paystack-logo.svg" alt="Paystack" width={100} height={10} className="h-6" />
-                    <span className="!text-sm text-gray-600">Secure online payment</span>
+                    <span className="block !text-sm text-gray-600">Secure online payment</span>
                   </label>
 
-                  <label className="flex cursor-pointer items-start gap-3 py-2">
+                  {/* <label className="flex cursor-pointer items-start gap-3 py-2">
                     <input
                       type="radio"
                       name="payment"
@@ -541,7 +548,7 @@ const CheckoutPage = () => {
                         Pay when your order arrives at your door or pickup station.
                       </p>
                     </div>
-                  </label>
+                  </label> */}
                 </div>
 
                 {paymentMethod === "paymentOnDelivery" && (
@@ -571,7 +578,7 @@ const CheckoutPage = () => {
 
           {/* Order Summary */}
           <div className="h-fit rounded-lg border p-6">
-            <h4 className="mb-6 !text-xl md:!text-2xl">Your order</h4>
+            <h4 className="!text-primary mb-6 !text-xl md:!text-2xl">Your order</h4>
             <hr />
 
             {isCartLoading ? (

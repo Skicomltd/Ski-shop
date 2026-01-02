@@ -11,6 +11,40 @@ export interface VendorProfileApiResponse {
   message?: string;
 }
 
+export interface VendorProfileInfo {
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    firstName: string;
+    lastName: string;
+    createdAt: string;
+  };
+  business: {
+    id: string;
+    name: string;
+    address: string;
+    country: string;
+    state: string;
+    type: string;
+    kycStatus: string;
+  };
+  store: {
+    id: string;
+    description: string;
+    name: string;
+    logo: string;
+    isStarSeller: boolean;
+  };
+}
+
+export interface VendorProfileInfoApiResponse {
+  success: boolean;
+  data: VendorProfileInfo;
+  message?: string;
+}
+
 export class DashboardProfileService {
   private readonly http: HttpAdapter;
 
@@ -31,6 +65,18 @@ export class DashboardProfileService {
         return response.data;
       }
       throw new Error("Failed to fetch vendor profile");
+    });
+  }
+
+  // get vendor profile info (user + business + store)
+  async getVendorProfileInfo(userId: string) {
+    return tryCatchWrapper(async () => {
+      const safeUserId = encodeURIComponent(userId);
+      const response = await this.http.get<VendorProfileInfoApiResponse>(`/vendors/${safeUserId}/profile`);
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to fetch vendor profile info");
     });
   }
 

@@ -3,9 +3,10 @@
 import Loading from "@/app/Loading";
 import { Icons } from "@/components/core/miscellaneous/icons";
 import { SearchInput } from "@/components/core/miscellaneous/search-input";
+import SkiButton from "@/components/shared/button";
 import { DashboardTable } from "@/components/shared/dashboard-table";
 import { DownloadCsvButton } from "@/components/shared/download-csv-button";
-import { ErrorState } from "@/components/shared/empty-state";
+import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 // import { orderStatusOptions } from "@/lib/constants";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency } from "@/lib/i18n/utils";
@@ -157,9 +158,19 @@ const Page = () => {
                   showPagination={false}
                 />
               ) : (
-                <div className="flex items-center justify-center p-20">
-                  <p>No revenue history found.</p>
-                </div>
+                <EmptyState
+                  images={[{ src: "/images/empty-state.svg", width: 50, height: 50, alt: "No revenue available" }]}
+                  title="No revenue available"
+                  description="There are no revenue available at the moment."
+                  className="bg-mid-grey-I space-y-0 rounded-lg"
+                  titleClassName="!text-2xl"
+                  descriptionClassName="text-base mb-4"
+                  actionButton={
+                    <SkiButton onClick={() => window.location.reload()} variant={`primary`}>
+                      Refresh
+                    </SkiButton>
+                  }
+                />
               )}
             </section>
           </section>

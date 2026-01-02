@@ -289,7 +289,14 @@ export const useAppService = () => {
     useServiceMutation(
       (
         service,
-        data: { state: string; lga?: string; station: string; place: string; address: string; price: number },
+        data: {
+          name: string;
+          contactPerson: string;
+          address: string;
+          state: string;
+          phoneNumber: string;
+          status: string;
+        },
       ) => service.createPickupStation(data),
       {
         onSuccess: () => {
@@ -306,12 +313,12 @@ export const useAppService = () => {
         data: {
           id: string;
           payload: Partial<{
-            state: string;
-            lga?: string;
-            station: string;
-            place: string;
+            name: string;
+            contactPerson: string;
             address: string;
-            price: number;
+            state: string;
+            phoneNumber: string;
+            status: string;
           }>;
         },
       ) => service.updatePickupStation(data.id, data.payload),

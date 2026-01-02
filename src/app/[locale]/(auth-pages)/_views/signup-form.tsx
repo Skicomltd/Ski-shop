@@ -56,12 +56,12 @@ export const BaseSignupForm = () => {
       onSuccess: (response) => {
         if (response?.success && !pathname.includes("/vendor")) {
           toast.success(tAuth("signupSuccess"), {
-            description: tAuth("signupSuccess"),
+            // description: tAuth("signupSuccess"),
           });
           router.push(`/${locale}/onboarding/verify-email?email=${data?.email}&token=${response?.data?.token}`);
         } else if (response?.success && pathname.includes("/vendor")) {
           toast.success(tAuth("signupSuccess"), {
-            description: tAuth("passwordResetSent"),
+            // description: tAuth("passwordResetSent"),
           });
           router.push(`/${locale}/onboarding/vendor/verify-email?email=${data?.email}&token=${response?.data?.token}`);
         }

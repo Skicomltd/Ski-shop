@@ -40,14 +40,56 @@ export const Categories = () => {
   const { data: categoriesResponse, isLoading, isError, refetch } = useGetAllProductCategory();
 
   const categoryImages = [
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/acy6r3gqyetxcghfyxlv.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/fhepjmapqqt46a5leibn.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042749/skicom/gcd8pkx2hvotfwij61hz.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/acy6r3gqyetxcghfyxlv.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/zeprdyempmavqdvl1k2w.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042747/skicom/zeprdyempmavqdvl1k2w.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042748/skicom/tns0s6h7ginairv3egta.png",
-    "https://res.cloudinary.com/kingsleysolomon/image/upload/v1767042748/skicom/tns0s6h7ginairv3egta.png",
+    // 1) Sales / Hot Deals
+    "https://source.unsplash.com/featured/1200x800/?sale,discount,shopping",
+    // 2) Gold Finds
+    "https://source.unsplash.com/featured/1200x800/?gold,bullion,metal",
+    // 3) Luxury
+    "https://source.unsplash.com/featured/1200x800/?luxury,lifestyle,designer",
+    // 4) Bottega
+    "https://source.unsplash.com/featured/1200x800/?woven,leather,handbag",
+    // 5) Perfume & Oils
+    "https://source.unsplash.com/featured/1200x800/?perfume,fragrance,bottle",
+    // 6) Sequoia (Bath & Body)
+    "https://source.unsplash.com/featured/1200x800/?bath,spa,bodycare",
+    // 7) Gym/Fitness
+    "https://source.unsplash.com/featured/1200x800/?gym,fitness,workout",
+    // 8) Furniture / Home Decor
+    "https://source.unsplash.com/featured/1200x800/?interior,home-decor,furniture",
+    // 9) Kitchen
+    "https://source.unsplash.com/featured/1200x800/?kitchen,cooking,cookware",
+    // 10) Gadgets
+    "https://source.unsplash.com/featured/1200x800/?gadgets,technology,electronics",
+    // 11) Men's Fashion
+    "https://source.unsplash.com/featured/1200x800/?mens-fashion,suit,style",
+    // 12) Women's Fashion
+    "https://source.unsplash.com/featured/1200x800/?womens-fashion,dress,style",
+    // 13) Basics
+    "https://source.unsplash.com/featured/1200x800/?tshirt,basic,clothing",
+    // 14) Jewelry
+    "https://source.unsplash.com/featured/1200x800/?jewelry,necklace,ring",
+    // 15) Art
+    "https://source.unsplash.com/featured/1200x800/?art,painting,canvas",
+    // 16) Kids
+    "https://source.unsplash.com/featured/1200x800/?kids,children,play",
+    // 17) Tools and Kits
+    "https://source.unsplash.com/featured/1200x800/?tools,toolbox,hardware",
+    // 18) Hair & Cosmetics
+    "https://source.unsplash.com/featured/1200x800/?makeup,cosmetics,skincare",
+    // 19) Appliances
+    "https://source.unsplash.com/featured/1200x800/?appliances,kitchen-appliances,home",
+    // 20) Computer / Gaming
+    "https://source.unsplash.com/featured/1200x800/?gaming,computer,keyboard",
+    // 21) Watch & Accessories
+    "https://source.unsplash.com/featured/1200x800/?watch,wristwatch,accessories",
+    // 22) Educational
+    "https://source.unsplash.com/featured/1200x800/?education,books,learning",
+    // 23) Pet Supplies
+    "https://source.unsplash.com/featured/1200x800/?pet,dog,cat",
+    // 24) Toys
+    "https://source.unsplash.com/featured/1200x800/?toys,lego,play",
+    // 25) Automobiles / Parts
+    "https://source.unsplash.com/featured/1200x800/?car,engine,auto-parts",
   ];
 
   const categories =
@@ -56,6 +98,7 @@ export const Categories = () => {
       return {
         title: formattedTitle,
         image: categoryImages[index % categoryImages.length],
+        // image: category.image,
         href: `/shop?category=${encodeURIComponent(category)}`,
       };
     }) || [];
