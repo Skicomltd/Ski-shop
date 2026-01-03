@@ -8,7 +8,7 @@ import { usePhoneVerificationService } from "@/services/externals/onboarding/use
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { MdSend } from "react-icons/md";
 import { toast } from "sonner";
@@ -27,6 +27,14 @@ export const PhoneInputForm = () => {
   const router = useRouter();
   const { phoneService } = usePhoneVerificationService();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clean up Firebase reCAPTCHA when this form unmounts to avoid
+  // "reCAPTCHA client element has been removed" errors.
+  useEffect(() => {
+    return () => {
+      phoneService?.cleanup?.();
+    };
+  }, [phoneService]);
 
   // Initialize the form
   const methods = useForm<z.infer<typeof FormSchema>>({
@@ -167,3 +175,5 @@ export const PhoneInputForm = () => {
     </div>
   );
 };
+
+// +2349020551592

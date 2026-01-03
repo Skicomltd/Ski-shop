@@ -20,6 +20,14 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProperties> = React.
   React.ElementRef<typeof RPNInput.default>,
   PhoneInputProperties
 >(({ className, onChange, value, inputClassName, buttonClassName, ...properties }, reference) => {
+  const MemoizedInputComponent = React.useMemo(
+    () =>
+      React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>((inputProperties, inputRef) => (
+        <InputComponent {...inputProperties} inputClassName={inputClassName} ref={inputRef} />
+      )),
+    [inputClassName],
+  );
+
   return (
     <RPNInput.default
       ref={reference}
@@ -28,7 +36,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProperties> = React.
       countrySelectComponent={(countrySelectProperties) => (
         <CountrySelect {...countrySelectProperties} buttonClassName={buttonClassName} />
       )}
-      inputComponent={(inputProperties) => <InputComponent {...inputProperties} inputClassName={inputClassName} />}
+      inputComponent={MemoizedInputComponent}
       smartCaret={false}
       value={value || undefined}
       /**
