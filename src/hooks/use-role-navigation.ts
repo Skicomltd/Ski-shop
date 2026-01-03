@@ -48,6 +48,9 @@ export const useRoleNavigation = (): NavItem[] => {
         icon: ThumbsUp,
         actionType: "open-rate-app-modal",
       }),
+      createNavItem("subscriptions", "Subscriptions", `${baseRoute}/supscription`, {
+        icon: IoRibbonOutline,
+      }),
     ];
 
     const adminSpecificSettings = [
