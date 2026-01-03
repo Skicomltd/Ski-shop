@@ -60,6 +60,7 @@ export const VerifyPhoneComponent = () => {
 
     try {
       const response = await phoneService.verifyPhoneOTP(data.code);
+      // console.log(response);
 
       if (response?.success && response?.data?.token) {
         toast.success("Phone number verified successfully");

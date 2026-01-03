@@ -160,7 +160,7 @@ export const ShopCard = ({
         </div>
         {id && (
           <ComponentGuard customCondition={() => !isAddToCartBlockedRole}>
-            <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <div className="pt-2 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
               <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
             </div>
           </ComponentGuard>

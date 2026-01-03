@@ -259,11 +259,17 @@ export class PhoneVerificationService {
   /**
    * Clean up reCAPTCHA verifier
    */
-  cleanup() {
+  cleanup(resetConfirmation: boolean = false) {
     if (this.recaptchaVerifier) {
       this.recaptchaVerifier.clear();
       this.recaptchaVerifier = null;
     }
-    this.confirmationResult = null;
+
+    // Only reset the confirmation result when explicitly requested.
+    // We need to keep it across page navigations so that the
+    // verification screen can still call `confirm(code)`.
+    if (resetConfirmation) {
+      this.confirmationResult = null;
+    }
   }
 }

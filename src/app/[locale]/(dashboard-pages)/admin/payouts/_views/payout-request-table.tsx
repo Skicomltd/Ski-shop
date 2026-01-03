@@ -100,7 +100,7 @@ export const PayoutRequestTable = () => {
 
   const renderEmptyState = () => (
     <EmptyState
-      images={[{ src: "/images/empty-state.svg", width: 80, height: 80, alt: "No payout requests" }]}
+      images={[{ src: "/images/empty-state.svg", width: 50, height: 50, alt: "No payout requests" }]}
       title="No payout requests found"
       description="There are no payout requests matching your criteria."
       className="bg-mid-grey-I space-y-0 rounded-lg"
