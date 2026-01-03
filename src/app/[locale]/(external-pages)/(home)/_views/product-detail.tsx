@@ -72,7 +72,7 @@ const toSerializedEditorState = (description?: string): SerializedEditorState | 
 
 export const ProductDetail = ({ product, isLoading = false }: any) => {
   const locale = useLocale() as Locale;
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { useGetAllReviews, useDeleteReview } = useAppService();
@@ -81,11 +81,14 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
     isLoading: isReviewsLoading,
     isError: isReviewsError,
   } = useGetAllReviews({ productId: product?.id });
-  const { isSaved, isPending: isSaving, toggleSave } = useSaveProduct(product?.id || "");
+  const { isSaved, isPending: isSaving, toggleSave } = useSaveProduct(product?.id || "", product);
   const [activeTab, setActiveTab] = useState<Tab>("description");
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
   const queryClient = useQueryClient();
+
+  const role = session?.user?.role?.name?.toUpperCase();
+  const canSaveProduct = status !== "authenticated" || role === "CUSTOMER";
 
   const { mutate: deleteReview } = useDeleteReview({
     onMutate: async (reviewId: string) => {
@@ -169,7 +172,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                 <div className="relative aspect-square max-h-[482px] w-full overflow-hidden rounded-lg border p-4 sm:p-[2rem]">
                   <BlurImage priority src={gallery[selectedImage]} alt={product.name} fill className="object-cover" />
                   {/* Heart button positioned absolutely over the image */}
-                  <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
+                  {canSaveProduct && (
                     <button
                       role="button"
                       tabIndex={0}
@@ -198,7 +201,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                         <Heart className="h-6 w-6" />
                       )}
                     </button>
-                  </ComponentGuard>
+                  )}
                 </div>
                 <div className="grid grid-cols-4 gap-2 sm:gap-4">
                   {gallery.map((image: any, index: any) => (
