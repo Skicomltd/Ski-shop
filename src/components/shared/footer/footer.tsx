@@ -162,7 +162,7 @@ export const Footer = () => {
             </div>
 
             <div className="mt-10 flex flex-col justify-center lg:mt-0 xl:block">
-              <h6 className="text-sm !font-semibold !text-white uppercase">{t("help")}</h6>
+              <h6 className="invisible text-sm !font-semibold !text-white uppercase">{t("help")}</h6>
               {/* <div className="flex items-center gap-20"> */}
               <div className="mt-5 flex flex-col gap-2">
                 <Link

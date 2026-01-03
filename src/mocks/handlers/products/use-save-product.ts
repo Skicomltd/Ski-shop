@@ -66,7 +66,7 @@ export const useSaveProduct = (productId: string, product?: Product) => {
   // Save product mutation
   const { mutate: saveProduct, isPending: isSaving } = useSaveProduct({
     onSuccess: () => {
-      if (!isSyncingReference.current) toast.success("Saved to your account");
+      if (!isSyncingReference.current) toast.success("Saved to your wishlist");
     },
     onError: () => {
       // Revert query data
@@ -227,9 +227,9 @@ export const useSaveProduct = (productId: string, product?: Product) => {
         const updated = addToLocalSavedProducts(productId);
         setLocalSavedState(updated);
         toast.success("Saved", {
-          description: "Sign in to sync your saved items across devices.",
+          description: "Item saved, login to see saved items",
           action: {
-            label: "Sign in",
+            label: "Login",
             onClick: () => router.push(loginHref),
           },
         });
