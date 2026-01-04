@@ -13,18 +13,22 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
   return [
     {
       header: "Products",
-      accessorKey: "products",
+      accessorKey: "items",
       render: (_, order: Order) => {
-        const products: Array<{ images?: string[]; name?: string; quantity?: number; price?: number }> = Array.isArray(
-          order.products,
+        const items: Array<{ product?: { images?: string[]; name?: string }; quantity?: number }> = Array.isArray(
+          (order as unknown as { items?: unknown }).items,
         )
-          ? order.products
+          ? ((order as unknown as { items: unknown[] }).items as Array<{
+              product?: { images?: string[]; name?: string };
+              quantity?: number;
+            }>)
           : [];
-        const firstProduct = products[0];
-        const firstImage = firstProduct?.images?.[0];
-        const additionalProductsCount = products.length > 1 ? products.length - 1 : 0;
-        const productName = firstProduct?.name || "N/A";
-        const quantity = firstProduct?.quantity ?? 0;
+
+        const firstItem = items[0];
+        const firstImage = firstItem?.product?.images?.[0];
+        const additionalProductsCount = items.length > 1 ? items.length - 1 : 0;
+        const productName = firstItem?.product?.name || "N/A";
+        const quantity = firstItem?.quantity ?? 0;
 
         return (
           <div className="flex items-center space-x-2">
@@ -77,21 +81,33 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
     },
     {
       header: "Total Amount",
-      accessorKey: "products",
+      accessorKey: "totalAmount",
       render: (_, order: Order) => {
-        const products: Array<{ price: number; quantity: number }> = Array.isArray(order.products)
-          ? order.products
+        const explicitTotal = (order as unknown as { totalAmount?: number }).totalAmount;
+        if (typeof explicitTotal === "number") {
+          return <span className="text-xs font-medium">{formatCurrency(explicitTotal, locale as Locale)}</span>;
+        }
+
+        const items: Array<{ subtotal?: number }> = Array.isArray((order as unknown as { items?: unknown }).items)
+          ? ((order as unknown as { items: unknown[] }).items as Array<{ subtotal?: number }>)
           : [];
-        const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity, 0);
-        return <span className="text-xs font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
+        const computedTotal = items.reduce(
+          (sum, item) => sum + (typeof item.subtotal === "number" ? item.subtotal : 0),
+          0,
+        );
+
+        return <span className="text-xs font-medium">{formatCurrency(computedTotal, locale as Locale)}</span>;
       },
     },
     {
       header: "Customer Name",
       accessorKey: "order",
       render: (_, order: Order) => (
-        <span className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium" title={order.buyer.name}>
-          {order.buyer.name}
+        <span
+          className="inline-block max-w-[100px] cursor-help truncate text-xs font-medium"
+          title={order?.buyer?.name ?? "N/A"}
+        >
+          {order?.buyer?.name ?? "N/A"}
         </span>
       ),
     },
@@ -119,6 +135,7 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
               `rounded-full px-2 py-1 text-xs capitalize`,
               status === "paid" && "bg-low-success text-mid-success",
               status === "pending" && "bg-yellow-100 text-yellow-600",
+              status === "unpaid" && "bg-yellow-100 text-yellow-600",
               status === "cancelled" && "bg-red-100 text-red-600",
               status === "delivered" && "bg-blue-100 text-blue-600",
             )}
@@ -130,18 +147,40 @@ export const useAdminOrderColumn = (): TableColumnDefinition<Order>[] => {
     },
     {
       header: "Delivery Status",
-      accessorKey: "deliveryStatus",
+      accessorKey: "items",
       render: (_, order: Order) => {
-        const deliveryStatus = String(order.deliveryStatus ?? "");
+        const items: Array<{ deliveryStatus?: string }> = Array.isArray((order as unknown as { items?: unknown }).items)
+          ? ((order as unknown as { items: unknown[] }).items as Array<{ deliveryStatus?: string }>)
+          : [];
+
+        const normalized = items.map((item) => String(item.deliveryStatus ?? "").trim()).filter(Boolean);
+
+        // Aggregate per-item deliveryStatus into a single label for the table.
+        // Priority: cancelled > in_transit > pending > uninitiated > delivered (only if all delivered)
+        const deliveryStatus =
+          normalized.length === 0
+            ? ""
+            : normalized.every((s) => s === "delivered")
+              ? "delivered"
+              : normalized.includes("cancelled")
+                ? "cancelled"
+                : normalized.includes("in_transit")
+                  ? "in_transit"
+                  : normalized.includes("pending")
+                    ? "pending"
+                    : normalized.includes("uninitiated")
+                      ? "uninitiated"
+                      : normalized[0];
 
         return (
           <span
             className={cn(
               `rounded-full px-2 py-1 text-xs capitalize`,
-              deliveryStatus === "paid" && "bg-low-success text-mid-success",
+              deliveryStatus === "delivered" && "bg-low-success text-mid-success",
               deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "uninitiated" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "in_transit" && "bg-blue-100 text-blue-600",
               deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
-              deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
             )}
           >
             {deliveryStatus || "N/A"}
@@ -572,13 +611,15 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
       header: "Vendor",
       accessorKey: "order",
       render: (_, order: Order) => {
-        const products: Array<{ vendor?: { name?: string | null } }> = Array.isArray(order.products)
-          ? order.products
+        const items: Array<{ vendor?: { name?: string | null } }> = Array.isArray(
+          (order as unknown as { items?: unknown }).items,
+        )
+          ? ((order as unknown as { items: unknown[] }).items as Array<{ vendor?: { name?: string | null } }>)
           : [];
 
         const vendors = [
           ...new Set(
-            products
+            items
               .map((product) => product.vendor?.name ?? null)
               .filter((name): name is string => Boolean(name && name.trim())),
           ),
@@ -597,13 +638,22 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
     },
     {
       header: "Total Amount",
-      accessorKey: "products",
+      accessorKey: "totalAmount",
       render: (_, order: Order) => {
-        const products: Array<{ price: number; quantity: number }> = Array.isArray(order.products)
-          ? order.products
+        const explicitTotal = (order as unknown as { totalAmount?: number }).totalAmount;
+        if (typeof explicitTotal === "number") {
+          return <span className="text-xs font-medium">{formatCurrency(explicitTotal, locale as Locale)}</span>;
+        }
+
+        const items: Array<{ subtotal?: number }> = Array.isArray((order as unknown as { items?: unknown }).items)
+          ? ((order as unknown as { items: unknown[] }).items as Array<{ subtotal?: number }>)
           : [];
-        const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity, 0);
-        return <span className="text-xs font-medium">{formatCurrency(totalAmount, locale as Locale)}</span>;
+        const computedTotal = items.reduce(
+          (sum, item) => sum + (typeof item.subtotal === "number" ? item.subtotal : 0),
+          0,
+        );
+
+        return <span className="text-xs font-medium">{formatCurrency(computedTotal, locale as Locale)}</span>;
       },
     },
     // {
@@ -625,18 +675,38 @@ export const useAdminOrderHistoryColumn = (): TableColumnDefinition<Order>[] => 
     // },
     {
       header: "Delivery Status",
-      accessorKey: "deliveryStatus",
+      accessorKey: "items",
       render: (_, order: Order) => {
-        const deliveryStatus = String(order.deliveryStatus ?? "");
+        const items: Array<{ deliveryStatus?: string }> = Array.isArray((order as unknown as { items?: unknown }).items)
+          ? ((order as unknown as { items: unknown[] }).items as Array<{ deliveryStatus?: string }>)
+          : [];
+
+        const normalized = items.map((item) => String(item.deliveryStatus ?? "").trim()).filter(Boolean);
+
+        const deliveryStatus =
+          normalized.length === 0
+            ? ""
+            : normalized.every((s) => s === "delivered")
+              ? "delivered"
+              : normalized.includes("cancelled")
+                ? "cancelled"
+                : normalized.includes("in_transit")
+                  ? "in_transit"
+                  : normalized.includes("pending")
+                    ? "pending"
+                    : normalized.includes("uninitiated")
+                      ? "uninitiated"
+                      : normalized[0];
 
         return (
           <span
             className={cn(
               `rounded-full px-2 py-1 text-xs capitalize`,
-              deliveryStatus === "paid" && "bg-low-success text-mid-success",
+              deliveryStatus === "delivered" && "bg-low-success text-mid-success",
               deliveryStatus === "pending" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "uninitiated" && "bg-yellow-100 text-yellow-600",
+              deliveryStatus === "in_transit" && "bg-blue-100 text-blue-600",
               deliveryStatus === "cancelled" && "bg-red-100 text-red-600",
-              deliveryStatus === "delivered" && "bg-blue-100 text-blue-600",
             )}
           >
             {deliveryStatus || "N/A"}

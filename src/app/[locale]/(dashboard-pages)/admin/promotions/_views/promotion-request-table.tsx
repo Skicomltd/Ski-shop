@@ -3,22 +3,33 @@
 import { Icons } from "@/components/core/miscellaneous/icons";
 // import { SearchInput } from "@/components/core/miscellaneous/search-input";
 import { DashboardTable } from "@/components/shared/dashboard-table";
+import { AlertModal } from "@/components/shared/dialog/alert-modal";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatDate } from "@/lib/i18n/utils";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { usePromotionService } from "@/services/dashboard/vendor/promotions/use-promotion-service";
+import { Edit, Trash2 } from "lucide-react";
 import { useLocale } from "next-intl";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
 
-export const PromotionRequestsTable: React.FC = () => {
+interface PromotionRequestsTableProperties {
+  onEditPromotion?: (promotion: Promotion) => void;
+}
+
+export const PromotionRequestsTable: React.FC<PromotionRequestsTableProperties> = ({ onEditPromotion }) => {
   const { search: searchQuery } = useDashboardSearchParameters();
   const locale = useLocale() as Locale;
-  const { useGetAllAvailablePromotions } = usePromotionService();
+  const { useGetAllAvailablePromotions, useDeletePromotion } = usePromotionService();
 
-  const { data } = useGetAllAvailablePromotions();
+  const { data, refetch } = useGetAllAvailablePromotions();
+  const deleteMutation = useDeletePromotion();
+
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const promotions = useMemo(() => (data?.data?.items ?? []) as Promotion[], [data]);
 
   const filteredPromotions = useMemo(() => {
@@ -92,6 +103,21 @@ export const PromotionRequestsTable: React.FC = () => {
     ];
   }, [locale]);
 
+  const handleConfirmDelete = useCallback(async () => {
+    if (!selectedPromotion) return;
+    try {
+      await deleteMutation.mutateAsync(selectedPromotion.id);
+      toast.success("Promotion deleted successfully");
+      setIsDeleteModalOpen(false);
+      setSelectedPromotion(null);
+      refetch();
+    } catch (error) {
+      toast.error("Failed to delete promotion", {
+        description: (error as Error)?.message ?? "Unknown error",
+      });
+    }
+  }, [deleteMutation, selectedPromotion, refetch]);
+
   // const handleSearchChange = useCallback(
   //   (newSearch: string) => {
   //     if (newSearch !== searchQuery) {
@@ -149,9 +175,44 @@ export const PromotionRequestsTable: React.FC = () => {
             hasPreviousPage={hasPreviousPage}
             showPagination={false}
             pageParameter="page"
+            rowActions={(row) => {
+              const promotion = row as unknown as Promotion;
+              return [
+                {
+                  label: "Edit",
+                  icon: <Edit className="h-4 w-4" />,
+                  onClick: () => {
+                    if (onEditPromotion) onEditPromotion(promotion);
+                  },
+                },
+                {
+                  label: "Delete",
+                  icon: <Trash2 className="h-4 w-4" />,
+                  onClick: () => {
+                    setSelectedPromotion(promotion);
+                    setIsDeleteModalOpen(true);
+                  },
+                },
+              ];
+            }}
           />
         )}
       </div>
+
+      <AlertModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedPromotion(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
+        type="warning"
+        title="Delete promotion"
+        description="Are you sure you want to delete this promotion package? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </section>
   );
 

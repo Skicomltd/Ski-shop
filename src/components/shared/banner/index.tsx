@@ -46,8 +46,8 @@ export const ReusableBanner: FC<BannerProperties> = ({
             <Badge variant={`default`} className={`bg-accent rounded-md px-[12px] py-[6px]`}>
               {tagTitle}
             </Badge>
-            <h1 className="mt-4 !text-2xl !text-black md:!text-3xl lg:!text-4xl">{title}</h1>
-            <p className={`my-[22px] font-medium md:!text-xl lg:!text-xl`}>{description}</p>
+            <h1 className="mt-4 !text-2xl md:!text-3xl lg:!text-4xl">{title}</h1>
+            <p className={`my-[22px] !font-medium md:!text-xl lg:!text-xl`}>{description}</p>
             {action}
           </div>
         )}

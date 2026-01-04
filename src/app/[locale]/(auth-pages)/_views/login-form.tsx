@@ -9,16 +9,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useTransition } from "react";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 
 export const LoginForm = () => {
   const tAuth = useTranslations("auth");
   // const tCommon = useTranslations("common");
   const locale = useLocale();
-  const [isGooglePending, startGoogleTransition] = useTransition();
+  // const [isGooglePending, startGoogleTransition] = useTransition();
   const router = useRouter();
   const searchParameters = useSearchParams();
 
@@ -90,11 +90,11 @@ export const LoginForm = () => {
     router.push(`/${locale}/dashboard/home`);
   };
 
-  const handleGoogleSignIn = () => {
-    startGoogleTransition(async () => {
-      router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
-    });
-  };
+  // const handleGoogleSignIn = () => {
+  //   startGoogleTransition(async () => {
+  //     router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth/google/redirect`);
+  //   });
+  // };
 
   return (
     <section className="w-full">
@@ -133,6 +133,19 @@ export const LoginForm = () => {
             </LocaleLink>
           </section>
 
+          <section className="text-muted-foreground mt-3 text-center text-xs sm:!text-xs">
+            <p>
+              By continuing, you agree to our{" "}
+              <LocaleLink href="/privacy-policy" className="text-primary hover:underline dark:!text-white">
+                Privacy Policy
+              </LocaleLink>{" "}
+              and{" "}
+              <LocaleLink href="/terms-and-condition" className="text-primary hover:underline dark:!text-white">
+                Terms &amp; Conditions.
+              </LocaleLink>
+            </p>
+          </section>
+
           {/* CTA */}
           <section className="flex flex-col items-center justify-center gap-5 pt-2">
             <SkiButton
@@ -145,7 +158,8 @@ export const LoginForm = () => {
             >
               {tAuth("login")}
             </SkiButton>
-            <span className="text-muted-foreground text-xs sm:text-sm">
+
+            {/* <span className="text-muted-foreground text-xs sm:text-sm">
               -------------------- OR --------------------
             </span>
             <SkiButton
@@ -159,29 +173,22 @@ export const LoginForm = () => {
               onClick={handleGoogleSignIn}
             >
               {tAuth("signInWithGoogle")}
-            </SkiButton>
+            </SkiButton> */}
           </section>
 
           <p className="text-muted-foreground mt-6 text-center text-sm sm:text-base">
-            {tAuth("dontHaveAccount")}{" "}
-            <LocaleLink href="/signup" className="text-primary font-medium hover:underline">
+            {tAuth("dontHaveAccount")}
+            <LocaleLink href="/signup" className="text-primary font-medium hover:underline dark:!text-white">
               {tAuth("signup")}
             </LocaleLink>
           </p>
 
-          <section className="text-muted-foreground mt-3 text-center text-xs sm:text-sm">
-            <p>
-              By continuing, you agree to our{" "}
-              <LocaleLink href="/privacy-policy" className="text-primary hover:underline">
-                Privacy Policy
-              </LocaleLink>{" "}
-              and{" "}
-              <LocaleLink href="/terms-and-condition" className="text-primary hover:underline">
-                Terms &amp; Conditions
-              </LocaleLink>
-              .
-            </p>
-          </section>
+          <p className="text-muted-foreground mt-2 text-center text-xs sm:text-sm">
+            Would you like to be a vendor?{" "}
+            <LocaleLink href="/signup/vendor" className="text-primary font-medium hover:underline dark:!text-white">
+              Become a seller
+            </LocaleLink>
+          </p>
         </form>
       </FormProvider>
     </section>

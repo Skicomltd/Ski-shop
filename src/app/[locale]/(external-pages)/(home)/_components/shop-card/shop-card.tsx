@@ -71,16 +71,13 @@ export const ShopCard = ({
   const isAddToCartBlockedRole = role === "VENDOR" || role === "ADMIN" || role === "SUPER_ADMIN";
 
   return (
-    <LocaleLink
-      href={`/shop/products/${id}`}
+    <div
       className={cn(
-        "group relative block overflow-hidden rounded-lg bg-no-repeat p-2 md:p-4", // Added 'group' and 'relative' for positioning
-        isStarSeller &&
-          // "bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/h_100,f_auto,q_auto/v1758641972/skicom/f7ajczgvhobbzpwehd8g.png)]",
-          // "bg-[url(/images/star-seller.svg)]",
-          className,
+        "group relative block overflow-hidden rounded-lg bg-no-repeat p-2 md:p-4",
+        isStarSeller && className,
       )}
     >
+      {/* Save / favorite button (NOT part of the link) */}
       <ComponentGuard requireAuth={status === "authenticated"} allowedRoles={["CUSTOMER"]}>
         {shouldShowSaveButton && (
           <button
@@ -93,8 +90,8 @@ export const ShopCard = ({
               isPending && "pointer-events-none opacity-60",
             )}
             onClick={(event) => {
-              event.preventDefault(); // Prevent link navigation
-              event.stopPropagation(); // Stop event bubbling
+              event.preventDefault();
+              event.stopPropagation();
               if (!isPending) toggleSave();
               if (action) action();
             }}
@@ -115,55 +112,62 @@ export const ShopCard = ({
         )}
       </ComponentGuard>
 
-      <div className="relative z-[-1] mb-3 aspect-square overflow-hidden rounded-lg md:mb-4">
-        <Image
-          src={image}
-          alt={title}
-          width={400}
-          height={400}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-      </div>
-      <div className="space-y-2">
-        <p className="!text-[10px] capitalize md:!text-xs lg:!text-sm">{category}</p>
-        <p className="!text-foreground !truncate !text-xs !font-semibold md:!text-sm lg:!text-base">{title}</p>
-        <div className={`flex items-center justify-between`}>
-          <Ratings size={`xs:!size-3 md:!size-4`} rating={rating} />
-          {discountPercentage > 0 && (
-            <Badge
-              variant={`destructive`}
-              className="rounded px-1 py-[0.5px] text-[8px] font-medium text-white md:!text-[9px]"
-            >
-              {discountPercentage}% OFF
-            </Badge>
-          )}
+      {/* Clickable card content */}
+      <LocaleLink href={`/shop/products/${id}`} className="block">
+        <div className="relative z-[-1] mb-3 aspect-square overflow-hidden rounded-lg md:mb-4">
+          <Image
+            src={image}
+            alt={title}
+            width={400}
+            height={400}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
         </div>
-        <p className={`!truncate !text-[10px] underline md:!text-xs lg:!text-sm`}>By {name}</p>
-        <div className="flex items-baseline gap-2">
-          {discount ? (
-            <>
-              <p className="!text-primary !text-sm !font-semibold md:!text-base lg:!text-lg">
-                {formatCurrency(discount, locale)}
-              </p>
-              <p className="!text-destructive !text-[10px] !font-medium line-through md:!text-sm">
+        <div className="space-y-2">
+          <p className="!text-[10px] capitalize md:!text-xs lg:!text-sm">
+            {category.replaceAll(/([a-z])([A-Z])/g, "$1 $2")}
+          </p>
+          <p className="!text-foreground !truncate !text-xs !font-semibold md:!text-sm lg:!text-base">{title}</p>
+          <div className={`flex items-center justify-between`}>
+            <Ratings size={`xs:!size-3 md:!size-4`} rating={rating} />
+            {discountPercentage > 0 && (
+              <Badge
+                variant={`destructive`}
+                className="rounded px-1 py-[0.5px] text-[8px] font-medium text-white md:!text-[9px]"
+              >
+                {discountPercentage}% OFF
+              </Badge>
+            )}
+          </div>
+          <p className={`!truncate !text-[10px] underline md:!text-xs lg:!text-sm`}>By {name}</p>
+          <div className="flex items-baseline gap-2">
+            {discount ? (
+              <>
+                <p className="!text-primary !text-sm !font-semibold md:!text-base lg:!text-lg">
+                  {formatCurrency(discount, locale)}
+                </p>
+                <p className="!text-destructive !text-[10px] !font-medium line-through md:!text-sm">
+                  {formatCurrency(price, locale)}
+                </p>
+              </>
+            ) : (
+              <p className="!text-primary text-sm !font-semibold md:!text-base lg:!text-lg">
                 {formatCurrency(price, locale)}
               </p>
-            </>
-          ) : (
-            <p className="!text-primary text-sm !font-semibold md:!text-base lg:!text-lg">
-              {formatCurrency(price, locale)}
-            </p>
-          )}
+            )}
+          </div>
         </div>
-        {id && (
-          <ComponentGuard customCondition={() => !isAddToCartBlockedRole}>
-            <div className="pt-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
-            </div>
-          </ComponentGuard>
-        )}
-      </div>
-    </LocaleLink>
+      </LocaleLink>
+
+      {/* Add to cart CTA (NOT part of the link) */}
+      {id && (
+        <ComponentGuard customCondition={() => !isAddToCartBlockedRole}>
+          <div className="pt-2 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
+            <AddToCartButton isIconVisible productId={id} fullWidth stopEventPropagation />
+          </div>
+        </ComponentGuard>
+      )}
+    </div>
   );
 };

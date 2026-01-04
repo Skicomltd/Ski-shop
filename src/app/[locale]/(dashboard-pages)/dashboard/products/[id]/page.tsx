@@ -9,8 +9,10 @@ import { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatDate } from "@/lib/i18n/utils";
 import { Editor } from "@/lib/rich-text-editor";
 import { useDashboardProductService } from "@/services/dashboard/vendor/products/use-product-service";
+import { useDashboardProfileService } from "@/services/dashboard/vendor/users/use-profile-service";
 import { SerializedEditorState } from "lexical";
 import { EyeOff, Megaphone, Star } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -20,15 +22,6 @@ import { ProductActionsDropdown } from "../_components/product-actions-dropdown"
 import { PromoteProductModal } from "../_components/promote-product-modal";
 import { DashboardHeader } from "../../../_components/dashboard-header";
 import ProductDetailSkeleton from "./_components/product-detail-skeleton";
-
-// Helper function to determine if a product is from a star seller
-const isStarSeller = (product: Product) => {
-  // Check if store name contains star seller indicators
-  const starSellerIndicators = ["star", "premium", "verified", "gold"];
-  const storeName = product.store.name.toLowerCase();
-
-  return starSellerIndicators.some((indicator) => storeName.includes(indicator));
-};
 
 const toSerializedEditorState = (description?: string): SerializedEditorState | undefined => {
   if (!description) return undefined;
@@ -79,6 +72,9 @@ export default function ProductDetailPage() {
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const { data: session } = useSession();
+  const userId = session?.user?.id as string | undefined;
+
   // Fetch product by ID
   const { useGetSingleProduct, useDeleteProduct, useUpdateProductStatus, useEditProduct } =
     useDashboardProductService();
@@ -89,8 +85,11 @@ export default function ProductDetailPage() {
   const product = productResponse?.data;
   const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
 
+  const { useGetVendorProfileInfo } = useDashboardProfileService();
+  const { data: vendorProfileInfoResponse } = useGetVendorProfileInfo(userId);
+
   // Determine if this is a star seller product
-  const isStarSellerProduct = product ? isStarSeller(product) : false;
+  const isStarSellerProduct = Boolean(vendorProfileInfoResponse?.data?.store?.isStarSeller);
 
   const handlePromoteProduct = () => {
     setIsPromoteModalOpen(true);

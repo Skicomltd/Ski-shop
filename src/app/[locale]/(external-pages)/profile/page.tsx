@@ -3,23 +3,22 @@
 import SkiButton from "@/components/shared/button";
 import { ConfirmationDialog } from "@/components/shared/dialog/confirmation-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useUserService } from "@/services/externals/user/use-user-service";
-import { AlertCircle, Trash2 } from "lucide-react";
+import { AlertCircle, Trash2, User as UserIcon } from "lucide-react";
 import { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
 
-import { VendorBusinessForm } from "./_components/vendor-business-form";
-import { VendorProfileForm } from "./_components/vendor-profile-form";
-import { VendorStoreForm } from "./_components/vendor-store-form";
-
-export default function ProfilePage() {
+export default function CustomerProfilePage() {
   const { data: session } = useSession();
   const userId = (session?.user as User)?.id as string | undefined;
 
   const { useDeleteUser } = useUserService();
+  // const { data: profileData } = useGetUserProfile({ enabled: Boolean(userId) });
+
   const { mutate: deleteUser, isPending } = useDeleteUser({
     onSuccess: async () => {
       toast.success("Account deleted successfully");
@@ -38,11 +37,42 @@ export default function ProfilePage() {
     deleteUser(userId);
   };
 
+  // const profile = profileData?.data;
+
   return (
-    <section className="space-y-8">
-      <VendorStoreForm />
-      <VendorProfileForm />
-      <VendorBusinessForm />
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold sm:text-3xl">My Profile</h1>
+        <p className="text-muted-foreground text-sm">Manage your personal information and account settings.</p>
+      </header>
+
+      <Card className="shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <UserIcon className="h-4 w-4" />
+              Profile details
+            </CardTitle>
+            <CardDescription>Basic information about your account.</CardDescription>
+          </div>
+          {/* {session?.user && (
+            <Badge variant="outline" className="uppercase">
+              {((session.user as User & { role?: string })?.role ?? "CUSTOMER").toUpperCase()}
+            </Badge>
+          )} */}
+        </CardHeader>
+        <Separator />
+        <CardContent className="space-y-3 pt-4 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Full name</span>
+            <span className="font-medium">{session?.user?.name || "-"}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Email address</span>
+            <span className="font-medium">{session?.user?.email || "-"}</span>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-destructive/30 bg-destructive/5 shadow-none">
         <CardHeader>
@@ -106,6 +136,6 @@ export default function ProfilePage() {
           </ConfirmationDialog>
         </CardContent>
       </Card>
-    </section>
+    </main>
   );
 }

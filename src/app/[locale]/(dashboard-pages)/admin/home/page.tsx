@@ -195,7 +195,6 @@ const Page = () => {
               />
             ) : (
               <div className="flex items-center justify-center p-20" role="status" aria-live="polite">
-                {searchQuery || status !== "all" ? "" : "No orders found."}
                 {searchQuery || status !== "all" ? (
                   <EmptyState className={`bg-transparent`} title={`No orders match your filters.`} />
                 ) : (

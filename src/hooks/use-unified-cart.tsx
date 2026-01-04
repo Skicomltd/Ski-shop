@@ -13,8 +13,10 @@ import {
   removeFromLocalCart,
   updateLocalCartItem,
 } from "@/lib/cart/local-cart";
+import { getLocaleFromPath, getLocalizedPath } from "@/lib/i18n/navigation";
 import { useAppService } from "@/services/externals/app/use-app-service";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -25,6 +27,11 @@ export const useUnifiedCart = () => {
   const hasSyncedReference = useRef(false);
 
   const isAuthenticated = status === "authenticated";
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = getLocaleFromPath(pathname || "/");
+  const loginHref = getLocalizedPath("/login", locale);
 
   // Server cart queries (only for authenticated users)
   const {
@@ -161,7 +168,13 @@ export const useUnifiedCart = () => {
     } else {
       const updatedCart = addToLocalCart(productId, quantity);
       setLocalCartState(updatedCart);
-      toast.success("Added to cart successfully");
+      toast.success("Saved", {
+        description: "Item saved, login to see item in cart",
+        action: {
+          label: "Login",
+          onClick: () => router.push(loginHref),
+        },
+      });
     }
   };
 

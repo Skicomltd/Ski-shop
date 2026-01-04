@@ -56,12 +56,12 @@ export const BaseSignupForm = () => {
       onSuccess: (response) => {
         if (response?.success && !pathname.includes("/vendor")) {
           toast.success(tAuth("signupSuccess"), {
-            description: tAuth("signupSuccess"),
+            // description: tAuth("signupSuccess"),
           });
           router.push(`/${locale}/onboarding/verify-email?email=${data?.email}&token=${response?.data?.token}`);
         } else if (response?.success && pathname.includes("/vendor")) {
           toast.success(tAuth("signupSuccess"), {
-            description: tAuth("passwordResetSent"),
+            // description: tAuth("passwordResetSent"),
           });
           router.push(`/${locale}/onboarding/vendor/verify-email?email=${data?.email}&token=${response?.data?.token}`);
         }
@@ -93,19 +93,17 @@ export const BaseSignupForm = () => {
   );
 
   const renderTermsSection = () => (
-    <section className="mt-6">
-      <div className="text-muted-foreground text-xs sm:text-sm">
-        <p className="leading-relaxed">
-          {tAuth("termsAccepted")}{" "}
-          <LocaleLink href="/privacy-policy" className="text-primary hover:underline">
-            {tAuth("privacy")}
-          </LocaleLink>
-          ,{" "}
-          <LocaleLink href="/terms-and-condition" className="text-primary hover:underline">
-            {tAuth("terms")}
-          </LocaleLink>
-        </p>
-      </div>
+    <section className="text-muted-foreground mt-3 text-center text-xs sm:!text-xs">
+      <p>
+        By continuing, you agree to our{" "}
+        <LocaleLink href="/privacy-policy" className="text-primary hover:underline dark:!text-white">
+          Privacy Policy
+        </LocaleLink>{" "}
+        and{" "}
+        <LocaleLink href="/terms-and-condition" className="text-primary hover:underline dark:!text-white">
+          Terms &amp; Conditions.
+        </LocaleLink>
+      </p>
     </section>
   );
 
@@ -140,7 +138,7 @@ export const BaseSignupForm = () => {
   const renderLoginPrompt = () => (
     <p className="text-muted-foreground mt-6 text-center text-sm sm:text-base">
       {tAuth("alreadyHaveAccount")}{" "}
-      <LocaleLink href={`/${locale}/login`} className="text-primary font-medium hover:underline">
+      <LocaleLink href={`/${locale}/login`} className="text-primary font-medium hover:underline dark:text-white">
         {tAuth("login")}
       </LocaleLink>
     </p>

@@ -43,10 +43,24 @@ export const useDashboardProfileService = () => {
     return useServiceQuery([...queryKeys.dashboard.profile.details()], (service) => service.getVendorProfile());
   };
 
+  const useGetVendorProfileInfo = (userId?: string) => {
+    return useServiceQuery(
+      [...queryKeys.dashboard.profile.vendorProfileInfo(userId)],
+      (service) => {
+        if (!userId) throw new Error("Missing userId");
+        return service.getVendorProfileInfo(userId);
+      },
+      {
+        enabled: Boolean(userId),
+      },
+    );
+  };
+
   return {
     // Queries
     useGetVendorStore,
     useGetVendorProfile,
+    useGetVendorProfileInfo,
     // Mutations
     useUpdateVendorProfile,
     useUpdateVendorLogo,

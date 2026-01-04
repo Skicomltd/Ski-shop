@@ -94,6 +94,7 @@ export const queryKeys = {
     },
     profile: {
       details: () => ["dashboard", "profile", "details"] as const,
+      vendorProfileInfo: (userId?: string) => ["dashboard", "profile", "vendor-profile-info", userId] as const,
     },
     payouts: {
       store: () => ["dashboard", "payouts", "store"] as const,

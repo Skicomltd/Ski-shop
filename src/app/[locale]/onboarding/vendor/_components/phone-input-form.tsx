@@ -8,7 +8,7 @@ import { usePhoneVerificationService } from "@/services/externals/onboarding/use
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { MdSend } from "react-icons/md";
 import { toast } from "sonner";
@@ -27,6 +27,14 @@ export const PhoneInputForm = () => {
   const router = useRouter();
   const { phoneService } = usePhoneVerificationService();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clean up Firebase reCAPTCHA when this form unmounts to avoid
+  // "reCAPTCHA client element has been removed" errors.
+  useEffect(() => {
+    return () => {
+      phoneService?.cleanup?.();
+    };
+  }, [phoneService]);
 
   // Initialize the form
   const methods = useForm<z.infer<typeof FormSchema>>({
@@ -77,7 +85,7 @@ export const PhoneInputForm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6 px-4 py-6">
+    <div className="flex flex-col items-center space-y-6 px-4 py-6" data-tour="phone-input-main">
       {/* Header Section */}
       <div className="flex flex-col items-center space-y-4 text-center">
         {/* <div className="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
@@ -98,7 +106,7 @@ export const PhoneInputForm = () => {
             control={methods.control}
             name="phoneNumber"
             render={({ field }) => (
-              <FormItem className="flex flex-col items-start">
+              <FormItem className="flex flex-col items-start" data-tour="phone-input-field">
                 <FormControl className="w-full">
                   <PhoneInput
                     defaultCountry="NG"
@@ -115,7 +123,7 @@ export const PhoneInputForm = () => {
           />
 
           {/* Submit Button */}
-          <div className="space-y-4">
+          <div className="space-y-4" data-tour="phone-input-submit">
             <SkiButton
               type="submit"
               className="w-full font-medium transition-all duration-200 hover:shadow-md"
@@ -167,3 +175,5 @@ export const PhoneInputForm = () => {
     </div>
   );
 };
+
+// +2349020551592

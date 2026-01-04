@@ -50,7 +50,7 @@ const Payout = () => {
           title="No payout activity yet"
           description="When payouts begin, you'll see totals and wallet balance here."
           actionButton={
-            <SkiButton variant={`primary`} size={`lg`} className={`mt-4`} onClick={() => refetch()}>
+            <SkiButton variant={`primary`} className={`mt-4`} onClick={() => refetch()}>
               Refresh
             </SkiButton>
           }

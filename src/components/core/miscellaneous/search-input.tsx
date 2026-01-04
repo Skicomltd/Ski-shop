@@ -4,9 +4,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Clock, Loader2, Search, SearchIcon, X } from "lucide-react";
+import { Clock, Loader2, Search, SearchIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { GoLinkExternal } from "react-icons/go";
+import { MdCancel } from "react-icons/md";
 import { useDebounce } from "use-debounce";
 
 interface SearchInputProperties {
@@ -62,7 +63,7 @@ export const SearchInput = ({
         disabled={disabled ?? isDisabled}
         type="search"
         placeholder={placeholder}
-        className="border-border h-full border-none pr-4 pl-10 shadow-none"
+        className="bg-muted h-9 border-none pr-4 pl-10 shadow-none"
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
       />
@@ -268,7 +269,7 @@ export function GlobalSearchInput({
 
       {searchQuery.trim() && !isLoading && !hasResults && (
         <EmptyState
-          className="text-primary"
+          className="text-primary flex min-h-[calc(100dvh-12rem)] items-center justify-center md:min-h-[500px]"
           // icon={<Search className="text-primary" />}
           title="No results found."
           description={emptyMessage}
@@ -340,13 +341,22 @@ export function GlobalSearchInput({
               }}
               className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
             >
-              <X className="h-4 w-4" />
+              <MdCancel className="text-primary h-5 w-5" />
             </button>
           )}
         </div>
 
         {showDropdown && (
           <div className="border-border bg-background mt-2 overflow-hidden rounded-md border">{resultsContent}</div>
+        )}
+
+        {!showDropdown && (
+          <div className="text-muted-foreground mt-50 space-y-2 text-center text-sm lg:text-lg">
+            <p className="!text-primary !font-semibold tracking-wide">Search the best of Skishop</p>
+            <p className="text-xs">
+              Find products by name, category, or store. Start typing above to discover new items tailored to you.
+            </p>
+          </div>
         )}
       </div>
     );
@@ -384,7 +394,7 @@ export function GlobalSearchInput({
               }}
               className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
             >
-              <X className="h-4 w-4" />
+              <MdCancel className="text-primary h-5 w-5" />
             </button>
           )}
         </div>

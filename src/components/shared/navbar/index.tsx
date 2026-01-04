@@ -70,7 +70,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
     const savedItemsCount = savedProductsResponse?.data?.metadata?.total || 0;
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const isShopRoute = pathname.includes("/shop");
+    const isShopRoute = pathname === "/ng/shop";
     const shouldStick = sticky && !isShopRoute;
 
     const isActiveLink = (href: string) => (href === "/" ? pathname === href : pathname.includes(href));
@@ -103,7 +103,6 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
               "bg-background flex items-center justify-between rounded-none px-4 transition-all duration-300",
               // Default (floating) look
               !isShopRoute && "shadow-2xl lg:mt-7 lg:rounded-full lg:px-7",
-              // Shop page look (non-floating, like Jumia)
               isShopRoute && "border-border border-b shadow-none lg:mt-0 lg:rounded-none lg:px-4",
               "h-16 md:h-20",
               className,
@@ -157,7 +156,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                         <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
                           <div className="relative">
                             <SkiButton
-                              href={`/shop/cart`}
+                              href={`/${locale}/shop/cart`}
                               variant={`outline`}
                               onClick={() => setDrawerOpen(false)}
                               size={`icon`}
@@ -175,7 +174,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                         <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
                           <div className="relative">
                             <SkiButton
-                              href={`/shop/cart/orders`}
+                              href={`/${locale}/shop/cart/orders`}
                               variant={`outline`}
                               onClick={() => setDrawerOpen(false)}
                               size={`icon`}
@@ -193,7 +192,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                         <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
                           <div className="relative">
                             <SkiButton
-                              href={`/shop/cart/saved-items`}
+                              href={`/${locale}/shop/cart/saved-items`}
                               variant={`outline`}
                               onClick={() => setDrawerOpen(false)}
                               size={`icon`}
@@ -309,7 +308,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                             <ComponentGuard requireAuth allowedRoles={["VENDOR"]}>
                               <div className="space-y-2">
                                 <SkiButton
-                                  href={`/dashboard/home`}
+                                  href={`/${locale}/dashboard/home`}
                                   variant="ghost"
                                   className="w-full justify-start"
                                   size="sm"
@@ -317,7 +316,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                                   Vendor Dashboard
                                 </SkiButton>
                                 <SkiButton
-                                  href={`/dashboard/products`}
+                                  href={`/${locale}/dashboard/products`}
                                   variant="ghost"
                                   className="w-full justify-start"
                                   size="sm"
@@ -325,7 +324,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                                   My Products
                                 </SkiButton>
                                 <SkiButton
-                                  href={`/dashboard/orders`}
+                                  href={`/${locale}/dashboard/orders`}
                                   variant="ghost"
                                   className="w-full justify-start"
                                   size="sm"
@@ -339,10 +338,51 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                           {/* Account Actions */}
                           <div className="space-y-3">
                             <h3 className="!text-primary text-sm font-medium">Account</h3>
+                            <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
+                              <div className="space-y-2">
+                                <SkiButton
+                                  href={`/${locale}/profile`}
+                                  variant="ghost"
+                                  className="w-full justify-start"
+                                  size="sm"
+                                  onClick={() => setDrawerOpen(false)}
+                                >
+                                  Profile
+                                </SkiButton>
+                                <SkiButton
+                                  href={`/${locale}/shop/cart/saved-items`}
+                                  variant="ghost"
+                                  className="w-full justify-start"
+                                  size="sm"
+                                  onClick={() => setDrawerOpen(false)}
+                                >
+                                  <span>Saved items</span>
+                                  {savedItemsCount > 0 && (
+                                    <span className="bg-primary text-primary-foreground ml-auto flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium">
+                                      {savedItemsCount > 9 ? "9+" : savedItemsCount}
+                                    </span>
+                                  )}
+                                </SkiButton>
+                                <SkiButton
+                                  href={`/${locale}/shop/cart/orders`}
+                                  variant="ghost"
+                                  className="w-full justify-start"
+                                  size="sm"
+                                  onClick={() => setDrawerOpen(false)}
+                                >
+                                  <span>My orders</span>
+                                  {ordersCount > 0 && (
+                                    <span className="bg-primary text-primary-foreground ml-auto flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium">
+                                      {ordersCount > 9 ? "9+" : ordersCount}
+                                    </span>
+                                  )}
+                                </SkiButton>
+                              </div>
+                            </ComponentGuard>
                             <ComponentGuard requireAuth allowedRoles={["VENDOR"]}>
                               <div className="space-y-4">
                                 <SkiButton
-                                  href={`/dashboard/profile`}
+                                  href={`/${locale}/dashboard/profile`}
                                   variant="ghost"
                                   className="w-full justify-start"
                                   size="sm"
@@ -350,7 +390,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                                   Profile Settings
                                 </SkiButton>
                                 <SkiButton
-                                  href={`/dashboard/settings`}
+                                  href={`/${locale}/dashboard/settings`}
                                   variant="ghost"
                                   className="w-full justify-start"
                                   size="sm"
@@ -384,7 +424,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
                             </SkiButton>
                             <SkiButton
                               variant="primary"
-                              href={`/register`}
+                              href={`/${locale}/signup`}
                               className="w-full"
                               onClick={() => setDrawerOpen(false)}
                             >
@@ -419,7 +459,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
               </Drawer>
 
               {/* User Actions */}
-              <div>
+              <div className="hidden md:block">
                 {session?.user ? (
                   <div className="hidden lg:block">
                     <UserAvatarProfile showInfo />

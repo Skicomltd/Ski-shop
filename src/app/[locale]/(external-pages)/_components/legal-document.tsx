@@ -30,7 +30,7 @@ export const LegalDocument = ({ meta, intro = [], items }: LegalDocumentProperti
   const toc = items.map((item) => ({ id: toId(item.title), title: item.title }));
 
   return (
-    <section className="bg-slate-50/60">
+    <section className="bg-background">
       <Wrapper width="max-w-7xl" className="my-0 gap-6 py-10 sm:py-14">
         {/* <div className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -93,7 +93,7 @@ export const LegalDocument = ({ meta, intro = [], items }: LegalDocumentProperti
 
         <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
           <aside className="hidden lg:block">
-            <div className="sticky top-30 rounded-2xl border bg-white p-4 shadow-sm">
+            <div className="bg-muted sticky top-30 rounded-2xl border p-4 shadow-sm">
               <p className="!text-primary text-sm !font-semibold">On this page</p>
               <nav className="mt-3 flex flex-col gap-2">
                 {toc.map((entry) => (
@@ -109,7 +109,7 @@ export const LegalDocument = ({ meta, intro = [], items }: LegalDocumentProperti
             </div>
           </aside>
 
-          <article className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+          <article className="bg-background rounded-2xl border p-5 shadow-sm sm:p-6">
             <div className="prose prose-slate prose-headings:scroll-mt-24 prose-p:leading-relaxed max-w-none">
               {items.map((item) => {
                 const paragraphs = splitParagraphs(item.text);

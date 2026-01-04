@@ -26,7 +26,7 @@ export function SectionTwo() {
 const BestSellerLayout = () => {
   const { useGetAllProducts } = useAppService();
   const locale = useLocale();
-  const { data: productData, isLoading: isProductsLoading, isError } = useGetAllProducts({ flag: "top", limit: 3 });
+  const { data: productData, isLoading: isProductsLoading, isError } = useGetAllProducts({ flag: "top", limit: 4 });
 
   if (isError) {
     return <ErrorState />;
@@ -49,23 +49,23 @@ const BestSellerLayout = () => {
           productData.data.items.map((product) => (
             <div key={product.id} className={`flex items-center justify-between gap-4`}>
               <div className={`flex items-center gap-4`}>
-                <div className={`flex size-[64px] items-center justify-center overflow-hidden rounded-lg bg-black/30`}>
+                <div className={`flex size-[60px] items-center justify-center overflow-hidden rounded-lg bg-black/30`}>
                   <BlurImage
                     src={product.images[0]}
                     alt={product.name}
-                    width={64}
-                    height={64}
+                    width={60}
+                    height={60}
                     className={`h-fit w-fit rounded-lg object-contain`}
                   />
                 </div>
                 <div>
-                  <h6 title={product.name} className={`max-w-[140px] truncate !text-sm font-black`}>
+                  <h6 title={product.name} className={`!text-primary max-w-[140px] truncate !text-base !font-black`}>
                     {product.name}
                   </h6>
-                  <p className={`text-sm text-gray-400`}>{formatCurrency(product.price, locale as Locale)}</p>
+                  <p className={`text-muted text-sm`}> {product.category.replaceAll(/([a-z])([A-Z])/g, "$1 $2")}</p>
                 </div>
               </div>
-              <p className={`text-sm text-gray-600`}>999 sales</p>
+              <p className={`text-muted text-xs`}>{formatCurrency(product.price, locale as Locale)}</p>
             </div>
           ))
         ) : (

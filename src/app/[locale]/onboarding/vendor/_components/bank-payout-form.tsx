@@ -3,7 +3,7 @@
 import SkiButton from "@/components/shared/button";
 import { FormField } from "@/components/shared/inputs/FormFields";
 import { ComboBox } from "@/components/shared/select-dropdown/combo-box";
-import { bankPayoutSchema } from "@/schemas";
+import { BankPayoutFormData, bankPayoutSchema } from "@/schemas";
 import { useOnboardingUserService } from "@/services/externals/onboarding/use-onboarding-user-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
@@ -55,34 +55,36 @@ export const BankPayoutForm = () => {
 
   const renderBankFields = () => (
     <>
-      <ComboBox
-        options={
-          availableBanks?.data?.map((bank) => ({
-            value: bank.code,
-            label: bank.name,
-          })) || []
-        }
-        value={methods.watch("code")}
-        onValueChange={(value) => {
-          const selectedBank = availableBanks?.data?.find((bank) => bank.code === value);
-          if (selectedBank) {
-            methods.setValue("bankName", selectedBank.name);
-            methods.setValue("code", selectedBank.code);
+      <div data-tour="bank-details-bank-select">
+        <ComboBox
+          options={
+            availableBanks?.data?.map((bank) => ({
+              value: bank.code,
+              label: bank.name,
+            })) || []
           }
-        }}
-        placeholder="Select bank..."
-        searchPlaceholder="Search bank..."
-        emptyMessage="No bank found."
-        className="text-high-grey-II h-14 w-full rounded-lg bg-white shadow-none"
-        contentClassName="w-full"
-      />
+          value={methods.watch("code")}
+          onValueChange={(value) => {
+            const selectedBank = availableBanks?.data?.find((bank) => bank.code === value);
+            if (selectedBank) {
+              methods.setValue("bankName", selectedBank.name);
+              methods.setValue("code", selectedBank.code);
+            }
+          }}
+          placeholder="Select bank..."
+          searchPlaceholder="Search bank..."
+          emptyMessage="No bank found."
+          className="text-high-grey-II h-14 w-full rounded-lg bg-white shadow-none"
+          contentClassName="w-full"
+        />
+      </div>
       <FormField placeholder="Account Number" className="h-14 w-full" name="accountNumber" />
       <FormField placeholder="Account Name" className="h-14 w-full" name="accountName" />
     </>
   );
 
   const renderSubmitButton = () => (
-    <div className="pt-4">
+    <div className="pt-4" data-tour="bank-details-submit">
       <SkiButton
         type="submit"
         className="h-12 w-full font-medium"

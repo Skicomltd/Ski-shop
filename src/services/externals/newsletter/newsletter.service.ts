@@ -23,7 +23,7 @@ export class NewsletterService {
    * NOTE: If your backend uses a different endpoint, update NEWSLETTER_ENDPOINT.
    */
   async subscribe(payload: NewsletterSubscribePayload) {
-    const NEWSLETTER_ENDPOINT = "/newsletter";
+    const NEWSLETTER_ENDPOINT = "/newsletters";
 
     const response = await this.http.post<NewsletterSubscribeResponse>(NEWSLETTER_ENDPOINT, payload);
 

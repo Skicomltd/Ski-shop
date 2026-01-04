@@ -90,7 +90,7 @@ export const NavItems: React.FC<NavItemProperties> = ({ links, isMobile, classNa
           return (
             <NavigationMenuItem key={index}>
               <NavigationMenuLink
-                className={`hover:text-primary focus:text-primary transition-all hover:bg-transparent hover:underline focus:bg-transparent`}
+                className={`hover:text-primary focus:text-primary dark:hover:text-accent dark:focus:text-accent transition-all hover:bg-transparent hover:underline focus:bg-transparent`}
                 asChild
               >
                 <LocaleLink
@@ -98,7 +98,7 @@ export const NavItems: React.FC<NavItemProperties> = ({ links, isMobile, classNa
                   className={cn(
                     navigationMenuTriggerStyle(),
                     "w-full bg-transparent",
-                    isActive && "text-primary underline",
+                    isActive && "text-primary dark:text-accent underline",
                   )}
                 >
                   {getLabelForHref(link.href, link.title)}

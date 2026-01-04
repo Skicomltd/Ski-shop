@@ -72,7 +72,7 @@ const toSerializedEditorState = (description?: string): SerializedEditorState | 
 
 export const ProductDetail = ({ product, isLoading = false }: any) => {
   const locale = useLocale() as Locale;
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { useGetAllReviews, useDeleteReview } = useAppService();
@@ -81,11 +81,14 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
     isLoading: isReviewsLoading,
     isError: isReviewsError,
   } = useGetAllReviews({ productId: product?.id });
-  const { isSaved, isPending: isSaving, toggleSave } = useSaveProduct(product?.id || "");
+  const { isSaved, isPending: isSaving, toggleSave } = useSaveProduct(product?.id || "", product);
   const [activeTab, setActiveTab] = useState<Tab>("description");
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
   const queryClient = useQueryClient();
+
+  const role = session?.user?.role?.name?.toUpperCase();
+  const canSaveProduct = status !== "authenticated" || role === "CUSTOMER";
 
   const { mutate: deleteReview } = useDeleteReview({
     onMutate: async (reviewId: string) => {
@@ -169,7 +172,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                 <div className="relative aspect-square max-h-[482px] w-full overflow-hidden rounded-lg border p-4 sm:p-[2rem]">
                   <BlurImage priority src={gallery[selectedImage]} alt={product.name} fill className="object-cover" />
                   {/* Heart button positioned absolutely over the image */}
-                  <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
+                  {canSaveProduct && (
                     <button
                       role="button"
                       tabIndex={0}
@@ -198,7 +201,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                         <Heart className="h-6 w-6" />
                       )}
                     </button>
-                  </ComponentGuard>
+                  )}
                 </div>
                 <div className="grid grid-cols-4 gap-2 sm:gap-4">
                   {gallery.map((image: any, index: any) => (
@@ -435,47 +438,66 @@ export const ImageGallerySkeleton = () => (
   <div className="space-y-4">
     <div className="relative aspect-square max-h-[482px] w-full overflow-hidden rounded-lg border p-4 sm:p-[2rem]">
       <Skeleton className="h-full w-full" />
+
+      {/* Heart button placeholder */}
+      <div className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 p-2 backdrop-blur-sm">
+        <Skeleton className="h-6 w-6 rounded-full" />
+      </div>
     </div>
     <div className="grid grid-cols-4 gap-2 sm:gap-4">
       {Array.from({ length: 4 }).map((_, index) => (
-        <Skeleton key={index} className="aspect-square rounded-lg" />
+        <div
+          key={index}
+          className="relative aspect-square overflow-hidden rounded-lg border-2 border-transparent p-1 sm:p-0"
+        >
+          <Skeleton className="h-full w-full" />
+        </div>
       ))}
     </div>
   </div>
 );
 
 export const ProductInfoSkeleton = () => (
-  <div className="space-y-6">
-    <Skeleton className="mb-4 h-8 w-3/4 text-3xl" />
+  <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+    {/* Title */}
+    <div className="pt-4">
+      <Skeleton className="h-7 w-3/4 md:h-9" />
+    </div>
+
+    {/* Ratings row */}
     <div className="flex items-center gap-4">
       <div className="flex gap-1">
         {Array.from({ length: 5 }).map((_, index) => (
-          <Skeleton key={index} className="h-6 w-6" />
+          <Skeleton key={index} className="h-4 w-4 lg:h-5 lg:w-5" />
         ))}
       </div>
-      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-6 w-44 sm:h-7 sm:w-56" />
     </div>
+
+    {/* Store row */}
     <div className="flex items-center gap-4">
-      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-6 w-52" />
+    </div>
+
+    {/* Price row */}
+    <div className="flex items-baseline gap-2">
+      <Skeleton className="h-8 w-36 md:h-10" />
       <Skeleton className="h-6 w-24" />
     </div>
-    <div className="mt-8 flex items-baseline gap-4">
-      <Skeleton className="h-10 w-32" />
-      <Skeleton className="h-6 w-24" />
-    </div>
-    <div className="space-y-2">
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-5/6" />
-      <Skeleton className="h-4 w-4/5" />
-      <Skeleton className="h-4 w-3/4" />
-    </div>
+
+    {/* Quantity + Add to cart */}
     <div className="flex flex-col items-start gap-6">
-      <div className="flex w-fit items-center gap-4 rounded-full border p-4">
-        <Skeleton className="h-5 w-5" />
-        <Skeleton className="h-6 w-8" />
-        <Skeleton className="h-5 w-5" />
+      <section className="flex w-full flex-row items-center justify-between gap-4">
+        <div className="flex items-center">
+          <Skeleton className="h-[34px] w-[34px] rounded-sm" />
+          <Skeleton className="h-[34px] w-20 rounded-none" />
+          <Skeleton className="h-[34px] w-[34px] rounded-sm" />
+        </div>
+      </section>
+
+      <div className="mt-10 flex w-full gap-4">
+        <Skeleton className="h-16 w-full flex-1 rounded-full" />
       </div>
-      <Skeleton className="h-14 w-full rounded-full" />
     </div>
   </div>
 );
@@ -529,9 +551,9 @@ export const TabsSkeleton = () => (
 
 export const ProductDetailSkeleton = () => {
   return (
-    <section className="pt-[10rem]">
+    <section className="pt-18 lg:pt-[10rem]">
       <ProductBreadcrumb productTitle={`...loading product details`} />
-      <Wrapper className="py-6 sm:py-8 lg:py-10">
+      <Wrapper className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <div className="space-y-8 sm:space-y-10 lg:space-y-12">
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8">
             <ImageGallerySkeleton />

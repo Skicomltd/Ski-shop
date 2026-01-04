@@ -74,7 +74,8 @@ export function getThemeVariant(): ThemeVariant {
 
 export function initThemeMode(): void {
   try {
-    const stored = (localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null) || "system";
+    // Default to light instead of system when nothing is stored
+    const stored = (localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null) || "light";
     applyThemeMode(stored);
   } catch {
     /* empty */
@@ -101,9 +102,10 @@ export function setThemeMode(mode: ThemeMode): void {
 
 export function getThemeMode(): ThemeMode {
   try {
-    return ((localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null) || "system") as ThemeMode;
+    // When not set, treat light as the default mode
+    return ((localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null) || "light") as ThemeMode;
   } catch {
-    return "system";
+    return "light";
   }
 }
 
