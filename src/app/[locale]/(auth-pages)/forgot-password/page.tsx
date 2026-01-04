@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+// import { BackButton } from "@/components/shared/back-button";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -12,12 +12,12 @@ const Page = () => {
   return (
     <section>
       <div onClick={() => router.back()} className={`text-primary mb-4 flex cursor-pointer gap-2 font-medium`}>
-        <ArrowLeft />
-        <p>{tAuth("back") || tAuth("login")}</p>
+        {/* <BackButton /> */}
+        {/* <p>{tAuth("back") || tAuth("login")}</p> */}
       </div>
-      <div className="mb-[22px] space-y-[5px]">
-        <h3 className="text-[20px] lg:text-[28px]">{tAuth("forgotPassword")}</h3>
-        <p className="text-mid-grey-III text-[14px] lg:text-[18px]">{tAuth("passwordResetSent")}</p>
+      <div className="mb-[22px] space-y-[5px] text-center lg:text-left">
+        <h3 className="!text-[20px] lg:!text-[28px]">{tAuth("forgotPassword")}</h3>
+        <p className="!text-[12px] lg:!text-[14px]">{`Enter your email address and we'll send you a link to reset your password`}</p>
       </div>
       <ForgotPasswordForm />
     </section>
