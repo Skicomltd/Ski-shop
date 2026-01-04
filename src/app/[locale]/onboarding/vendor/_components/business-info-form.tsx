@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import SkiButton from "@/components/shared/button";
@@ -7,10 +8,12 @@ import { ComboBox } from "@/components/shared/select-dropdown/combo-box";
 import { FormControl, FormItem, FormField as UIFormField } from "@/components/ui/form";
 import { countries } from "@/lib/constants";
 import { BusinessInfoFormData, businessInfoSchema } from "@/schemas";
+import { useAppService } from "@/services/externals/app/use-app-service";
 import { useOnboardingUserService } from "@/services/externals/onboarding/use-onboarding-user-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -34,6 +37,24 @@ export const BusinessInfoForm = () => {
   // Onboarding user service hook
   const { useUpdateBusinessInfo } = useOnboardingUserService();
   const { mutateAsync: updateBusinessInfo, isPending } = useUpdateBusinessInfo();
+
+  // Delivery states for dynamic state dropdown
+  const { useGetDeliveryStates } = useAppService();
+  const { data: deliveryStatesResponse } = useGetDeliveryStates({ staleTime: 1000 * 60 * 5 });
+
+  const deliveryStates = useMemo(() => {
+    const raw = (deliveryStatesResponse as any)?.data;
+    const list = Array.isArray(raw)
+      ? (raw as any[])
+      : Array.isArray(deliveryStatesResponse as any)
+        ? (deliveryStatesResponse as unknown as any[])
+        : [];
+
+    return list
+      .map((s: any) => s?.name || s?.state || s)
+      .filter((v: any) => typeof v === "string")
+      .map((value: string) => ({ value: value.toLowerCase(), label: value }));
+  }, [deliveryStatesResponse]);
 
   const {
     handleSubmit,
@@ -63,7 +84,7 @@ export const BusinessInfoForm = () => {
   const renderBusinessFields = () => (
     <>
       {/* Business Type */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-tour="business-info-business">
         <FormField
           placeholder="Select business type"
           className="!h-14 w-full"
@@ -96,7 +117,7 @@ export const BusinessInfoForm = () => {
   const renderContactFields = () => (
     <>
       {/* Contact Phone - Full Width */}
-      <div className="space-y-2 lg:col-span-2">
+      <div className="space-y-2 lg:col-span-2" data-tour="business-info-contact">
         <UIFormField
           control={methods.control}
           name="contactNumber"
@@ -130,7 +151,7 @@ export const BusinessInfoForm = () => {
   const renderLocationFields = () => (
     <>
       {/* Country */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-tour="business-info-location">
         <ComboBox
           options={countries}
           value={methods.watch("country")}
@@ -152,10 +173,7 @@ export const BusinessInfoForm = () => {
           className="!h-14 w-full"
           name="state"
           type="select"
-          options={[
-            { label: "Jos", value: "jos" },
-            { label: "Lagos", value: "lagos" },
-          ]}
+          options={deliveryStates.length > 0 ? deliveryStates : []}
         />
         {methods.formState.errors.state && (
           <p className="text-sm text-red-500">{methods.formState.errors.state.message}</p>
@@ -167,7 +185,7 @@ export const BusinessInfoForm = () => {
   const renderKycFields = () => (
     <>
       {/* KYC Verification Type */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-tour="business-info-kyc">
         <FormField
           placeholder="Select KYC verification type"
           className="!h-14 w-full"

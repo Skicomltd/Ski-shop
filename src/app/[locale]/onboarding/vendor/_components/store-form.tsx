@@ -53,7 +53,7 @@ export const StoreForm = () => {
   );
 
   const renderStoreFields = () => (
-    <section className="space-y-4">
+    <section className="space-y-4" data-tour="store-setup-details">
       {/* Store Name */}
       <div className="space-y-2">
         <FormField placeholder="Store Name" className="h-14 w-full" name="name" />
@@ -70,7 +70,7 @@ export const StoreForm = () => {
       </div>
 
       {/* Store Logo Upload */}
-      <div className="!w-full space-y-2">
+      <div className="!w-full space-y-2" data-tour="store-setup-logo">
         <FormField
           label="Store Logo"
           name="image"

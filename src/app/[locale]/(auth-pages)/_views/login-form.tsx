@@ -163,9 +163,16 @@ export const LoginForm = () => {
           </section>
 
           <p className="text-muted-foreground mt-6 text-center text-sm sm:text-base">
-            {tAuth("dontHaveAccount")}{" "}
+            {tAuth("dontHaveAccount")}
             <LocaleLink href="/signup" className="text-primary font-medium hover:underline">
               {tAuth("signup")}
+            </LocaleLink>
+          </p>
+
+          <p className="text-muted-foreground mt-2 text-center text-xs sm:text-sm">
+            Would you like to be a vendor?{" "}
+            <LocaleLink href="/signup/vendor" className="text-primary font-medium hover:underline">
+              Become a seller
             </LocaleLink>
           </p>
 

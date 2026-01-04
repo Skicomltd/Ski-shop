@@ -10,6 +10,7 @@ import { AppThemeProvider } from "@/components/core/miscellaneous/theme-provider
 import { Toast } from "@/components/shared/Toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SSEProvider } from "@/context/sse-provider";
+import { TourProvider } from "@/context/tour-context";
 import { PageWrapper } from "@/lib/animation";
 import { ReactQueryProvider } from "@/lib/react-query/query-provider";
 // import { MockServiceWorkerProvider } from "@/mocks/mock-provider";
@@ -32,17 +33,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SSEProvider>
             <ReactQueryProvider>
               <AppThemeProvider>
-                <TooltipProvider>
-                  <NuqsAdapter>
-                    <NextTopLoader showSpinner={false} />
-                    <Toast />
-                    {/* <MockServiceWorkerProvider isEnabled={true}> */}
-                    <LenisProvider>
-                      <PageWrapper>{children}</PageWrapper>
-                    </LenisProvider>
-                    {/* </MockServiceWorkerProvider> */}
-                  </NuqsAdapter>
-                </TooltipProvider>
+                <TourProvider>
+                  <TooltipProvider>
+                    <NuqsAdapter>
+                      <NextTopLoader showSpinner={false} />
+                      <Toast />
+                      {/* <MockServiceWorkerProvider isEnabled={true}> */}
+                      <LenisProvider>
+                        <PageWrapper>{children}</PageWrapper>
+                      </LenisProvider>
+                      {/* </MockServiceWorkerProvider> */}
+                    </NuqsAdapter>
+                  </TooltipProvider>
+                </TourProvider>
               </AppThemeProvider>
             </ReactQueryProvider>
           </SSEProvider>

@@ -61,7 +61,7 @@ export const VerifyEmailComponent = () => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6 px-4 py-6">
+    <div className="flex flex-col items-center space-y-6 px-4 py-6" data-tour="verify-email-main">
       {/* Header Section */}
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="space-y-2">
@@ -90,7 +90,7 @@ export const VerifyEmailComponent = () => {
               <FormItem className="space-y-4">
                 <p className="text-foreground text-center text-sm font-medium">Enter Verification Code</p>
                 <FormControl>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center" data-tour="verify-email-code-input">
                     <InputOTP maxLength={6} {...field} className="gap-2">
                       <InputOTPGroup className="gap-1 sm:gap-2">
                         <InputOTPSlot
@@ -130,7 +130,7 @@ export const VerifyEmailComponent = () => {
           />
 
           {/* Action Buttons */}
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-3" data-tour="verify-email-actions">
             <SkiButton
               type="submit"
               className="w-full font-medium transition-all duration-200 hover:shadow-md"

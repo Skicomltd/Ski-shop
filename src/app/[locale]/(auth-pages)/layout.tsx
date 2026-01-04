@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         data-lenis-prevent-touch
         className="flex flex-1 flex-col overflow-y-auto"
       >
-        {/* Mobile Image */}
+        {/* Mobile Image + Logo */}
         <div className={`relative h-[10rem] flex-shrink-0 lg:hidden`}>
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
           <Image
@@ -43,6 +43,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             alt="model"
             priority
           />
+
+          {/* Mobile Logo Overlay */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="rounded-lg bg-white p-2">
+              <Logo width={120} height={40} className="text-primary !w-[100px]" />
+            </div>
+          </div>
         </div>
 
         {/* Scrollable Content */}

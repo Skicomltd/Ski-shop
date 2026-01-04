@@ -111,7 +111,7 @@ export const VerifyPhoneComponent = () => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6 px-4 py-6">
+    <div className="flex flex-col items-center space-y-6 px-4 py-6" data-tour="verify-phone-main">
       {/* Header Section */}
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="space-y-2">
@@ -140,7 +140,7 @@ export const VerifyPhoneComponent = () => {
               <FormItem className="space-y-4">
                 <p className="text-foreground text-center text-sm font-medium">Enter Verification Code</p>
                 <FormControl>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center" data-tour="verify-phone-code-input">
                     <InputOTP maxLength={6} {...field} className="gap-2">
                       <InputOTPGroup className="gap-1 sm:gap-2">
                         <InputOTPSlot
@@ -196,7 +196,7 @@ export const VerifyPhoneComponent = () => {
       </FormProvider>
 
       {/* Resend Code Section */}
-      <div className="flex flex-col items-center space-y-3">
+      <div className="flex flex-col items-center space-y-3" data-tour="verify-phone-resend">
         <p className="text-muted-foreground text-sm">Didn&apos;t receive the code?</p>
         <button
           onClick={handleResendCode}

@@ -1,0 +1,153 @@
+/* Driver.js Custom Styling */
+
+/* Popover container */
+.driver-popover {
+  background: var(--primary) !important;
+  color: var(--background) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow) !important;
+  max-width: 400px !important;
+  padding: 20px !important;
+}
+
+/* Popover title */
+.driver-popover-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: var(--background) !important;
+  margin-bottom: 12px !important;
+}
+
+/* Popover description */
+.driver-popover-description {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: var(--background) !important;
+  margin-bottom: 20px !important;
+}
+
+/* Buttons container */
+.driver-popover-footer {
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  margin-top: 16px !important;
+}
+
+/* All buttons base styling */
+.driver-popover-btn {
+  padding: 10px 20px !important;
+  border-radius: 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Next button - primary action */
+.driver-popover-next-btn {
+  background: var(--background) !important;
+  color: var(--primary) !important;
+  padding: 5px 24px !important;
+}
+
+/* Previous button - secondary action */
+.driver-popover-prev-btn {
+  background: transparent !important;
+  color: var(--white) !important;
+  padding: 5px 24px !important;
+  border: 1px solid var(--white) !important;
+  text-shadow: none !important;
+}
+
+/* Close button */
+.driver-popover-close-btn {
+  background: transparent !important;
+  /* border: 1px solid rgba(255, 255, 255, 0.2) !important; */
+  color: var(--white) !important;
+  /* position: absolute !important; */
+  top: 16px !important;
+  right: 16px !important;
+  /* padding: 1px !important; */
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  /* border-radius: 100% !important; */
+}
+
+.driver-popover-close-btn:hover {
+  background: #f3f4f6 !important;
+  color: #1a1a1a !important;
+}
+
+/* Progress text */
+.driver-popover-progress-text {
+  font-size: 13px !important;
+  color: var(--white) !important;
+  margin-bottom: 12px !important;
+}
+
+/* Arrow/pointer */
+.driver-popover-arrow-side-left {
+  border-top-color: rgba(0, 0, 0, 0);
+  border-bottom-color: rgba(0, 0, 0, 0);
+  border-right-color: rgba(0, 0, 0, 0);
+  border-left-color: var(--primary) !important;
+}
+.driver-popover-arrow-side-top {
+  border-left-color: rgba(0, 0, 0, 0);
+  border-bottom-color: rgba(0, 0, 0, 0);
+  border-right-color: rgba(0, 0, 0, 0);
+  border-top-color: var(--primary) !important;
+}
+.driver-popover-arrow-side-bottom {
+  border-top-color: rgba(0, 0, 0, 0);
+  border-left-color: rgba(0, 0, 0, 0);
+  border-right-color: rgba(0, 0, 0, 0);
+  border-bottom-color: var(--primary) !important;
+}
+.driver-popover-arrow-side-right {
+  border-top-color: rgba(0, 0, 0, 0);
+  border-left-color: rgba(0, 0, 0, 0);
+  border-bottom-color: rgba(0, 0, 0, 0);
+  border-right-color: var(--primary) !important;
+}
+/* Overlay - dark backdrop */
+.driver-overlay {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Active element animation */
+.driver-active-element {
+  transition: all 0.3s ease !important;
+}
+
+/* Disable button styling when there's no previous step */
+.driver-popover-prev-btn[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 640px) {
+  .driver-popover {
+    max-width: calc(100vw - 32px) !important;
+    padding: 16px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 18px !important;
+  }
+
+  .driver-popover-description {
+    font-size: 14px !important;
+  }
+
+  .driver-popover-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+  }
+}
