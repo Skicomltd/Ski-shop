@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 "use client";
 
 import SkiButton from "@/components/shared/button";
 import { FormField } from "@/components/shared/inputs/FormFields";
+import { countries } from "@/lib/constants";
 import { VendorBusinessFormData, vendorBusinessSchema } from "@/schemas";
 import { useDashboardProfileService } from "@/services/dashboard/vendor/users/use-profile-service";
+import { useAppService } from "@/services/externals/app/use-app-service";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -23,21 +26,6 @@ const businessTypes = [
 //   { value: "national_id", label: "National ID" },
 //   { value: "other", label: "Other" },
 // ];
-
-const countries = [
-  { value: "nigeria", label: "🇳🇬 Nigeria" },
-  { value: "united_kingdom", label: "🇬🇧 United Kingdom" },
-  { value: "united_states", label: "🇺🇸 United States" },
-  { value: "canada", label: "🇨🇦 Canada" },
-  { value: "australia", label: "🇦🇺 Australia" },
-];
-
-const states = [
-  { value: "lagos", label: "Lagos" },
-  { value: "abuja", label: "Abuja" },
-  { value: "kano", label: "Kano" },
-  { value: "kaduna", label: "Kaduna" },
-];
 
 interface VendorBusinessFormProperties {
   initialData?: VendorProfile | null;
@@ -73,6 +61,24 @@ export const VendorBusinessForm = ({
 
   const { data: profileResponse } = useGetVendorProfile();
   const profile = initialData ?? profileResponse?.data;
+
+  // Delivery states for dynamic state dropdown
+  const { useGetDeliveryStates } = useAppService();
+  const { data: deliveryStatesResponse } = useGetDeliveryStates({ staleTime: 1000 * 60 * 5 });
+
+  const deliveryStates = useMemo(() => {
+    const raw = (deliveryStatesResponse as any)?.data;
+    const list = Array.isArray(raw)
+      ? (raw as any[])
+      : Array.isArray(deliveryStatesResponse as any)
+        ? (deliveryStatesResponse as unknown as any[])
+        : [];
+
+    return list
+      .map((s: any) => s?.name || s?.state || s)
+      .filter((v: any) => typeof v === "string")
+      .map((value: string) => ({ value: value.toLowerCase(), label: value }));
+  }, [deliveryStatesResponse]);
 
   useEffect(() => {
     if (profile?.business) {
@@ -152,7 +158,7 @@ export const VendorBusinessForm = ({
               label="State"
               name="business.state"
               type="select"
-              options={states}
+              options={deliveryStates.length > 0 ? deliveryStates : []}
               placeholder="Select state"
               className="!h-12 w-full"
             />

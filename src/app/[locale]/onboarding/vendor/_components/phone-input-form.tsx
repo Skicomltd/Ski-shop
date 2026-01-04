@@ -85,7 +85,7 @@ export const PhoneInputForm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6 px-4 py-6">
+    <div className="flex flex-col items-center space-y-6 px-4 py-6" data-tour="phone-input-main">
       {/* Header Section */}
       <div className="flex flex-col items-center space-y-4 text-center">
         {/* <div className="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
@@ -106,7 +106,7 @@ export const PhoneInputForm = () => {
             control={methods.control}
             name="phoneNumber"
             render={({ field }) => (
-              <FormItem className="flex flex-col items-start">
+              <FormItem className="flex flex-col items-start" data-tour="phone-input-field">
                 <FormControl className="w-full">
                   <PhoneInput
                     defaultCountry="NG"
@@ -123,7 +123,7 @@ export const PhoneInputForm = () => {
           />
 
           {/* Submit Button */}
-          <div className="space-y-4">
+          <div className="space-y-4" data-tour="phone-input-submit">
             <SkiButton
               type="submit"
               className="w-full font-medium transition-all duration-200 hover:shadow-md"
