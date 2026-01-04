@@ -11,7 +11,7 @@ export const SectionOne = () => {
       className={`bg-accent/10 dark:bg-muted flex max-w-[1240px] flex-col-reverse items-center justify-between gap-8 rounded-lg p-6 sm:gap-12 sm:p-8 lg:flex-row lg:gap-20 lg:px-[62px] lg:py-[64px]`}
     >
       <div className={`flex-1`}>
-        <span className={`!text-primary font-semibold`}>{t("tagTitle")}</span>
+        <span className={`!text-primary dark:!text-accent font-semibold`}>{t("tagTitle")}</span>
         <h2 className={`pt-4 text-xl md:!text-4xl`}>{t("title")}</h2>
         <p className={`my-4 sm:my-6 sm:!text-lg lg:my-[22px]`}>{t("description")}</p>
       </div>

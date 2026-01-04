@@ -336,9 +336,9 @@ const Page = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:sticky lg:top-1 lg:grid-cols-12 lg:items-start lg:gap-8">
               {/* Filters sidebar - Hidden on mobile, shown on desktop */}
-              <section className="hidden space-y-6 lg:sticky lg:top-8 lg:col-span-2 lg:block lg:space-y-10 lg:self-start">
+              <section className="hidden space-y-6 lg:col-span-2 lg:block lg:h-fit lg:space-y-10 lg:self-start">
                 {isCategoriesLoading ? (
                   <div className="space-y-2">
                     <h6 className="!font-bold uppercase">{t("filters.categories")}</h6>
@@ -389,52 +389,55 @@ const Page = () => {
 
               {/* Main content */}
               <section className="lg:col-span-10">
-                {/* Search and sort header */}
-                <article className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between lg:mb-8">
-                  <div className="w-full sm:w-[20rem]">
-                    <Input
-                      name="search"
-                      placeholder={t("search.placeholder")}
-                      value={search || ""}
-                      onChange={handleSearch}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-4">
-                    {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.sortBy")}</p> */}
-                    {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.filterLabel")}</p> */}
-                    <CustomSelect
-                      options={[sortOldest, sortNewest]}
-                      placeholder={t("search.chooseSortOption")}
-                      value={currentValue}
-                      onChange={handleSortChange}
-                    />
-                  </div>
-                </article>
+                {/* Sticky search, sort, and active filters header */}
+                <div className="bg-background sticky top-1 z-20 space-y-4 pb-4">
+                  {/* Search and sort header */}
+                  <article className="flex flex-col gap-4 sm:mb-2 sm:flex-row sm:items-center sm:justify-between lg:mb-4">
+                    <div className="w-full sm:w-[20rem]">
+                      <Input
+                        name="search"
+                        placeholder={t("search.placeholder")}
+                        value={search || ""}
+                        onChange={handleSearch}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-4">
+                      {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.sortBy")}</p> */}
+                      {/* <p className="!m-0 hidden text-sm text-gray-600 sm:block sm:text-base">{t("search.filterLabel")}</p> */}
+                      <CustomSelect
+                        options={[sortOldest, sortNewest]}
+                        placeholder={t("search.chooseSortOption")}
+                        value={currentValue}
+                        onChange={handleSortChange}
+                      />
+                    </div>
+                  </article>
 
-                {/* Active filters info */}
-                <article className="bg-high-grey-I my-4 flex flex-col gap-3 rounded-md p-4 sm:flex-row sm:items-center sm:justify-between md:my-6 lg:my-8 dark:bg-[#111111]">
-                  <div>
-                    <span className="text-mid-grey-II text-sm lg:text-base">{t("activeFilters.title")} </span>
-                    <span className="space-x-4 text-sm lg:text-base">
-                      {category || t("filters.allCategories")} /{" "}
-                      {(() => {
-                        if (!storeId || storeId === t("filters.allVendor")) {
-                          return t("filters.allVendor");
-                        }
-                        const selectedVendor = topVendorsData?.data?.items.find((vendor) => vendor.id === storeId);
-                        return selectedVendor?.name || storeId;
-                      })()}
-                      {debouncedSearch && ` / ${t("search.searchLabel")}: ${debouncedSearch}`}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-mid-grey-II !m-0 text-sm lg:text-base">
-                      <span className="text-high-grey-II text-sm font-semibold lg:text-base">{totalProducts}</span>{" "}
-                      {t("activeFilters.resultsFound")}
-                    </p>
-                  </div>
-                </article>
+                  {/* Active filters info */}
+                  <article className="bg-high-grey-I flex flex-col gap-3 rounded-md p-4 sm:flex-row sm:items-center sm:justify-between dark:bg-[#111111]">
+                    <div>
+                      <span className="text-mid-grey-II text-sm lg:text-base">{t("activeFilters.title")} </span>
+                      <span className="space-x-4 text-sm lg:text-base">
+                        {category || t("filters.allCategories")} /{" "}
+                        {(() => {
+                          if (!storeId || storeId === t("filters.allVendor")) {
+                            return t("filters.allVendor");
+                          }
+                          const selectedVendor = topVendorsData?.data?.items.find((vendor) => vendor.id === storeId);
+                          return selectedVendor?.name || storeId;
+                        })()}
+                        {debouncedSearch && ` / ${t("search.searchLabel")}: ${debouncedSearch}`}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-mid-grey-II !m-0 text-sm lg:text-base">
+                        <span className="text-high-grey-II text-sm font-semibold lg:text-base">{totalProducts}</span>{" "}
+                        {t("activeFilters.resultsFound")}
+                      </p>
+                    </div>
+                  </article>
+                </div>
 
                 {/* Products grid with infinite scroll */}
                 <section className="mb-6 sm:mb-8 lg:mb-12">

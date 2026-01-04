@@ -19,7 +19,7 @@ export const Wrapper: FC<WrapperProperties> = ({
       {...rest}
       className={cn(
         `mx-auto w-full ${width} ${height}`,
-        "my-[clamp(1rem,4vw,4rem)] flex flex-col gap-[clamp(1rem,4vw,3rem)] px-4 py-0 md:px-6 lg:my-[clamp(1rem,6vw,6rem)] xl:px-0",
+        "my-[clamp(1rem,10vw,4rem)] flex flex-col gap-[clamp(1rem,4vw,3rem)] px-4 py-0 md:px-6 lg:my-[clamp(1rem,6vw,6rem)] xl:px-0",
         className,
       )}
     >

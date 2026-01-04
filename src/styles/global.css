@@ -409,7 +409,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--mid-grey-II);
+  @apply text-mid-grey-III dark:text-foreground;
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
   font-weight: var(--font-weight-bold);

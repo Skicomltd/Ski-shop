@@ -135,11 +135,14 @@ export const Footer = () => {
                 <div className="mt-5 flex flex-col gap-2">
                   <Link
                     href="/about"
-                    className={`text-sm ${normalizedPath.startsWith("/about") ? "text-primary font-bold" : ""}`}
+                    className={`text-sm ${normalizedPath.startsWith("/about") ? "text-primary dark:text-accent font-bold" : ""}`}
                   >
                     {t("about")}
                   </Link>
-                  <Link href="/" className={`text-sm ${normalizedPath === "/" ? "text-primary font-bold" : ""}`}>
+                  <Link
+                    href="/"
+                    className={`text-sm ${normalizedPath === "/" ? "text-primary dark:text-accent font-bold" : ""}`}
+                  >
                     {t("explore")}
                   </Link>
                 </div>
@@ -147,13 +150,13 @@ export const Footer = () => {
                 <div className="mt-5 flex flex-col gap-2">
                   <Link
                     href="/shop"
-                    className={`text-sm ${normalizedPath.startsWith("/shop") ? "text-primary font-bold" : ""}`}
+                    className={`text-sm ${normalizedPath.startsWith("/shop") ? "text-primary dark:text-accent font-bold" : ""}`}
                   >
                     {t("shop")}
                   </Link>
                   <Link
                     href="/contact"
-                    className={`text-sm ${normalizedPath.startsWith("/contact") ? "text-primary font-bold" : ""}`}
+                    className={`text-sm ${normalizedPath.startsWith("/contact") ? "text-primary dark:text-accent font-bold" : ""}`}
                   >
                     {t("contact")}
                   </Link>
@@ -167,13 +170,13 @@ export const Footer = () => {
               <div className="mt-5 flex flex-col gap-2">
                 <Link
                   href="/privacy-policy"
-                  className={`text-sm ${normalizedPath.startsWith("/privacy-policy") ? "text-primary font-bold" : ""}`}
+                  className={`text-sm ${normalizedPath.startsWith("/privacy-policy") ? "text-primary dark:text-accent font-bold" : ""}`}
                 >
                   {"Privacy Policy"}
                 </Link>
                 <Link
                   href="/terms-and-condition"
-                  className={`text-sm ${normalizedPath.startsWith("/terms-and-condition") ? "text-primary font-bold" : ""}`}
+                  className={`text-sm ${normalizedPath.startsWith("/terms-and-condition") ? "text-primary dark:text-accent font-bold" : ""}`}
                 >
                   {t("terms")}
                 </Link>

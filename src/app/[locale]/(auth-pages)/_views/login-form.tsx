@@ -133,6 +133,19 @@ export const LoginForm = () => {
             </LocaleLink>
           </section>
 
+          <section className="text-muted-foreground mt-3 text-center text-xs sm:!text-xs">
+            <p>
+              By continuing, you agree to our{" "}
+              <LocaleLink href="/privacy-policy" className="text-primary hover:underline dark:!text-white">
+                Privacy Policy
+              </LocaleLink>{" "}
+              and{" "}
+              <LocaleLink href="/terms-and-condition" className="text-primary hover:underline dark:!text-white">
+                Terms &amp; Conditions.
+              </LocaleLink>
+            </p>
+          </section>
+
           {/* CTA */}
           <section className="flex flex-col items-center justify-center gap-5 pt-2">
             <SkiButton
@@ -145,6 +158,7 @@ export const LoginForm = () => {
             >
               {tAuth("login")}
             </SkiButton>
+
             {/* <span className="text-muted-foreground text-xs sm:text-sm">
               -------------------- OR --------------------
             </span>
@@ -164,31 +178,17 @@ export const LoginForm = () => {
 
           <p className="text-muted-foreground mt-6 text-center text-sm sm:text-base">
             {tAuth("dontHaveAccount")}
-            <LocaleLink href="/signup" className="text-primary font-medium hover:underline">
+            <LocaleLink href="/signup" className="text-primary font-medium hover:underline dark:!text-white">
               {tAuth("signup")}
             </LocaleLink>
           </p>
 
           <p className="text-muted-foreground mt-2 text-center text-xs sm:text-sm">
             Would you like to be a vendor?{" "}
-            <LocaleLink href="/signup/vendor" className="text-primary font-medium hover:underline">
+            <LocaleLink href="/signup/vendor" className="text-primary font-medium hover:underline dark:!text-white">
               Become a seller
             </LocaleLink>
           </p>
-
-          <section className="text-muted-foreground mt-3 text-center text-xs sm:text-sm">
-            <p>
-              By continuing, you agree to our{" "}
-              <LocaleLink href="/privacy-policy" className="text-primary hover:underline">
-                Privacy Policy
-              </LocaleLink>{" "}
-              and{" "}
-              <LocaleLink href="/terms-and-condition" className="text-primary hover:underline">
-                Terms &amp; Conditions
-              </LocaleLink>
-              .
-            </p>
-          </section>
         </form>
       </FormProvider>
     </section>
