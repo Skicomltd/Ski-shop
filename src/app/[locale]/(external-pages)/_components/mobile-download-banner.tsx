@@ -20,9 +20,9 @@ export const MobileDownloadBanner = () => {
     >
       <div className={`w-full max-w-[457px] flex-1`}>
         <h3 className="mt-4 text-xl !text-white md:!text-2xl lg:!text-3xl">{t("title")}</h3>
-        <p className={`my-[22px] font-[300] md:!text-base lg:!text-lg`}>{t("description")}</p>
+        <p className={`my-[22px] font-[300] !text-white md:!text-base lg:!text-lg`}>{t("description")}</p>
         <div className={`mt-8 flex flex-col gap-4 lg:flex-row`}>
-          <SkiButton className={`h-[54px] w-full rounded-md px-4`}>
+          <SkiButton className={`h-[54px] w-full rounded-md bg-white px-4 text-black`}>
             <section className={`flex items-center gap-2`}>
               <FaApple size={`2rem`} />
               <div className={`flex flex-col items-start space-y-[-0.2rem]`}>
@@ -31,7 +31,7 @@ export const MobileDownloadBanner = () => {
               </div>
             </section>
           </SkiButton>
-          <SkiButton className={`h-[54px] w-full rounded-md px-4`}>
+          <SkiButton className={`h-[54px] w-full rounded-md bg-white px-4 text-black`}>
             <section className={`flex items-center gap-2`}>
               {/* <FaGooglePlay size={`2rem`} /> */}
               <Image src={Playstore} alt={"Google Play"} height={30} />

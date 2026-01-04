@@ -459,7 +459,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProperties>(
               </Drawer>
 
               {/* User Actions */}
-              <div>
+              <div className="hidden md:block">
                 {session?.user ? (
                   <div className="hidden lg:block">
                     <UserAvatarProfile showInfo />

@@ -156,7 +156,7 @@ export const ProductGrid = ({
             title
           )}
           {hasAction && (
-            <LocaleLink href={computedActionHref} className="text-primary font-medium lg:text-2xl">
+            <LocaleLink href={computedActionHref} className="text-primary dark:text-accent font-medium lg:text-2xl">
               {actionText || t("seeAll")}
             </LocaleLink>
           )}

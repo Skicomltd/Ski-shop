@@ -59,7 +59,7 @@ const Page = () => {
         image="https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758641969/skicom/rzixupei0jmxjjfkv6mg.png"
         tagTitle={t("beAVendor.tagTitle")}
         title={t("beAVendor.title")}
-        className={`dark:bg-muted mt-20 bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] bg-right bg-no-repeat`}
+        className={`dark:bg-muted bg-right bg-no-repeat md:bg-[url(https://res.cloudinary.com/kingsleysolomon/image/upload/f_auto,q_auto/v1758712177/skicom/kisfpnyvjvgoz198tu3z.svg)] md:bg-[length:300px,200px] md:bg-right`}
         textClassName={`max-w-[1000px] lg:pr-[40%]`}
       />
       <BlackFridayReusableBanner
@@ -113,17 +113,17 @@ const Page = () => {
         <OptioinCard
           title={t("features.freeDelivery.title")}
           description={t("features.freeDelivery.description")}
-          icon={<Truck className={`h-16 w-16 rounded-full bg-black p-4 text-white`} />}
+          icon={<Truck className={`dark:text-accent h-16 w-16 rounded-full bg-black p-4 text-white`} />}
         />
         <OptioinCard
           title={t("features.customerService.title")}
           description={t("features.customerService.description")}
-          icon={<Headset className={`h-16 w-16 rounded-full bg-black p-4 text-white`} />}
+          icon={<Headset className={`dark:text-accent h-16 w-16 rounded-full bg-black p-4 text-white`} />}
         />
         <OptioinCard
           title={t("features.moneyBack.title")}
           description={t("features.moneyBack.description")}
-          icon={<ShieldCheck className={`h-16 w-16 rounded-full bg-black p-4 text-white`} />}
+          icon={<ShieldCheck className={`dark:text-accent h-16 w-16 rounded-full bg-black p-4 text-white`} />}
         />
       </Wrapper>
       <MobileDownloadBanner />

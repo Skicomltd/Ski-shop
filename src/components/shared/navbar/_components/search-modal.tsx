@@ -5,11 +5,11 @@ import { DialogClose } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useAppService } from "@/services/externals/app/use-app-service";
-import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { LuSearch } from "react-icons/lu";
+import { MdCancel } from "react-icons/md";
 
 import { ReusableDialog } from "../../dialog/Dialog";
 
@@ -115,9 +115,9 @@ export const SearchDialog = () => {
               <button
                 type="button"
                 aria-label="Close search"
-                className="hover:bg-accent focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="hover:bg-accent focus-visible:ring-ring inline-flex items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
-                <X className="h-5 w-5" />
+                <MdCancel className="text-primary h-5 w-5" />
               </button>
             </DialogClose>
           </div>
@@ -130,7 +130,7 @@ export const SearchDialog = () => {
           results={searchResults}
           isLoading={isSuggestionsLoading}
           mode={isMobile ? "inline" : "popover"}
-          className="border-border w-full rounded-md border"
+          className="bg-muted w-full rounded-md"
         />
       </div>
     </ReusableDialog>
