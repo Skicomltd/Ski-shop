@@ -118,6 +118,8 @@ declare global {
     label: string;
     icon?: ReactNode;
     onClick: (row: T) => void;
+    /** Optional visual variant for the action item */
+    variant?: "default" | "destructive";
   }
 
   /** Dashboard table properties */

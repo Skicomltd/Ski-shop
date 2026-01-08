@@ -10,7 +10,7 @@ import { EmptyState, ErrorState, FilteredEmptyState } from "@/components/shared/
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { useDashboardProductService } from "@/services/dashboard/vendor/products/use-product-service";
 // import { useTranslations } from "next-intl";
-import { Edit, EyeOff, Trash2 } from "lucide-react";
+import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -33,12 +33,13 @@ export const AllProducts = () => {
   // Modal states
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [unpublishModalOpen, setUnpublishModalOpen] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const filters = useMemo(
     () => ({
       page,
-      limit: 10,
+      limit: 50,
       sort: "newest", // Add default sort parameter
       ...(searchQuery && { search: searchQuery }),
     }),
@@ -104,6 +105,14 @@ export const AllProducts = () => {
     [setSelectedProduct, setUnpublishModalOpen],
   );
 
+  const handlePublishProduct = useCallback(
+    (product: Product) => {
+      setSelectedProduct(product);
+      setPublishModalOpen(true);
+    },
+    [setSelectedProduct, setPublishModalOpen],
+  );
+
   const handleDeleteProduct = useCallback(
     (product: Product) => {
       setSelectedProduct(product);
@@ -125,6 +134,20 @@ export const AllProducts = () => {
       }
     }
   }, [selectedProduct, updateProductStatus, refetch, setUnpublishModalOpen, setSelectedProduct]);
+
+  const handleConfirmPublish = useCallback(async () => {
+    if (selectedProduct) {
+      try {
+        await updateProductStatus({ id: selectedProduct.id, status: "published" });
+        toast.success("Product published successfully");
+        refetch();
+        setPublishModalOpen(false);
+        setSelectedProduct(null);
+      } catch {
+        toast.error("Failed to publish product");
+      }
+    }
+  }, [selectedProduct, updateProductStatus, refetch, setPublishModalOpen, setSelectedProduct]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (selectedProduct) {
@@ -148,18 +171,32 @@ export const AllProducts = () => {
         icon: <Edit className="h-4 w-4" />,
         onClick: () => handleEditProduct(product),
       },
-      {
-        label: "Unpublish",
-        icon: <EyeOff className="h-4 w-4" />,
-        onClick: () => handleUnpublishProduct(product),
-      },
+      ...(product.status === "published"
+        ? [
+            {
+              label: "Unpublish",
+              icon: <EyeOff className="h-4 w-4" />,
+              onClick: () => handleUnpublishProduct(product),
+            },
+          ]
+        : []),
+      ...(product.status === "draft"
+        ? [
+            {
+              label: "Publish",
+              icon: <Eye className="h-4 w-4" />,
+              onClick: () => handlePublishProduct(product),
+            },
+          ]
+        : []),
       {
         label: "Delete",
         icon: <Trash2 className="h-4 w-4" />,
         onClick: () => handleDeleteProduct(product),
+        variant: "destructive" as const,
       },
     ],
-    [handleEditProduct, handleUnpublishProduct, handleDeleteProduct],
+    [handleEditProduct, handleUnpublishProduct, handlePublishProduct, handleDeleteProduct],
   );
 
   if (isError) {
@@ -258,6 +295,18 @@ export const AllProducts = () => {
         title="Unpublish Product"
         description="Are you sure you want to unpublish this product? It will no longer be visible to customers."
         confirmText="Unpublish"
+        cancelText="Cancel"
+      />
+
+      {/* Publish Confirmation Modal */}
+      <AlertModal
+        isOpen={publishModalOpen}
+        onClose={() => setPublishModalOpen(false)}
+        onConfirm={handleConfirmPublish}
+        type="success"
+        title="Publish Product"
+        description="Are you sure you want to publish this product? It will become visible to customers."
+        confirmText="Publish"
         cancelText="Cancel"
       />
 
