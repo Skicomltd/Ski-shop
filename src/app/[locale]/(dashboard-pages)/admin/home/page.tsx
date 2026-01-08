@@ -159,7 +159,7 @@ const Page = () => {
 
       {/* Orders Table Section */}
       <section>
-        <section className={`bg-background mt-6 space-y-4 rounded-lg p-6`}>
+        <section className={`bg-background mt-6 space-y-4 rounded-lg p-6 shadow-sm`}>
           <DashboardHeader
             title="Recent Orders"
             subtitle="Track Skishop recent orders and their status"

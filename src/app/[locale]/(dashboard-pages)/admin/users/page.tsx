@@ -57,7 +57,7 @@ const Page = () => {
         />
       </section>
       <section>
-        <Tabs defaultValue="all" className="bg-background rounded-lg p-4">
+        <Tabs defaultValue="all" className="bg-background rounded-lg p-4 shadow-sm">
           <TabsList className="bg-background p-0">
             <TabsTrigger
               value="all"

@@ -118,7 +118,7 @@ const Page = () => {
         ) : isRevenueHistoryError ? (
           <ErrorState />
         ) : (
-          <section className={`bg-background mt-6 space-y-4 rounded-lg p-6`}>
+          <section className={`bg-background mt-6 space-y-4 rounded-lg p-6 shadow-sm`}>
             <DashboardHeader
               title="Revenue History"
               subtitle="Track Skishop revenue history"

@@ -60,7 +60,7 @@ const RevenueBySource = () => {
   }
 
   return (
-    <Card className="bg-background h-full w-full border-none shadow-none">
+    <Card className="bg-background h-full w-full border-none shadow-sm">
       <CardHeader>
         <DashboardHeader
           showSubscriptionBanner={false}

@@ -148,7 +148,7 @@ export const PromotionRequestsTable: React.FC<PromotionRequestsTableProperties> 
   );
 
   const renderAvailablePromotionsTable = () => (
-    <section className={`bg-background space-y-6 rounded-lg p-6`}>
+    <section className={`bg-background space-y-6 rounded-lg p-6 shadow-sm`}>
       <DashboardHeader
         title="Available Promotions"
         subtitle="View all available promotion packages"

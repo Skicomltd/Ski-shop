@@ -180,7 +180,7 @@ export const PromotionHistoryTable: React.FC = () => {
   );
 
   const renderPromotionHistoryTable = () => (
-    <section className="bg-background space-y-6 rounded-lg p-6">
+    <section className="bg-background space-y-6 rounded-lg p-6 shadow-sm">
       <DashboardHeader
         title="Promotions History"
         subtitle="Track all promotions lifecycle"
