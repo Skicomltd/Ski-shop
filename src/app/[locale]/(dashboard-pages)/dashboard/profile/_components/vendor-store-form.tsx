@@ -106,7 +106,7 @@ export const VendorStoreForm = ({
   };
 
   return (
-    <div className="bg-background rounded-lg p-6">
+    <div className="bg-background rounded-lg p-6 shadow-sm">
       <div className="flex items-center justify-center text-center">
         <DashboardHeader title={title} showSubscriptionBanner={false} />
       </div>

@@ -44,7 +44,7 @@ export default function ProfilePage() {
       <VendorProfileForm />
       <VendorBusinessForm />
 
-      <Card className="border-destructive/30 bg-destructive/5 shadow-none">
+      <Card className="border-destructive/30 bg-destructive/5 shadow-sm">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-2 text-sm font-semibold">
             <Trash2 className="h-4 w-4" />

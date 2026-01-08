@@ -189,7 +189,7 @@ const Page = () => {
 
   const renderOrdersTableSection = () => (
     <section>
-      <section className="bg-background space-y-4 rounded-lg p-6">
+      <section className="bg-background space-y-4 rounded-lg p-6 shadow-sm">
         {renderOrdersTableHeader()}
         <section>{renderOrdersTableContent()}</section>
       </section>

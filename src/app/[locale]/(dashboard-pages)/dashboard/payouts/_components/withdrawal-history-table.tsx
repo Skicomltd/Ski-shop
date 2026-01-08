@@ -93,7 +93,7 @@ export const WithdrawalHistoryTable = ({
   };
 
   const renderWithdrawalHistoryTable = () => (
-    <div className="bg-background rounded-lg p-6">
+    <div className="bg-background rounded-lg p-6 shadow-sm">
       {renderTableHeader()}
       {renderTableContent()}
     </div>
