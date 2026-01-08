@@ -290,7 +290,7 @@ export function FormField({
         }}
       />
 
-      {error && <p className="mt-1 text-sm text-red-500">{error.message?.toString()}</p>}
+      {/* {error && <p className="mt-1 text-[11px] !text-red-500 italic">{error.message?.toString()}</p>} */}
     </div>
   );
 }

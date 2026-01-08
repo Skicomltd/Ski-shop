@@ -22,16 +22,16 @@ const Toaster = ({ ...properties }: ToasterProps) => {
       }}
       toastOptions={{
         classNames: {
-          toast: "!gap-4 !shadow-5xl !min-w-md",
+          toast: "!gap-4 !shadow-5xl !min-w-md !border-none",
           title: "!font-bold",
           description: "!font-medium",
           actionButton: "",
           cancelButton: "",
           closeButton: "!absolute !-right-4 !-top-1 !relative-auto !ml-auto",
-          error: "!text-destructive !bg-background",
-          success: "!text-high-success !bg-mid-success",
-          warning: "!text-high-warning !bg-mid-warning",
-          info: "!text-info !bg-primary-50 ",
+          error: "!text-white !bg-destructive",
+          success: "!text-white !bg-success",
+          warning: "!text-white !bg-warning",
+          info: "!text-white !bg-primary",
         },
       }}
       {...properties}
