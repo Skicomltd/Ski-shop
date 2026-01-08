@@ -19,6 +19,7 @@ export const DashboardTable = <T extends DataItem>({
   data,
   columns,
   totalPages = 1,
+  // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
   itemsPerPage = 10,
   hasNextPage,
   hasPreviousPage,
@@ -102,6 +103,7 @@ export const DashboardTable = <T extends DataItem>({
                               event.stopPropagation();
                               action.onClick(item);
                             }}
+                            className={cn(action.variant === "destructive" && "text-destructive")}
                           >
                             {action.icon && <span className="mr-2">{action.icon}</span>}
                             {action.label}
@@ -151,6 +153,7 @@ export const DashboardTable = <T extends DataItem>({
                           event.stopPropagation();
                           action.onClick(item);
                         }}
+                        className={cn(action.variant === "destructive" && "text-destructive")}
                       >
                         {action.icon && <span className="mr-2">{action.icon}</span>}
                         {action.label}
@@ -183,7 +186,7 @@ export const DashboardTable = <T extends DataItem>({
       {showPagination && (
         <div className="text-muted-foreground flex flex-col-reverse gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
           <div className={`flex items-center justify-between md:w-[50%]`}>
-            <div>{itemsPerPage} Entries per page</div>
+            <div>{10} Entries per page</div>
             <div>
               Page {currentPageNumber} of {totalPages}
             </div>

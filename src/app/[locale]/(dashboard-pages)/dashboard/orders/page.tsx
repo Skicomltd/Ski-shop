@@ -77,7 +77,7 @@ const Page = () => {
         />
       </section>
       <section>
-        <div className="bg-background rounded-lg p-4">
+        <div className="bg-background rounded-lg p-4 shadow-sm">
           {/* Mobile Dropdown */}
           <div className="block sm:hidden">
             <Select value={activeTab} onValueChange={setActiveTab}>

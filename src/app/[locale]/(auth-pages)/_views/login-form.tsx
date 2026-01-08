@@ -3,13 +3,14 @@
 import SkiButton from "@/components/shared/button";
 import { FormField } from "@/components/shared/inputs/FormFields";
 import { LocaleLink } from "@/components/shared/locale-link";
+import { cn } from "@/lib/utils";
 import { createLoginSchema, LoginFormData } from "@/schemas/auth-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import axios from "axios";
 import { signIn } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 // import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
@@ -21,6 +22,8 @@ export const LoginForm = () => {
   // const [isGooglePending, startGoogleTransition] = useTransition();
   const router = useRouter();
   const searchParameters = useSearchParams();
+
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Create schema with translations
   const loginSchema = createLoginSchema((key: string) => {
@@ -54,6 +57,8 @@ export const LoginForm = () => {
         description: decodedError,
       });
 
+      setFormError(decodedError);
+
       // Clear the error from URL without page refresh
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete("error");
@@ -63,6 +68,8 @@ export const LoginForm = () => {
   }, [searchParameters]);
 
   const handleSubmitForm = async (data: LoginFormData) => {
+    setFormError(null);
+
     const result = await signIn("credentials", {
       redirect: false,
       email: data.email,
@@ -75,6 +82,7 @@ export const LoginForm = () => {
         message = tAuth("invalidCredentials");
       }
       toast.error(tAuth("loginFailed"), { description: message });
+      setFormError(message);
       if (message.toLowerCase().includes("email")) {
         setError("email", { message });
       } else if (message.toLowerCase().includes("password")) {
@@ -98,6 +106,16 @@ export const LoginForm = () => {
 
   return (
     <section className="w-full">
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          formError ? "mb-4 max-h-20 opacity-100" : "max-h-0 opacity-0",
+        )}
+      >
+        <p className="bg-destructive rounded-md border p-2 text-center text-xs font-medium !text-white sm:text-sm">
+          {formError}
+        </p>
+      </div>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-6">
           <section className="space-y-4 sm:space-y-5">

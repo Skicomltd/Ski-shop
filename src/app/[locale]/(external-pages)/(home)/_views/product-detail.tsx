@@ -89,6 +89,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
 
   const role = session?.user?.role?.name?.toUpperCase();
   const canSaveProduct = status !== "authenticated" || role === "CUSTOMER";
+  const isAddToCartBlockedRole = role === "VENDOR" || role === "ADMIN" || role === "SUPER_ADMIN";
 
   const { mutate: deleteReview } = useDeleteReview({
     onMutate: async (reviewId: string) => {
@@ -258,7 +259,8 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                   )}
                 </div>
                 {/* <div>{product.description}</div> */}
-                <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}>
+                {/* <ComponentGuard requireAuth allowedRoles={["CUSTOMER"]}> */}
+                <ComponentGuard customCondition={() => !isAddToCartBlockedRole}>
                   <div className="flex flex-col items-start gap-6">
                     <section className="flex w-full flex-row items-center justify-between gap-4">
                       <div className="flex items-center">
@@ -296,6 +298,7 @@ export const ProductDetail = ({ product, isLoading = false }: any) => {
                     </div>
                   </div>
                 </ComponentGuard>
+                {/* </ComponentGuard> */}
               </div>
             )}
           </div>

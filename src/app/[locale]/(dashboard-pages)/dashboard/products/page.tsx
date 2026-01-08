@@ -15,7 +15,7 @@ import { TbShoppingBag } from "react-icons/tb";
 import { DashboardHeader } from "../../_components/dashboard-header";
 import { OverViewCard } from "../../_components/overview-card";
 import { AllProducts } from "./_views/all-products";
-import { OutOfStockProducts } from "./_views/out-of-stock-products";
+// import { OutOfStockProducts } from "./_views/out-of-stock-products";
 import { PublishedProducts } from "./_views/published-products";
 import { UnpublishedProducts } from "./_views/unpublished-products";
 
@@ -102,7 +102,7 @@ const Page = () => {
         />
       </section>
       <section>
-        <div className="bg-background rounded-lg p-4">
+        <div className="bg-background rounded-lg p-4 shadow-sm">
           {/* Mobile Dropdown */}
           <div className="block sm:hidden">
             <Select value={activeTab} onValueChange={setActiveTab}>
@@ -142,7 +142,7 @@ const Page = () => {
             {activeTab === "all" && <AllProducts />}
             {activeTab === "published" && <PublishedProducts />}
             {activeTab === "draft" && <UnpublishedProducts />}
-            {activeTab === "out-of-stock" && <OutOfStockProducts />}
+            {/* {activeTab === "out-of-stock" && <OutOfStockProducts />} */}
           </div>
         </div>
       </section>

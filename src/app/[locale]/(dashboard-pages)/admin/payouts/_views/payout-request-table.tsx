@@ -115,7 +115,7 @@ export const PayoutRequestTable = () => {
   );
 
   const renderPayoutRequestsTable = () => (
-    <section className={`bg-background space-y-6 rounded-lg p-6`}>
+    <section className={`bg-background space-y-6 rounded-lg p-6 shadow-sm`}>
       <DashboardHeader
         title="Payout Requests"
         subtitle="Track all payout requests from users"

@@ -75,7 +75,7 @@ export function PayrollLineChart() {
   }
 
   return (
-    <Card className="bg-background w-full border-none shadow-none">
+    <Card className="bg-background w-full border-none shadow-sm">
       <CardHeader>
         <DashboardHeader
           icon={<Icons.chart className="size-4" />}

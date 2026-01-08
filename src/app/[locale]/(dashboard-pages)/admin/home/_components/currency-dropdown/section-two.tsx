@@ -33,7 +33,7 @@ const BestSellerLayout = () => {
   }
 
   return (
-    <Card className={`h-full border-none p-6 shadow-none`}>
+    <Card className={`h-full border-none p-6 shadow-sm`}>
       <DashboardHeader
         icon={<Icons.product className="mt-[-2] size-4" />}
         showSubscriptionBanner={false}

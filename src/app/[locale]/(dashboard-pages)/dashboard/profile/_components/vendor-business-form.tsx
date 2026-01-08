@@ -126,7 +126,7 @@ export const VendorBusinessForm = ({
   };
 
   return (
-    <div className="bg-background rounded-lg p-6">
+    <div className="bg-background rounded-lg p-6 shadow-sm">
       <h4 className="text-center">{title}</h4>
 
       <FormProvider {...methods}>

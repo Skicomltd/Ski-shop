@@ -15,13 +15,13 @@ export function ProductPromotionCard({ product, onPromote }: ProductPromotionCar
   const locale = useLocale() as Locale;
 
   return (
-    <div className="relative block rounded-lg bg-no-repeat p-2">
+    <div className="relative block rounded-lg bg-white bg-no-repeat p-2 shadow-sm">
       <div>
         <Image
           src={product.images[0]}
           alt={product.name}
           width={200}
-          height={200}
+          height={100}
           className="h-full w-full object-contain"
         />
       </div>

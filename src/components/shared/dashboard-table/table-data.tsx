@@ -1,6 +1,7 @@
 // import { useRouter } from "next/navigation";
 
 import { BlurImage } from "@/components/core/miscellaneous/blur-image";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatDate, formatTime } from "@/lib/i18n/utils";
 import { cn } from "@/lib/utils";
@@ -341,12 +342,20 @@ export const useProductColumn = (): TableColumnDefinition<Product>[] => {
     {
       header: "Product Name",
       accessorKey: "name",
-      render: (_, product: Product) => <span className="!text-sm font-medium">{product.name}</span>,
+      render: (_, product: Product) => (
+        <Tooltip content={product.name}>
+          <span className="block max-w-[150px] cursor-help truncate !text-sm font-medium">{product.name}</span>
+        </Tooltip>
+      ),
     },
     {
       header: "Category",
       accessorKey: "category",
-      render: (_, product: Product) => <span className="!text-sm">{product.category}</span>,
+      render: (_, product: Product) => (
+        <Tooltip content={product.category}>
+          <span className="block max-w-[120px] cursor-help truncate !text-sm">{product.category}</span>
+        </Tooltip>
+      ),
     },
     {
       header: "Price",

@@ -167,7 +167,7 @@ const Page = () => {
             images={[]}
           />
         ) : (
-          <section className={`bg-background mt-6 space-y-4 rounded-lg p-6`}>
+          <section className={`bg-background mt-6 space-y-4 rounded-lg p-6 shadow-sm`}>
             <DashboardHeader
               title="Subscription History"
               subtitle="Track Skishop subscription history"
@@ -205,9 +205,21 @@ const Page = () => {
                   showPagination
                 />
               ) : (
-                <div className="flex items-center justify-center p-20">
-                  <p>No subscription history found.</p>
-                </div>
+                <EmptyState
+                  images={[
+                    { src: "/images/empty-state.svg", width: 30, height: 30, alt: "No subscriptions available" },
+                  ]}
+                  title="No subscriptions available"
+                  description="There are no subscriptions available at the moment."
+                  className="bg-mid-grey-I space-y-0 rounded-lg"
+                  titleClassName="!text-2xl"
+                  descriptionClassName="text-base mb-4"
+                  actionButton={
+                    <SkiButton onClick={() => window.location.reload()} variant={`primary`}>
+                      Refresh
+                    </SkiButton>
+                  }
+                />
               )}
             </section>
           </section>
