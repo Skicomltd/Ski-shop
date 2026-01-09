@@ -235,7 +235,22 @@ export function GlobalSearchInput({
       data-lenis-prevent
       data-lenis-prevent-wheel
       data-lenis-prevent-touch
-      className="max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-contain sm:max-h-[500px]"
+      className="max-h-[calc(100dvh-12rem)] touch-pan-y overflow-y-auto overscroll-contain sm:max-h-[500px]"
+      onWheelCapture={(event) => {
+        event.stopPropagation();
+        const nativeEvent = event.nativeEvent as unknown as { stopImmediatePropagation?: () => void };
+        nativeEvent.stopImmediatePropagation?.();
+      }}
+      onTouchMoveCapture={(event) => {
+        event.stopPropagation();
+        const nativeEvent = event.nativeEvent as unknown as { stopImmediatePropagation?: () => void };
+        nativeEvent.stopImmediatePropagation?.();
+      }}
+      onScrollCapture={(event) => {
+        // Prevent scroll chaining to the page when at edges.
+        event.stopPropagation();
+      }}
+      style={{ WebkitOverflowScrolling: "touch" }}
     >
       {showRecent && (
         <div className="p-2">
@@ -400,9 +415,9 @@ export function GlobalSearchInput({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        // sideOffset={16}
-        // align="start"
-        className={cn("min-w-2xl p-0", popoverContentClassName)}
+        align="start"
+        sideOffset={8}
+        className={cn("max-h-[85dvh] min-w-2xl overflow-hidden p-0", popoverContentClassName)}
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         {resultsContent}

@@ -56,26 +56,26 @@ const Promotions = () => {
         <OverViewCard
           title="Total Promotions"
           value={totalPromotions ?? 0}
-          icon={<Icons.promotion className="text-primary h-4 w-4" />}
+          icon={<Icons.promotion className="size-6" />}
           iconClassName="bg-primary/10"
         />
         <OverViewCard
           title="Active Promotions"
           value={activePromotions ?? 0}
-          icon={<Clock className="h-4 w-4 text-green-600" />}
+          icon={<Clock className="size-6 stroke-3" />}
           iconClassName="bg-green-100"
         />
         <OverViewCard
           title="Expired Promotions"
           value={expiredPromotions ?? 0}
-          icon={<Clock className="h-4 w-4 text-orange-600" />}
+          icon={<Clock className="size-6 stroke-3" />}
           iconClassName="bg-orange-100"
         />
         <OverViewCard
           title="Promotions Revenue"
           // value={formatCurrency(promotionsRevenue ?? 0)}
           value={formatCurrency(0)}
-          icon={<DollarSign className="h-4 w-4 text-blue-600" />}
+          icon={<DollarSign className="size-6 stroke-3" />}
           iconClassName="bg-blue-100"
         />
       </div>

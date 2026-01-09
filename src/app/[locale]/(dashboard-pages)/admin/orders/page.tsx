@@ -59,19 +59,19 @@ const Page = () => {
         <OverViewCard
           title="All Orders"
           value={stats.totalOrders.toString()}
-          icon={<Icons.cart />}
+          icon={<Icons.cart className="size-6" />}
           iconClassName="bg-primary/10 text-primary text-[24px]"
         />
         <OverViewCard
           title="Pending Orders"
           value={stats.pendingOrders.toString()}
-          icon={<Icons.cart />}
+          icon={<Icons.cart className="size-6" />}
           iconClassName="bg-low-warning/20 text-mid-warning text-[24px]"
         />
         <OverViewCard
           title="Paid Orders"
           value={stats.paidOrders.toString()}
-          icon={<Icons.cart />}
+          icon={<Icons.cart className="size-6" />}
           iconClassName="bg-low-success text-mid-success text-[24px]"
         />
       </section>

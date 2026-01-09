@@ -75,32 +75,32 @@ const Play2WinAdminPage = () => {
         <OverViewCard
           title="Coupons Created"
           value={stats.couponsCreated}
-          icon={<Icons.promotion className="text-primary h-4 w-4" />}
+          icon={<Icons.promotion className="size-6" />}
           iconClassName="bg-primary/10"
         />
         <OverViewCard
           title="Coupons Remaining"
           value={stats.couponsRemaining}
-          icon={<Icons.promotion className="h-4 w-4 text-green-600" />}
+          icon={<Icons.promotion className="size-6" />}
           iconClassName="bg-green-100"
         />
         <OverViewCard
           title="Total Winners"
           value={stats.totalWinners}
-          icon={<Icons.ribbonOutline className="h-4 w-4 text-yellow-600" />}
+          icon={<Icons.ribbonOutline className="size-6 stroke-3" />}
           iconClassName="bg-yellow-100"
         />
         <OverViewCard
           title="Next Draw Cycle"
           value={stats.nextDrawCycle}
-          icon={<Icons.chart className="h-4 w-4 text-blue-600" />}
+          icon={<Icons.chart className="size-6 stroke-3" />}
           iconClassName="bg-blue-100"
         />
       </div>
 
       {/* Tabs (mobile Select + desktop Tabs) */}
       <section>
-        <div className="bg-background rounded-lg p-4">
+        <div className="bg-background rounded-lg p-4 shadow-sm">
           {/* Mobile Dropdown */}
           <div className="block sm:hidden">
             <Select value={activeTab} onValueChange={(v) => setActiveTab(v as "coupons" | "winners")}>

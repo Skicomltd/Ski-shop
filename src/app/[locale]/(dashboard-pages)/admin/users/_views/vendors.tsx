@@ -10,13 +10,19 @@ import { EmptyState, ErrorState } from "@/components/shared/empty-state";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { useUserService } from "@/services/externals/user/use-user-service";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
 import { TableSkeleton } from "../../../_components/dashboard-table/_components/table-skeleton";
 
 export const Vendors = () => {
-  const { search: searchQuery, limit, setSearch: setSearchQuery, resetToFirstPage } = useDashboardSearchParameters();
+  const {
+    search: searchQuery,
+    limit,
+    page,
+    setSearch: setSearchQuery,
+    resetToFirstPage,
+  } = useDashboardSearchParameters();
 
   const router = useRouter();
   const parameters = useParams();
@@ -25,12 +31,15 @@ export const Vendors = () => {
   const columns = useAdminVendorColumn();
   const { useGetAllUsers, useDeleteUser } = useUserService();
 
-  const filters: Filters = {
-    role: "vendor",
-    ...(searchQuery && { search: searchQuery }),
-    ...(limit && { limit }),
-  };
-
+  const filters = useMemo(
+    () => ({
+      role: "vendor",
+      page,
+      limit: 10,
+      ...(searchQuery && { search: searchQuery }),
+    }),
+    [page, searchQuery],
+  );
   const {
     data: userData,
     isLoading: isUsersLoading,

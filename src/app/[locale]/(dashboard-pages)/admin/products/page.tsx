@@ -79,25 +79,25 @@ const Page = () => {
         <OverViewCard
           title="Total Products"
           value={stats.totalProducts.toString()}
-          icon={<TbShoppingBag />}
+          icon={<TbShoppingBag className="size-6" />}
           iconClassName="bg-primary/10 text-primary text-[24px]"
         />
         <OverViewCard
           title="Published Products"
           value={stats.publishedProducts.toString()}
-          icon={<TbShoppingBag />}
+          icon={<TbShoppingBag className="size-6" />}
           iconClassName="bg-low-success text-mid-success text-[24px]"
         />
         <OverViewCard
           title="Draft Products"
           value={stats.draftProducts.toString()}
-          icon={<TbShoppingBag />}
+          icon={<TbShoppingBag className="size-6" />}
           iconClassName="bg-low-danger text-mid-danger text-[24px]"
         />
         <OverViewCard
           title="Out of Stock Products"
           value={stats.outOfStockProducts.toString()}
-          icon={<TbShoppingBag />}
+          icon={<TbShoppingBag className="size-6" />}
           iconClassName="bg-low-warning/20 text-mid-warning text-[24px]"
         />
       </section>
@@ -143,6 +143,8 @@ const Page = () => {
             {activeTab === "published" && <PublishedProducts />}
             {activeTab === "draft" && <UnpublishedProducts />}
             {activeTab === "out-of-stock" && <OutOfStockProducts />}
+            {/* vendor/id/performance */}
+            {/* business/ */}
           </div>
         </div>
       </section>

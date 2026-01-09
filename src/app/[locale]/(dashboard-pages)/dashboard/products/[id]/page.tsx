@@ -15,7 +15,7 @@ import { EyeOff, Megaphone, Star } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { ProductActionsDropdown } from "../_components/product-actions-dropdown";
@@ -71,6 +71,7 @@ export default function ProductDetailPage() {
   const productId = parameters.id as string;
   const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { data: session } = useSession();
   const userId = session?.user?.id as string | undefined;
@@ -84,6 +85,10 @@ export default function ProductDetailPage() {
   const { mutateAsync: editProduct } = useEditProduct();
   const product = productResponse?.data;
   const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [product?.id]);
 
   const { useGetVendorProfileInfo } = useDashboardProfileService();
   const { data: vendorProfileInfoResponse } = useGetVendorProfileInfo(userId);
@@ -228,14 +233,19 @@ export default function ProductDetailPage() {
           {/* Left Column - Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="bg-background relative aspect-square overflow-hidden rounded-xl">
+            <div className="bg-background relative aspect-square overflow-hidden rounded-xl shadow">
               {/* Star Seller Background Banner */}
               {isStarSellerProduct && (
                 <div className="absolute inset-0 bg-[url('/images/star-seller.svg')] bg-cover bg-no-repeat opacity-20" />
               )}
 
               {images.length > 0 ? (
-                <BlurImage src={images[0]} alt={product.name} fill className="h-full w-full object-contain" />
+                <BlurImage
+                  src={images[selectedImageIndex]}
+                  alt={product.name}
+                  fill
+                  className="h-full w-full object-contain"
+                />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gray-100">
                   <svg className="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,25 +270,31 @@ export default function ProductDetailPage() {
             {/* Thumbnail Images */}
             {images.length > 1 && (
               <div className="grid grid-cols-3 gap-3">
-                {images.slice(0, 3).map((image, index) => (
-                  <div
-                    key={index}
-                    className="bg-background relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-colors hover:border-blue-300"
-                  >
-                    <BlurImage
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      fill
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ))}
+                {images.slice(0, 3).map((image, index) => {
+                  const isSelected = index === selectedImageIndex;
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`bg-background relative aspect-square cursor-pointer overflow-hidden rounded-lg border transition-colors hover:border-blue-300 ${
+                        isSelected ? "border-primary ring-primary ring-2" : "border-transparent"
+                      }`}
+                    >
+                      <BlurImage
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        fill
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* Right Column - Product Information */}
-          <div className="bg-background space-y-6 rounded-lg p-6">
+          <div className="bg-background space-y-6 rounded-lg p-6 shadow">
             {/* Product Title and Category */}
             <div className="space-y-2">
               <h4 className="text-2xl font-bold text-gray-900">{product.name}</h4>

@@ -110,37 +110,37 @@ const Page = () => {
           <OverViewCard
             title={"Total Revenue"}
             value={formatCurrency(overviewData?.data?.totalRevenue || 0, locale)}
-            icon={<GiWallet />}
+            icon={<GiWallet className="size-6" />}
             iconClassName="bg-[#F2EBFB] text-[24px] text-purple"
           />
           <OverViewCard
             title={"Total Orders"}
             value={allOrders?.data.metadata.total || "0"}
-            icon={<RiShoppingCartLine />}
+            icon={<RiShoppingCartLine className="size-6" />}
             iconClassName="bg-low-blue text-[24px] blue text-primary"
           />
           <OverViewCard
             title={"Total Users"}
             value={allUsers?.data.metadata.total || "0"}
-            icon={<PiUsersThreeLight />}
+            icon={<PiUsersThreeLight className="size-6 stroke-3" />}
             iconClassName="bg-low-success text-[24px] text-mid-success"
           />
           <OverViewCard
             title={"New Orders"}
             value={newOrders?.data.metadata.total || "0"}
-            icon={<RiShoppingCartLine />}
+            icon={<RiShoppingCartLine className="size-6" />}
             iconClassName="bg-low-blue text-[24px] blue text-primary"
           />
           <OverViewCard
             title={"Pending Payouts"}
             value={payoutsData?.data.metadata.total || "0"}
-            icon={<MdOutlineAddCard />}
+            icon={<MdOutlineAddCard className="size-6" />}
             iconClassName="bg-low-danger text-[24px] text-mid-danger"
           />
           <OverViewCard
             title={"Active Subscriptions"}
             value={subscriptionsData?.data?.metadata.total || "0"}
-            icon={<IoRibbonOutline />}
+            icon={<IoRibbonOutline className="size-6 stroke-3" />}
             iconClassName="bg-low-success text-[24px] text-mid-success"
           />
         </section>

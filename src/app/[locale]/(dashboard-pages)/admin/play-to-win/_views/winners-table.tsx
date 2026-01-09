@@ -140,8 +140,8 @@ export const WinnersTable = () => {
       title="No winners found"
       description="Winners will appear here once a draw is completed."
       className="bg-mid-grey-I space-y-0 rounded-lg"
-      titleClassName="!text-2xl"
-      descriptionClassName="text-base mb-4"
+      titleClassName="!text-xl !text-accent"
+      descriptionClassName="mb-4"
       actionButton={<SkiButton variant={`primary`}>Refresh</SkiButton>}
     />
   );

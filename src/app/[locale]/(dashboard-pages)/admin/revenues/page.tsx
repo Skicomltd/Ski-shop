@@ -82,25 +82,25 @@ const Page = () => {
           <OverViewCard
             title={"Total Revenue"}
             value={formatCurrency(overviewData?.data?.totalRevenue || 0, locale as Locale)}
-            icon={<GiWallet />}
+            icon={<GiWallet className="size-6 stroke-3" />}
             iconClassName="bg-[#F2EBFB] text-[24px] text-purple"
           />
           <OverViewCard
             title={"Subscriptions"}
             value={formatCurrency(overviewData?.data?.subscriptions || 0, locale as Locale)}
-            icon={<GiWallet />}
+            icon={<GiWallet className="size-6 stroke-3" />}
             iconClassName="bg-low-blue text-[24px] blue text-primary"
           />
           <OverViewCard
             title={"Promotions"}
             value={formatCurrency(overviewData?.data?.promotionAds || 0, locale as Locale)}
-            icon={<GiWallet />}
+            icon={<GiWallet className="size-6 stroke-3" />}
             iconClassName="bg-low-success text-[24px] text-mid-success"
           />
           <OverViewCard
             title={"Commissions"}
             value={formatCurrency(overviewData?.data?.commisions || 0, locale as Locale)}
-            icon={<GiWallet />}
+            icon={<GiWallet className="size-6 stroke-3" />}
             iconClassName="bg-low-warning/20 text-[24px] text-mid-warning"
           />
         </section>

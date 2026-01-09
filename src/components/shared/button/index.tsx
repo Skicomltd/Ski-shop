@@ -38,12 +38,12 @@ const SkiButton = forwardRef<HTMLButtonElement, ButtonProperties>(
       cloneElement(
         icon as ReactElement,
         {
-          className: "w-[1rem] h-[1rem]",
+          className: "w-[1rem] h-[1rem] shrink-0",
           "data-testid": "icon",
         } as React.HTMLAttributes<HTMLElement>,
       )
     ) : (
-      <LuPlus className="h-[1rem] w-[1rem]" data-testid="icon" />
+      <LuPlus className="h-[1rem] w-[1rem] shrink-0" data-testid="icon" />
     );
 
     const buttonContent = (

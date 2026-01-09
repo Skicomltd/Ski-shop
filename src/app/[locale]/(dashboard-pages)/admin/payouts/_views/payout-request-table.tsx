@@ -100,12 +100,12 @@ export const PayoutRequestTable = () => {
 
   const renderEmptyState = () => (
     <EmptyState
-      images={[{ src: "/images/empty-state.svg", width: 50, height: 50, alt: "No payout requests" }]}
+      images={[{ src: "/images/empty-state.svg", width: 30, height: 30, alt: "No payout requests" }]}
       title="No payout requests found"
       description="There are no payout requests matching your criteria."
       className="bg-mid-grey-I space-y-0 rounded-lg"
-      titleClassName="!text-2xl"
-      descriptionClassName="text-base mb-4"
+      titleClassName="!text-xl !text-accent"
+      descriptionClassName="mb-4"
       actionButton={
         <SkiButton onClick={() => window.location.reload()} variant={`primary`}>
           Refresh

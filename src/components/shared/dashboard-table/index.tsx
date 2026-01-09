@@ -79,7 +79,7 @@ export const DashboardTable = <T extends DataItem>({
                 className={cn(
                   "border-border/30 text-mid-grey-II border-b",
                   onRowClick ? "hover:bg-primary/50 dark:hover:bg-low-purple cursor-pointer" : "",
-                  "hover:bg-primary/10 text-base",
+                  "hover:bg-primary/10 !rounded-full text-base transition-all",
                 )}
               >
                 {columns.map((column, colIndex) => (
@@ -177,7 +177,7 @@ export const DashboardTable = <T extends DataItem>({
 
             {/* Hover Effect Indicator */}
             {onRowClick && (
-              <div className="bg-primary/50 absolute inset-x-0 bottom-0 h-0.5 opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="bg-primary/50 absolute inset-x-0 bottom-0 h-0.5 rounded-md opacity-0 transition-opacity group-hover:opacity-100" />
             )}
           </div>
         ))}
@@ -193,7 +193,7 @@ export const DashboardTable = <T extends DataItem>({
           </div>
           <div className="flex items-center gap-2">
             <SkiButton
-              variant="outline"
+              variant="primary"
               isLeftIconVisible
               size={`lg`}
               icon={<ChevronLeftIcon />}
@@ -208,7 +208,7 @@ export const DashboardTable = <T extends DataItem>({
               Previous
             </SkiButton>
             <SkiButton
-              variant="outline"
+              variant="primary"
               isRightIconVisible
               size={`lg`}
               icon={<ChevronRightIcon />}

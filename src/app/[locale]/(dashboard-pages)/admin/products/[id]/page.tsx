@@ -13,7 +13,7 @@ import { SerializedEditorState } from "lexical";
 import { EyeOff, Megaphone, Star } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
@@ -89,6 +89,10 @@ export default function ProductDetailPage() {
   const { mutateAsync: editProduct } = useEditProduct();
   const product = productResponse?.data;
   const descriptionState = useMemo(() => toSerializedEditorState(product?.description), [product?.description]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [product?.id]);
 
   // Determine if this is a star seller product
   const isStarSellerProduct = product ? isStarSeller(product) : false;
@@ -228,14 +232,19 @@ export default function ProductDetailPage() {
           {/* Left Column - Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <div className="bg-background relative aspect-square overflow-hidden rounded-xl shadow-sm">
               {/* Star Seller Background Banner */}
               {isStarSellerProduct && (
                 <div className="absolute inset-0 bg-[url('/images/star-seller.svg')] bg-cover bg-no-repeat opacity-20" />
               )}
 
               {images.length > 0 ? (
-                <BlurImage src={images[0]} alt={product.name} fill className="h-full w-full object-contain" />
+                <BlurImage
+                  src={images[selectedImageIndex]}
+                  alt={`${product.name} preview`}
+                  fill
+                  className="h-full w-full object-contain"
+                />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gray-100">
                   <svg className="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +272,10 @@ export default function ProductDetailPage() {
                 {images.slice(0, 3).map((image, index) => (
                   <div
                     key={index}
-                    className="relative aspect-square cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white transition-colors hover:border-blue-300"
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`bg-background relative aspect-square cursor-pointer overflow-hidden rounded-lg border transition-colors ${
+                      selectedImageIndex === index ? "border-blue-500" : "hover:border-blue-300"
+                    }`}
                   >
                     <BlurImage
                       src={image}
@@ -278,7 +290,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Right Column - Product Information */}
-          <div className="border-border bg-background space-y-6 rounded-lg border p-6">
+          <div className="border-border bg-background space-y-6 rounded-lg p-6 shadow-sm">
             {/* Product Title and Category */}
             <div className="space-y-2">
               <h4 className="text-2xl font-bold text-gray-900">{product.name}</h4>
@@ -314,23 +326,23 @@ export default function ProductDetailPage() {
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500">Weight:</span>
+                  <span className="">Weight:</span>
                   <p className="font-medium text-gray-900">{weight ?? "-"}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Store:</span>
+                  <span className="">Store:</span>
                   <p className="font-medium text-gray-900">{product.store.name}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Added by:</span>
+                  <span className="">Added by:</span>
                   <p className="font-medium text-gray-900">{product.user.name}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Created:</span>
+                  <span className="">Created:</span>
                   <p className="font-medium text-gray-900">{formatDate(product.createdAt, locale as Locale)}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Last updated:</span>
+                  <span className="">Last updated:</span>
                   <p className="font-medium text-gray-900">{formatDate(product.createdAt, locale as Locale)}</p>
                 </div>
               </div>
