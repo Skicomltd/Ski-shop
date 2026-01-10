@@ -1,8 +1,9 @@
 "use client";
 
 import Loading from "@/app/Loading";
+import { Wrapper } from "@/components/core/layout/wrapper";
 import { DashboardSidebar } from "@/components/shared/sidebar/sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRoleNavigation } from "@/hooks/use-role-navigation";
 import { useEffect, useState } from "react";
 
@@ -103,47 +104,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Desktop view
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full min-w-0 overflow-hidden">
-        <DashboardSidebar
-          navItems={navItems}
-          autoExpandOnActiveChild={true}
-          persistExpandedState={true}
-          logoProperties={{
-            width: 50,
-            height: 50,
-            className: "transition-all duration-200 !w-40",
-          }}
-          className="transition-all duration-300 ease-in-out"
-          backgroundClassName="bg-primary"
-          navItemClassNames={{
-            parent: {
-              base: "px-4 py-3 !text-white",
-              active: " font-semibold !text-primary rounded-md !bg-white",
-              hover: "hover:bg-white/10",
-            },
-            child: {
-              base: "!text-white",
-              active: "bg-primary/80 !text-white",
-              hover: "hover:bg-white/10",
-            },
-            submenu: "border-primary/60",
-          }}
-        />
-        <SidebarInset className="min-w-0 flex-1">
-          {/* Make this the scroll container so the sticky header works correctly */}
-          <div className="flex h-full min-h-0 flex-col overflow-auto">
-            <header className="bg-background !sticky top-0 z-50 flex h-20 w-full shrink-0 items-center gap-2 overflow-hidden border-b px-4 py-5">
-              <SidebarTrigger className="text-primary -ml-1 size-9" />
-              <div className="min-w-0 flex-1">
-                <TopBar notificationsCount={0} className="w-full min-w-0 px-6" />
-              </div>
-            </header>
-            <main className="flex-1 bg-[#F8F8F9] p-6 dark:bg-[#111111]">
-              <section className="mx-auto max-w-[1240px]">{children}</section>
-            </main>
-          </div>
-        </SidebarInset>
-      </div>
+      <DashboardSidebar
+        navItems={navItems}
+        autoExpandOnActiveChild={true}
+        persistExpandedState={true}
+        logoProperties={{
+          width: 50,
+          height: 50,
+          className: "transition-all duration-200 !w-40",
+        }}
+        className="transition-all duration-300 ease-in-out"
+        backgroundClassName="bg-primary"
+        navItemClassNames={{
+          parent: {
+            base: "px-4 py-3 !text-white",
+            active: " font-semibold !text-primary rounded-md !bg-white",
+            hover: "hover:bg-white/10",
+          },
+          child: {
+            base: "!text-white",
+            active: "bg-primary/80 !text-white",
+            hover: "hover:bg-white/10",
+          },
+          submenu: "border-primary/60",
+        }}
+      />
+      <SidebarInset className="dark:bg-background bg-[#F8F8F9]">
+        <TopBar notificationsCount={0} className="p-4 shadow" />
+        <Wrapper className="mx-auto !my-0 max-w-[1240px] !p-4">{children}</Wrapper>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

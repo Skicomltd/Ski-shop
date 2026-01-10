@@ -7,6 +7,7 @@ import { UserAvatarProfile } from "@/components/core/miscellaneous/user-avatar-p
 import { NotificationWidget, type Notification } from "@/components/shared/notification-widget";
 import { AppEventsListener } from "@/components/shared/notification-widget/app-events-listener";
 import { Badge } from "@/components/ui/badge";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useSSE } from "@/context/sse-provider";
 import { useDashboardProfileService } from "@/services/dashboard/vendor/users/use-profile-service";
 import { useNotificationService } from "@/services/externals/notifications/use-notification-service";
@@ -93,8 +94,9 @@ export default function TopBar({ className = "" }: TopBarProperties) {
 
   return (
     <>
-      <header className={`bg-background flex h-16 items-center justify-between ${className}`}>
+      <header className={`bg-background sticky top-0 flex items-center justify-between ${className}`}>
         <div className="relative hidden min-w-0 flex-1 md:block">
+          <SidebarTrigger className="text-primary size-9" />
           {/* <SearchInput
             isDisabled
             className={`bg-muted h-full w-full max-w-xl min-w-0 rounded-md border-none`}

@@ -41,7 +41,7 @@ export const InterestedProducts = () => {
           id={product.id.toString()}
           category={product.category || "Uncategorized"}
           title={product.name}
-          rating={3}
+          rating={product.rating || 0}
           price={product.price}
           discount={product.discountPrice || 0}
           image={product.images?.[0] || "/placeholder-product.jpg"}

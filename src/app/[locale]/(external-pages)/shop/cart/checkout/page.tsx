@@ -418,7 +418,7 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Delivery and Payment Section */}
           <div>
-            <h4 className="!text-primary !text-lg md:!text-2xl">Delivery Method</h4>
+            <h4 className="!text-primary dark:!text-accent !text-lg md:!text-2xl">Delivery Method</h4>
 
             <form onSubmit={handleFormSubmit}>
               <div className="mt-4 space-y-10">
@@ -506,7 +506,7 @@ const CheckoutPage = () => {
                       <button
                         type="button"
                         onClick={() => setShowAddAddressModal(true)}
-                        className="flex items-center !text-sm font-medium text-blue-600 md:!text-base"
+                        className="dark:!text-accent flex items-center !text-sm font-medium text-blue-600 md:!text-base"
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add New Address
@@ -518,7 +518,7 @@ const CheckoutPage = () => {
 
               {/* Payment Method */}
               <div className="mt-20 rounded-lg border p-4">
-                <h4 className="!text-primary !text-lg md:!text-2xl">Payment Method</h4>
+                <h4 className="!text-primary dark:!text-accent !text-lg md:!text-2xl">Payment Method</h4>
                 <div className="mt-2 space-y-2">
                   <label className="flex cursor-pointer items-center gap-3 py-2">
                     <input
@@ -578,7 +578,7 @@ const CheckoutPage = () => {
 
           {/* Order Summary */}
           <div className="h-fit rounded-lg border p-6">
-            <h4 className="!text-primary mb-6 !text-xl md:!text-2xl">Your order</h4>
+            <h4 className="!text-primary dark:!text-accent mb-6 !text-xl md:!text-2xl">Your order</h4>
             <hr />
 
             {isCartLoading ? (
@@ -641,7 +641,7 @@ const CheckoutPage = () => {
 
                     <div className="flex justify-between border-t pt-4 !text-sm font-semibold md:!text-base">
                       <span>Total</span>
-                      <span className="text-primary">{formatCurrency(total, locale as Locale)}</span>
+                      <span className="text-primary dark:!text-accent">{formatCurrency(total, locale as Locale)}</span>
                     </div>
                   </>
                 ) : (

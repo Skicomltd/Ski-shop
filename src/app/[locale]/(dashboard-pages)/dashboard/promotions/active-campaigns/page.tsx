@@ -58,6 +58,7 @@ const Page = () => {
         ) : !items || items.length === 0 ? (
           <EmptyState
             title="No active campaigns"
+            className="bg-background"
             description="You have no active campaigns at the moment."
             descriptionClassName="text-base mb-4"
             actionButton={

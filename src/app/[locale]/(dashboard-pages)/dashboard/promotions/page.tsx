@@ -88,6 +88,7 @@ const Page = () => {
             title="No products found"
             description="There are no products available for promotion."
             descriptionClassName="text-base mb-4"
+            className="bg-background dark:bg-muted"
             actionButton={
               <SkiButton variant="primary" size="lg" onClick={() => refetch()}>
                 Refresh

@@ -291,7 +291,7 @@ export function DashboardSidebar({
       if (override) return override;
       switch (variant) {
         case "danger": {
-          return "bg-mid-danger text-mid-grey-II";
+          return "bg-mid-danger text-white !font-medium !text-xs";
         }
         case "success": {
           return "text-mid-grey-II bg-green-500";
