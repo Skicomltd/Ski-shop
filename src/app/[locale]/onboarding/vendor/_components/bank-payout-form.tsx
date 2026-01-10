@@ -8,6 +8,7 @@ import { useOnboardingUserService } from "@/services/externals/onboarding/use-on
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -25,13 +26,24 @@ export const BankPayoutForm = () => {
   });
 
   const { useSetupBankDetails, useGetAvailableBanks } = useOnboardingUserService();
-  const { data: availableBanks, isLoading: isLoadingAvailableBanks } = useGetAvailableBanks();
+  const {
+    data: availableBanks,
+    isLoading: isLoadingAvailableBanks,
+    refetch: refetchAvailableBanks,
+  } = useGetAvailableBanks();
   const { mutateAsync: setupBankDetails, isPending } = useSetupBankDetails();
 
   const {
     handleSubmit,
     formState: { isValid },
   } = methods;
+
+  // Ensure bank list loads on client-side navigation
+  useEffect(() => {
+    if (!availableBanks) {
+      refetchAvailableBanks();
+    }
+  }, [availableBanks, refetchAvailableBanks]);
 
   const handleSubmitForm = async (formData: BankPayoutFormData) => {
     await setupBankDetails(formData, {

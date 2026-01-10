@@ -4,7 +4,7 @@ import SkiButton from "@/components/shared/button";
 import { RatingModal } from "@/components/shared/rating-modal";
 import { Badge } from "@/components/ui/badge";
 import { Locale } from "@/lib/i18n/config";
-import { formatCurrency } from "@/lib/i18n/utils";
+import { formatCurrency, formatDate } from "@/lib/i18n/utils";
 import { cn } from "@/lib/utils";
 // import { useLocale } from "next-intl";
 import Image from "next/image";
@@ -49,7 +49,7 @@ const handleRatingSubmit = (rating: number, review: string, productId: string) =
 };
 
 export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
-  const orderDate = order?.createdAt ? new Date(order.createdAt).toLocaleDateString("en-GB") : "—";
+  // const orderDate = order?.createdAt ? new Date(order.createdAt).toLocaleDateString("en-GB") : "—";
   const baseDeliveryDate = order?.createdAt ? new Date(order.createdAt) : new Date();
   if (order?.createdAt) baseDeliveryDate.setDate(baseDeliveryDate.getDate() + 5);
 
@@ -171,7 +171,7 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
 
         {/* Order summary and actions */}
         <div className="mt-8 space-y-3 rounded-lg border p-4">
-          <p className={`text-sm`}>Placed On {orderDate}</p>
+          <p className={`text-sm`}>Placed On {formatDate(order.createdAt)}</p>
           <div className="flex items-center gap-2">
             {anyPendingDelivery && <Badge className="bg-[#C5A83C] text-xs">Pending delivery</Badge>}
             {order.status === "paid" && <Badge className="bg-[#008000] text-xs">Paid</Badge>}

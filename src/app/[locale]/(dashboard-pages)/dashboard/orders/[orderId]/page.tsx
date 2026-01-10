@@ -36,6 +36,9 @@ const getStatusColor = (status: string) => {
     case "pending": {
       return "bg-yellow-500 text-white";
     }
+    case "paid": {
+      return "bg-low-success text-success !font-medium";
+    }
     case "unpaid": {
       return "bg-yellow-500 text-white";
     }
@@ -168,18 +171,18 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
         {/* Main Content */}
         <div className="space-y-4 sm:space-y-6 lg:col-span-2">
           {/* Order Summary */}
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="text-base sm:!text-lg">Order Summary</CardTitle>
+              <CardTitle className="text-primary text-base sm:!text-lg">Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4">
               <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 sm:gap-4">
                 <div>
-                  <span className="text-gray-500">Order ID:</span>
+                  <span className="text-primary">Order ID:</span>
                   <span className="ml-2 font-medium">{order.id}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Date Purchased:</span>
+                  <span className="text-primary">Date Purchased:</span>
                   <span className="ml-2 font-medium">{formatDate(order.createdAt)}</span>
                 </div>
               </div>
@@ -187,9 +190,9 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
           </Card>
 
           {/* Products Ordered */}
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="text-base sm:!text-lg">Products Ordered</CardTitle>
+              <CardTitle className="text-primary text-base sm:!text-lg">Products Ordered</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
@@ -201,16 +204,16 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                   return (
                     <div
                       key={item.id}
-                      className="bg-primary/5 relative flex items-center space-x-3 overflow-hidden rounded-lg p-3 sm:space-x-4 sm:p-4"
+                      className="bg-primary/5 relative flex items-center space-x-3 overflow-hidden rounded-lg p-3 sm:space-x-4 sm:p-6"
                     >
                       <div className="flex-shrink-0">
                         <div>
                           <BlurImage
                             src={item.product.images?.[0] || "/images/placeholder-product.jpg"}
                             alt={item.product.name}
-                            width={60}
-                            height={60}
-                            className="rounded-lg object-cover sm:h-20 sm:w-20"
+                            width={80}
+                            height={80}
+                            className="rounded-lg object-cover sm:h-30 sm:w-30"
                           />
                           {isStarSellerVendor && (
                             <Image
@@ -227,9 +230,9 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
                         <h3 className="mb-1 !text-sm font-medium text-gray-900 sm:!text-2xl">{item.product.name}</h3>
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-gray-500 sm:text-sm">Qty: {item.quantity}</div>
-                          <div className="text-primary text-sm font-medium sm:text-base">
+                          <p className="!text-primary text-sm !font-medium sm:!text-base">
                             {formatCurrency(item.product.price)}
-                          </div>
+                          </p>
                         </div>
 
                         <div className="mt-3 flex w-full justify-end sm:mt-4">
@@ -260,18 +263,18 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
           </Card>
 
           {/* Financial Summary */}
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="text-base sm:!text-lg">Financial Summary</CardTitle>
+              <CardTitle className="text-primary text-base sm:!text-lg">Financial Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-high-grey-II">Subtotal</span>
+                  <span className="text-primary">Subtotal</span>
                   <span className="font-medium">{formatCurrency(order.totalAmount)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-high-grey-II">Delivery fee</span>
+                  <span className="text-primary">Delivery fee</span>
                   <span className="font-medium">{formatCurrency(order.shippingInfo?.shippingFee ?? 0)}</span>
                 </div>
                 {/* {assignedRider && (
@@ -341,51 +344,55 @@ export default function OrderDetailPage({ params }: OrderDetailPageProperties) {
         {/* Sidebar */}
         <div className="space-y-4 sm:space-y-6">
           {/* Buyer Information */}
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="flex items-center text-base sm:!text-lg">
+              <CardTitle className="text-primary flex items-center text-base sm:!text-lg">
                 <User className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Buyer Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4">
               <div>
-                <span className="text-xs text-gray-500 sm:text-sm">Name</span>
-                <p className="text-sm font-medium sm:text-base">{order.buyer.name}</p>
+                <span className="text-primary text-xs sm:text-sm">Name</span>
+                <p className="!text-foreground text-sm !font-medium sm:text-base">{order.buyer.name}</p>
               </div>
               <div>
-                <span className="flex items-center text-xs text-gray-500 sm:text-sm">
+                <span className="text-primary flex items-center text-xs sm:text-sm">
                   <Phone className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Phone
                 </span>
-                <p className="text-sm font-medium sm:text-base">{order.shippingInfo?.recipientPhone || "N/A"}</p>
+                <p className="!text-foreground text-sm !font-medium sm:text-base">
+                  {order.shippingInfo?.recipientPhone || "N/A"}
+                </p>
               </div>
               <div>
-                <span className="flex items-center text-xs text-gray-500 sm:text-sm">
+                <span className="text-primary flex items-center text-xs sm:text-sm">
                   <MapPin className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Address
                 </span>
-                <p className="text-sm font-medium sm:text-base">{order.shippingInfo?.recipientAddress || "N/A"}</p>
+                <p className="!text-foreground text-sm !font-medium sm:text-base">
+                  {order.shippingInfo?.recipientAddress || "N/A"}
+                </p>
               </div>
             </CardContent>
           </Card>
 
           {/* Payment Information */}
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="flex items-center text-base sm:!text-lg">
+              <CardTitle className="text-primary flex items-center text-base sm:!text-lg">
                 <CreditCard className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Payment Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4">
               <div>
-                <span className="text-xs text-gray-500 sm:text-sm">Method</span>
-                <p className="text-sm font-medium sm:text-base">{order.paymentMethod || "N/A"}</p>
+                <span className="text-primary text-xs sm:text-sm">Method</span>
+                <p className="!text-foreground text-sm !font-medium sm:text-base">{order.paymentMethod || "N/A"}</p>
               </div>
               <div>
-                <span className="text-xs text-gray-500 sm:text-sm">Reference</span>
-                <p className="font-mono text-xs font-medium sm:text-sm">{order.reference || "N/A"}</p>
+                <span className="text-primary text-xs sm:text-sm">Reference</span>
+                <p className="!text-foreground font-mono text-xs !font-medium sm:text-sm">{order.reference || "N/A"}</p>
               </div>
             </CardContent>
           </Card>

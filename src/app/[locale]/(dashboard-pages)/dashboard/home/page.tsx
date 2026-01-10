@@ -97,19 +97,19 @@ const Page = () => {
       <OverViewCard
         title="Total Sales"
         value={"0"}
-        icon={<GiWallet />}
+        icon={<GiWallet className="size-6" />}
         iconClassName="bg-low-blue dark:bg-[#111111] text-[24px] text-primary"
       />
       <OverViewCard
         title="Total Orders"
         value={totalOrders || "0"}
-        icon={<RiShoppingCartLine />}
+        icon={<RiShoppingCartLine className="size-6" />}
         iconClassName="bg-low-blue dark:bg-[#111111] text-[24px] text-primary"
       />
       <OverViewCard
         title="Total Products"
         value={totalProducts || "0"}
-        icon={<IoBag />}
+        icon={<IoBag className="size-6" />}
         iconClassName="bg-low-success dark:bg-[#111111] text-[24px] text-mid-success"
       />
     </section>

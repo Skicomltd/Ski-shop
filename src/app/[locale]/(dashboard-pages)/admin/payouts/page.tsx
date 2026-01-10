@@ -60,19 +60,19 @@ const Payout = () => {
           <OverViewCard
             title="Total Payouts Paid"
             value={formatCurrency(stats?.totalPayoutsPaid || 0)}
-            icon={<DollarSign className="h-4 w-4 text-green-600" />}
+            icon={<DollarSign className="size-6" />}
             iconClassName="bg-green-100"
           />
           <OverViewCard
             title="Wallet Balance"
             value={formatCurrency(stats?.walletBalance || 0)}
-            icon={<Wallet className="h-4 w-4 text-blue-600" />}
+            icon={<Wallet className="size-6" />}
             iconClassName="bg-blue-100"
           />
           <OverViewCard
             title="Pending Payouts"
             value={formatCurrency(stats?.pendingPayouts || 0)}
-            icon={<Clock className="h-4 w-4 text-orange-600" />}
+            icon={<Clock className="size-6" />}
             iconClassName="bg-orange-100"
           />
         </div>

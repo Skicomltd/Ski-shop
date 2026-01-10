@@ -11,7 +11,7 @@ import { FilterDropdown } from "@/components/shared/filter-dropdown";
 import { useDashboardSearchParameters } from "@/lib/nuqs/use-dashboard-search-parameters";
 import { useUserService } from "@/services/externals/user/use-user-service";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
 import { TableSkeleton } from "../../../_components/dashboard-table/_components/table-skeleton";
@@ -21,6 +21,7 @@ export const AllUsers = () => {
     search: searchQuery,
     status,
     limit,
+    page,
     setSearch: setSearchQuery,
     setStatus,
     resetToFirstPage,
@@ -47,11 +48,14 @@ export const AllUsers = () => {
     router.push(`/${locale}/admin/users/${row.id}`);
   };
 
-  const filters: Filters = {
-    ...(status !== "all" && { status: status as "active" | "inactive" }),
-    ...(searchQuery && { search: searchQuery }),
-    ...(limit && { limit }),
-  };
+  const filters = useMemo(
+    () => ({
+      page,
+      limit: 10,
+      ...(searchQuery && { search: searchQuery }),
+    }),
+    [page, searchQuery],
+  );
 
   const {
     data: userData,
@@ -135,7 +139,7 @@ export const AllUsers = () => {
               itemsPerPage={limit}
               hasPreviousPage={userData.data.metadata.hasPreviousPage || false}
               hasNextPage={userData.data.metadata.hasNextPage || false}
-              showPagination={false}
+              showPagination
               pageParameter="page"
               onRowClick={handleRowClick}
               rowActions={(user: Users) => [

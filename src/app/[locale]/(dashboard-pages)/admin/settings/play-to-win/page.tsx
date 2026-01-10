@@ -115,7 +115,7 @@ const Page = () => {
 
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="space-y-1">
               <DashboardHeader
                 title={`Game Frequency`}
@@ -160,7 +160,7 @@ const Page = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardHeader className="space-y-1">
               <DashboardHeader
                 title={`Notifications & Access`}
@@ -192,7 +192,7 @@ const Page = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-none">
+          <Card className="border-none shadow">
             <CardContent className="pt-6">
               <Separator className="mb-6" />
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

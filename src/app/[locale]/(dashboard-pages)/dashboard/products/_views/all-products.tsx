@@ -39,7 +39,7 @@ export const AllProducts = () => {
   const filters = useMemo(
     () => ({
       page,
-      limit: 50,
+      limit: 10,
       sort: "newest", // Add default sort parameter
       ...(searchQuery && { search: searchQuery }),
     }),

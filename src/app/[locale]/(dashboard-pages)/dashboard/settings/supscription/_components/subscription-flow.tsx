@@ -93,9 +93,9 @@ export function SubscriptionFlow() {
       />
       {/* Steps */}
       {step === 1 && (
-        <Card className={`border-none px-4 shadow-none`}>
+        <Card className={`border-none px-4 shadow`}>
           <CardHeader className="border-b">
-            <CardTitle className="text-mid-grey-II !text-xl !font-bold">Unlock Star Seller Benefits</CardTitle>
+            <CardTitle className="!text-xl !font-bold">Unlock Star Seller Benefits</CardTitle>
             <CardDescription>
               Enjoy powerful tools and badges that boost your visibility and credibility.
             </CardDescription>
@@ -171,7 +171,7 @@ export function SubscriptionFlow() {
       )}
 
       {step === 2 && (
-        <Card className={`border-none px-4 shadow-none`}>
+        <Card className={`border-none px-4 shadow`}>
           <CardHeader className="border-b">
             <CardTitle>Payment</CardTitle>
             <CardDescription>Select a payment method to activate your Star Seller benefits.</CardDescription>
@@ -286,7 +286,7 @@ export function SubscriptionFlow() {
       </ReusableDialog>
 
       {step === 3 && (
-        <Card className={`shadow-none`}>
+        <Card className={`shadow`}>
           <CardHeader className="border-b">
             <CardTitle>You&apos;re all set 🎉</CardTitle>
             <CardDescription>

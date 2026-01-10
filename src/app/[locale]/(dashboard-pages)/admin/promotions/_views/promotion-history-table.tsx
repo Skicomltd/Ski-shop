@@ -169,8 +169,8 @@ export const PromotionHistoryTable: React.FC = () => {
       title="No promotions history found"
       description="There are no promotions matching your criteria."
       className="bg-mid-grey-I space-y-0 rounded-lg"
-      titleClassName="!text-2xl"
-      descriptionClassName="text-base mb-4"
+      titleClassName="!text-xl !text-accent"
+      descriptionClassName="mb-4"
       actionButton={
         <SkiButton onClick={() => window.location.reload()} variant="primary">
           Refresh

@@ -34,25 +34,25 @@ const Page = () => {
         <OverViewCard
           title={"Total Users"}
           value={totalUsersData?.data.metadata.total || "0"}
-          icon={<Icons.users />}
+          icon={<Icons.users className="size-6 stroke-3" />}
           iconClassName="bg-primary/10 text-primary text-[24px]"
         />
         <OverViewCard
           title={"Buyers"}
           value={customersData?.data.metadata.total || "0"}
-          icon={<Icons.users />}
+          icon={<Icons.users className="size-6 stroke-3" />}
           iconClassName="bg-low-success text-mid-success text-[24px]"
         />
         <OverViewCard
           title={"Vendors"}
           value={vendorsData?.data.metadata.total || "0"}
-          icon={<Icons.users />}
+          icon={<Icons.users className="size-6 stroke-3" />}
           iconClassName="bg-low-warning/20 text-mid-danger text-[24px]"
         />
         <OverViewCard
           title={"Riders"}
           value={ridersData?.data.metadata.total || "0"}
-          icon={<Icons.rider />}
+          icon={<Icons.rider className="size-6" />}
           iconClassName="bg-low-danger text-mid-danger text-[24px]"
         />
       </section>

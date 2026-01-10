@@ -86,7 +86,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
         }
       />
       <section className="space-y-6">
-        <Details.Section title="Profile Overview">
+        <Details.Section className="shadow-sm" title="Profile Overview">
           <Details.Grid className={``}>
             <Details.Item label="Store Name" value={`${profile?.firstName} ${profile?.lastName}`} />
             <Details.Item label="Email Address" value={profile?.email} />
@@ -108,7 +108,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
         </Details.Section>
 
         <Details.Section
-          className={`item-center flex`}
+          className={`item-center flex shadow-sm`}
           action={
             <SkiButton variant={`primary`} size={`sm`}>
               Verify Vendor
@@ -124,7 +124,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
           </Details.Grid>
         </Details.Section>
 
-        <Details.Section title="Subscription Information">
+        <Details.Section className="shadow-sm" title="Subscription Information">
           <Details.Grid className={``}>
             <Details.Item label="Status" value={subscriptionsData?.data.items[0]?.status ?? "—"} />
             <Details.Item label="Plan Type" value={subscriptionsData?.data.items[0]?.planType ?? "-"} />
@@ -145,7 +145,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
             />
           </Details.Grid>
         </Details.Section>
-        <Details.Section title="Products & Sales Performance">
+        <Details.Section className="shadow-sm" title="Products & Sales Performance">
           <Details.Grid className={``}>
             <Details.Item label="Total Products" value={productsData?.data.metadata.total ?? "_"} />
             {/* <Details.Item label="Total Product Published" value={productsData?.data.metadata.published ?? "_"} /> */}
@@ -155,7 +155,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
             <Details.Item label="Average Order Value" value={"_"} />
           </Details.Grid>
         </Details.Section>
-        <Details.Section title="Payouts Overview">
+        <Details.Section className="shadow-sm" title="Payouts Overview">
           <Details.Grid className={``}>
             <Details.Item label="Wallet Balance" value={"_"} />
             <Details.Item label="Total Withdrawals" value={"_"} />
@@ -177,7 +177,7 @@ const VendorsView = ({ id, profile }: { id: string; profile: Users }) => {
               images={[]}
             />
           ) : (
-            <section className={`bg-background mt-6 space-y-4 rounded-lg p-6`}>
+            <section className={`bg-background mt-6 space-y-4 rounded-lg p-6 shadow-sm`}>
               <section className={`flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-center`}>
                 <div className="">
                   <p className="text-lg font-bold"> Order History</p>

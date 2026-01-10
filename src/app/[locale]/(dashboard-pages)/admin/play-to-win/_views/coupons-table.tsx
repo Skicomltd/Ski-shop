@@ -151,8 +151,8 @@ export const CouponsTable = ({ onCreated, onUpdated }: { onCreated?: () => void;
       title="No coupons found"
       description="Create a coupon to get started with Play-2-Win."
       className="bg-mid-grey-I space-y-0 rounded-lg"
-      titleClassName="!text-2xl"
-      descriptionClassName="text-base mb-4"
+      titleClassName="!text-xl !text-accent"
+      descriptionClassName="mb-4"
       actionButton={
         <CouponFormDialog
           onCompleted={() => {

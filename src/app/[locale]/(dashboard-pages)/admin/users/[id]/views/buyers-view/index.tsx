@@ -80,7 +80,7 @@ const BuyersView = ({ id, profile }: { id: string; profile: any }) => {
       />
 
       <section className="space-y-6">
-        <Details.Section title="Profile Overview">
+        <Details.Section className="shadow-sm" title="Profile Overview">
           <Details.Grid className={`lg:flex lg:justify-between`}>
             <Details.Item label="Full Name" value={`${profile?.firstName} ${profile?.lastName}`} />
             <Details.Item label="Email Address" value={profile?.email} />
@@ -98,7 +98,7 @@ const BuyersView = ({ id, profile }: { id: string; profile: any }) => {
           ) : isAllOrdersError ? (
             <ErrorState />
           ) : (
-            <section className={`bg-background mt-6 space-y-4 rounded-lg p-6`}>
+            <section className={`bg-background mt-6 space-y-4 rounded-lg p-6 shadow-sm`}>
               <section className={`flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-center`}>
                 <div className="">
                   <p className="text-lg font-bold"> Order History</p>

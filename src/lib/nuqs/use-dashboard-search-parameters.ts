@@ -20,7 +20,7 @@ export const useDashboardSearchParameters = () => {
 
   return {
     // Current values
-    page: page ?? undefined,
+    page: page ?? 1,
     perPage: perPage ?? undefined,
     search: search ?? "",
     limit: limit ?? undefined,

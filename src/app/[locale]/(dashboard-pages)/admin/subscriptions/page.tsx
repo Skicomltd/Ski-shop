@@ -129,26 +129,26 @@ const Page = () => {
         <OverViewCard
           title={"Total Star Sellers"}
           value={"-"}
-          icon={<GiWallet />}
+          icon={<GiWallet className="size-6 stroke-3" />}
           iconClassName="bg-[#F2EBFB] text-[24px] text-purple"
         />
         <OverViewCard
           title={"Monthly Active Plans"}
           value={"-"}
-          icon={<GiWallet />}
+          icon={<GiWallet className="size-6 stroke-3" />}
           iconClassName="bg-low-blue text-[24px] blue text-primary"
         />
         <OverViewCard
           title={"Yearly Active Plans"}
           value={"-"}
-          icon={<GiWallet />}
+          icon={<GiWallet className="size-6 stroke-3" />}
           iconClassName="bg-low-success text-[24px] text-mid-success"
         />
         <OverViewCard
           title={"Subscription Revenue"}
           // value={formatCurrency(5000, locale as Locale)}
           value={"-"}
-          icon={<GiWallet />}
+          icon={<GiWallet className="size-6 stroke-3" />}
           iconClassName="bg-low-warning/20 text-[24px] text-mid-warning"
         />
       </section>
@@ -212,8 +212,8 @@ const Page = () => {
                   title="No subscriptions available"
                   description="There are no subscriptions available at the moment."
                   className="bg-mid-grey-I space-y-0 rounded-lg"
-                  titleClassName="!text-2xl"
-                  descriptionClassName="text-base mb-4"
+                  titleClassName="!text-xl !text-accent"
+                  descriptionClassName="mb-4"
                   actionButton={
                     <SkiButton onClick={() => window.location.reload()} variant={`primary`}>
                       Refresh
