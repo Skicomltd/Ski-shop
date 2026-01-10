@@ -27,8 +27,8 @@ const ProductDetailSkeleton = () => {
         <div className="space-y-4">
           <Skeleton className="aspect-square w-full rounded-xl" />
           <div className="grid grid-cols-3 gap-3">
-            {[0, 1, 2].map((i) => (
-              <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+            {[0, 1, 2].map((index) => (
+              <Skeleton key={index} className="aspect-square w-full rounded-lg" />
             ))}
           </div>
         </div>
@@ -46,16 +46,16 @@ const ProductDetailSkeleton = () => {
           <div className="border-border space-y-3 border-t pt-4">
             <Skeleton className="h-5 w-28" />
             <div className="space-y-2">
-              {[0, 1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-4 w-full" />
+              {[0, 1, 2, 3].map((index) => (
+                <Skeleton key={index} className="h-4 w-full" />
               ))}
             </div>
           </div>
 
           {/* Details grid (Weight, Store, Added by, Created, Last updated) */}
           <div className="grid grid-cols-2 gap-4 text-sm">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-1">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="space-y-1">
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="h-4 w-32" />
               </div>
