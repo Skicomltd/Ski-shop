@@ -81,14 +81,23 @@ declare global {
   /** Payout request data */
   interface PayoutRequest extends DataItem {
     id: string;
-    userId: string;
-    userName: string;
-    storeName?: string;
-    role: "vendor" | "rider";
-    walletBalance: number;
     amount: number;
-    dateTime: string;
-    status: "pending" | "approved" | "rejected";
+    date: string;
+    status: string;
+    walletBalance: number;
+    bank: {
+      id: string;
+      name: string;
+      firstThreeDigits: string;
+      lastThreeDigits: string;
+    };
+    store: {
+      name: string;
+    };
+    user: {
+      role: "vendor" | "rider" | "admin" | "customer";
+    };
+    dateProccess: null;
   }
 
   /** Payout history data */

@@ -3,10 +3,15 @@
 
 import { BlurImage } from "@/components/core/miscellaneous/blur-image";
 import { BackButton } from "@/components/shared/back-button";
-import SkiButton from "@/components/shared/button";
 import MainButton from "@/components/shared/button";
 import { AlertModal } from "@/components/shared/dialog/alert-modal";
 import { FormField } from "@/components/shared/inputs/FormFields";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Editor } from "@/lib/rich-text-editor";
 import { cn } from "@/lib/utils";
@@ -25,7 +30,7 @@ import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from "@d
 import { CSS } from "@dnd-kit/utilities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SerializedEditorState } from "lexical";
-import { PaperclipIcon, Trash2Icon } from "lucide-react";
+import { EditIcon, MoreVertical, PaperclipIcon, Trash2Icon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -61,6 +66,7 @@ interface SortableImageProperties {
   file?: File;
   url?: string;
   onRemove: (id: string) => void;
+  onEdit: (id: string) => void;
   isMain?: boolean;
   onClick?: (id: string) => void;
   isSelected?: boolean;
@@ -131,7 +137,7 @@ const toSerializedEditorState = (description?: string): SerializedEditorState =>
   } as unknown as SerializedEditorState;
 };
 
-const SortableImage = ({ id, file, url, onRemove, isMain, onClick, isSelected }: SortableImageProperties) => {
+const SortableImage = ({ id, file, url, onRemove, onEdit, isMain, onClick, isSelected }: SortableImageProperties) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style = {
@@ -160,20 +166,44 @@ const SortableImage = ({ id, file, url, onRemove, isMain, onClick, isSelected }:
         height={isMain ? 400 : 100}
         className="h-full w-full object-cover"
       />
-      <SkiButton
-        type="button"
-        isIconOnly
-        size={`icon`}
-        icon={<Trash2Icon className={`!size-2`} />}
-        onClick={(event) => {
-          event.stopPropagation();
-          onRemove(id);
-        }}
-        className={cn(
-          "bg-mid-danger absolute -top-2 -right-2 text-sm text-white transition-opacity hover:opacity-90",
-          isSelected && !isMain && "border-mid-danger border-2",
-        )}
-      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+            className={cn(
+              "bg-primary text-primary-foreground absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-md text-sm shadow-md transition-opacity hover:opacity-90",
+              isSelected && !isMain && "border-primary border-2",
+            )}
+          >
+            <MoreVertical className="!size-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" onClick={(event) => event.stopPropagation()}>
+          <DropdownMenuItem
+            className="!text-sm"
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit(id);
+            }}
+          >
+            <EditIcon className="size-3" />
+            Replace Image
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={(event) => {
+              event.stopPropagation();
+              onRemove(id);
+            }}
+          >
+            <Trash2Icon className="size-3" />
+            Delete Image
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
@@ -190,9 +220,11 @@ const convertExistingImages = (imageUrls: string[]): ProductImage[] => {
 export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFormProperties) => {
   // const { useGetAllProductCategory } = useAppService();
   const { data: session } = useSession();
-  const { useEditProduct } = useDashboardProductService();
+  const { useEditProduct, useEditProductImages, useDeleteProductImage } = useDashboardProductService();
   // const { data: productCategories } = useGetAllProductCategory();
   const { mutateAsync: editProduct, isPending: isEditingProduct } = useEditProduct();
+  const { mutateAsync: editProductImages, isPending: isEditingImages } = useEditProductImages();
+  const { mutateAsync: deleteProductImage, isPending: isDeletingImage } = useDeleteProductImage();
 
   const methods = useForm<EditProductFormData>({
     resolver: zodResolver(productSchema),
@@ -214,12 +246,11 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
   const { handleSubmit, setValue, watch, reset } = methods;
 
   const fileInputReference = useRef<HTMLInputElement>(null);
+  const replaceInputReference = useRef<HTMLInputElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [imageToReplace, setImageToReplace] = useState<{ id: string; url: string } | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  // Keep original images for replacement/restore logic
-  const originalUrlsReference = useRef<string[]>(product.images ?? []);
-  const originalCountReference = useRef<number>(product.images?.length ?? 0);
   const [descriptionEditorState, setDescriptionEditorState] = useState<SerializedEditorState>(() => {
     return toSerializedEditorState(product.description);
   });
@@ -268,38 +299,102 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
     setActiveId(null);
   };
 
-  const handleImageUpload = (files: FileList | null) => {
+  const handleImageUpload = async (files: FileList | null, replaceUrl?: string) => {
     if (!files || files.length === 0) return;
 
-    const incoming = [...files].map((file) => ({
-      id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      file,
-    }));
+    const file = files[0]; // Handle one file at a time
+    const temporaryId = `img-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-    const MAX = 5;
-    let next = [...images];
+    // If we're replacing an image
+    if (replaceUrl) {
+      const currentImages = [...images];
+      const replaceIndex = currentImages.findIndex((img) => img.url === replaceUrl);
 
-    if (next.length < MAX) {
-      const space = Math.min(incoming.length, MAX - next.length);
-      next = [...next, ...incoming.slice(0, space)];
-    } else {
-      // Replace logic when at MAX: replace selected first, then rotate
-      let replaceIndex = selectedImageId ? next.findIndex((x) => x.id === selectedImageId) : 0;
-      if (replaceIndex < 0) replaceIndex = 0;
+      if (replaceIndex !== -1) {
+        const originalImage = currentImages[replaceIndex];
 
-      for (const item of incoming) {
-        // record which index this file replaces (required by backend)
-        (item as any).replacesIndex = replaceIndex;
-        next[replaceIndex] = item;
-        replaceIndex = (replaceIndex + 1) % MAX;
+        // Optimistically update UI
+        currentImages[replaceIndex] = { id: temporaryId, file, isExisting: false };
+        setValue("images", currentImages, { shouldValidate: true });
+
+        try {
+          await editProductImages(
+            {
+              id: product.id,
+              data: {
+                image: file,
+                url: replaceUrl,
+              },
+            },
+            {
+              onSuccess: (response) => {
+                toast.success("Image replaced successfully");
+                // Update with actual URL from response
+                if (response?.data.items) {
+                  const currentImages = [...images];
+                  currentImages[replaceIndex] = {
+                    id: temporaryId,
+                    url: response.data.items[replaceIndex],
+                    isExisting: true,
+                  } as any;
+                  setValue("images", currentImages, { shouldValidate: true });
+                }
+              },
+              onError: () => {
+                // Revert to original image on error
+                currentImages[replaceIndex] = originalImage;
+                setValue("images", currentImages, { shouldValidate: true });
+                toast.error("Failed to replace image");
+              },
+            },
+          );
+        } catch {
+          // Revert to original image on error
+          currentImages[replaceIndex] = originalImage;
+          setValue("images", currentImages, { shouldValidate: true });
+          toast.error("Failed to replace image");
+        }
       }
+      return;
     }
 
-    setValue("images", next, { shouldValidate: true });
+    // Adding new images (not replacing)
+    const MAX = 5;
+    const currentImages = [...images];
 
-    if (!selectedImageId && next.length > 0) {
-      setSelectedImageId(next[0].id);
+    if (currentImages.length >= MAX) {
+      toast.error(`Maximum ${MAX} images allowed`);
+      return;
     }
+
+    const newImage = { id: temporaryId, file, isExisting: false };
+
+    // Optimistically add to UI
+    const updatedImages = [...currentImages, newImage];
+    setValue("images", updatedImages, { shouldValidate: true });
+
+    // Note: Backend should handle adding images without URL parameter
+    // For now, we'll keep the image in the UI until the full form is submitted
+    // or implement a separate "add image" endpoint that doesn't require URL
+    toast.info("Image will be uploaded when you save the product");
+  };
+
+  const handleEditImage = (id: string) => {
+    const imageToEdit = images.find((img) => img.id === id);
+    if (imageToEdit?.url) {
+      setImageToReplace({ id, url: imageToEdit.url });
+      replaceInputReference.current?.click();
+    } else {
+      toast.error("Cannot replace unsaved images");
+    }
+  };
+
+  const handleReplaceImageInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (imageToReplace) {
+      handleImageUpload(event.target.files, imageToReplace.url);
+      setImageToReplace(null);
+    }
+    if (event.target) event.target.value = "";
   };
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,33 +407,37 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
     handleImageUpload(event.dataTransfer.files);
   };
 
-  const handleRemoveImage = (id: string) => {
+  const handleRemoveImage = async (id: string) => {
     const toRemove = images.find((img) => img.id === id);
-    let next = images.filter((img) => img.id !== id);
 
-    // If we removed a replacement file while original product had 5 images,
-    // restore the original URL back into that slot to keep indices consistent.
-    if (toRemove?.file && typeof (toRemove as any).replacesIndex === "number" && originalCountReference.current === 5) {
-      const index = (toRemove as any).replacesIndex as number;
-      const restoreUrl = originalUrlsReference.current[index];
-      if (restoreUrl) {
-        const restoreItem: ProductImage = {
-          id: `existing-restore-${index}-${Date.now()}`,
-          url: restoreUrl,
-          isExisting: true,
-        };
-        // Insert at the original index; clamp to array bounds
-        const insertAt = Math.min(Math.max(index, 0), next.length);
-        next = [...next];
-        next.splice(insertAt, 0, restoreItem);
-      }
-    }
-
+    // Optimistically update UI
+    const next = images.filter((img) => img.id !== id);
     setValue("images", next, { shouldValidate: true });
 
     // If the removed image was selected, clear the selection
     if (selectedImageId === id) {
       setSelectedImageId(null);
+    }
+
+    // If it's an existing image (has URL), delete from backend
+    if (toRemove?.url && toRemove.isExisting) {
+      try {
+        await deleteProductImage(
+          { id: product.id, url: toRemove.url },
+          {
+            onError: () => {
+              // Revert optimistic update on error
+              setValue("images", images, { shouldValidate: true });
+              toast.error("Failed to delete image");
+            },
+          },
+        );
+        toast.success("Image deleted successfully");
+      } catch {
+        // Revert on error
+        setValue("images", images, { shouldValidate: true });
+        toast.error("Failed to delete image");
+      }
     }
   };
 
@@ -353,30 +452,15 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
 
   const handleSubmitForm = async (data: EditProductFormData) => {
     try {
-      const currentImages = (data.images ?? []).slice(0, 5) as (ProductImage | any)[];
-
-      // Identify new file entries
-      const fileEntries = currentImages.filter((img: any) => img?.file instanceof File);
-
-      // Build replaceIndices only when original product had 5 images and new files exist
-      let replaceIndices: number[] | undefined;
-      if (originalCountReference.current === 5 && fileEntries.length > 0) {
-        // Prefer explicit replacesIndex recorded during replacement
-        const withIndex = fileEntries.filter((img: any) => typeof img?.replacesIndex === "number");
-        replaceIndices =
-          withIndex.length === fileEntries.length
-            ? withIndex.map((img: any) => img.replacesIndex as number)
-            : // Fallback: use positions in current array where entries are files (0..4)
-              currentImages
-                .slice(0, 5)
-                .map((img: any, index: number) => (img?.file instanceof File ? index : -1))
-                .filter((index: number) => index >= 0);
-      }
-
+      // Only submit text fields, images are handled separately
       const submitData: EditProductFormData = {
-        ...data,
-        images: currentImages as any, // include entries so service can pick files in correct order
-        replaceIndices,
+        name: data.name,
+        price: data.price,
+        discountPrice: data.discountPrice,
+        description: data.description,
+        stockCount: data.stockCount,
+        status: data.status,
+        // Don't include images in main update
       };
 
       editProduct(
@@ -446,6 +530,7 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
                         : images[0].url
                     }
                     onRemove={handleRemoveImage}
+                    onEdit={handleEditImage}
                     isMain
                   />
                 ) : (
@@ -478,6 +563,7 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
                           file={image.file}
                           url={image.url}
                           onRemove={handleRemoveImage}
+                          onEdit={handleEditImage}
                           onClick={handleImageSelect}
                           isSelected={selectedImageId === image.id}
                         />
@@ -514,6 +600,13 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
                 multiple
                 className="hidden"
                 onChange={handleFileInputChange}
+                accept="image/*"
+              />
+              <input
+                ref={replaceInputReference}
+                type="file"
+                className="hidden"
+                onChange={handleReplaceImageInputChange}
                 accept="image/*"
               />
             </div>
@@ -607,7 +700,7 @@ export const EditProductForm = ({ product, onSuccess, onCancel }: EditProductFor
               <MainButton
                 type="submit"
                 variant="primary"
-                isDisabled={isEditingProduct}
+                isDisabled={isEditingProduct || isEditingImages || isDeletingImage}
                 isLoading={isEditingProduct}
                 className="flex-1"
                 size="xl"

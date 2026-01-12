@@ -92,6 +92,35 @@ export const useDashboardProductService = () => {
     );
   };
 
+  const useEditProductImages = () => {
+    const queryClient = useQueryClient();
+    return useServiceMutation(
+      (service, { id, data }: { id: string; data: { image: File; url: string } }) =>
+        service.editProductImages(id, data),
+      {
+        onSuccess: (_, { id }) => {
+          // Invalidate products list and specific product details
+          queryClient.invalidateQueries({ queryKey: ["dashboard", "products", "list"] });
+          queryClient.invalidateQueries({ queryKey: ["dashboard", "products", "details", id] });
+        },
+      },
+    );
+  };
+
+  const useDeleteProductImage = () => {
+    const queryClient = useQueryClient();
+    return useServiceMutation(
+      (service, { id, url }: { id: string; url: string }) => service.deleteProductImage(id, url),
+      {
+        onSuccess: (_, { id }) => {
+          // Invalidate products list and specific product details
+          queryClient.invalidateQueries({ queryKey: ["dashboard", "products", "list"] });
+          queryClient.invalidateQueries({ queryKey: ["dashboard", "products", "details", id] });
+        },
+      },
+    );
+  };
+
   return {
     // Queries
     useGetAllProducts,
@@ -102,5 +131,7 @@ export const useDashboardProductService = () => {
     useDeleteProduct,
     useEditProduct,
     useUpdateProductStatus,
+    useEditProductImages,
+    useDeleteProductImage,
   };
 };

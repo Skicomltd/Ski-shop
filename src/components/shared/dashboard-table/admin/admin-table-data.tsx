@@ -326,28 +326,34 @@ export const useAdminPayoutRequestColumn = (
   return [
     {
       header: "Store/Rider's Name",
-      accessorKey: "userName",
-      render: (_, request: PayoutRequest) => (
-        <span className="inline-block max-w-[150px] cursor-help truncate text-xs font-medium" title={request.userName}>
-          {request.userName}
-        </span>
-      ),
+      accessorKey: "store",
+      render: (_, request: PayoutRequest) => {
+        const storeName = request.store?.name ?? "N/A";
+        return (
+          <span className="inline-block max-w-[150px] cursor-help truncate text-xs font-medium" title={storeName}>
+            {storeName}
+          </span>
+        );
+      },
     },
     {
       header: "Role",
       accessorKey: "role",
-      render: (_, request: PayoutRequest) => (
-        <span
-          className={cn(
-            "inline-block max-w-[100px] cursor-help truncate rounded-full px-2 py-1 text-xs font-medium capitalize",
-            request.role === "vendor" && "text-primary",
-            request.role === "rider" && "text-mid-warning",
-          )}
-          title={request.role}
-        >
-          {request.role}
-        </span>
-      ),
+      render: (_, request: PayoutRequest) => {
+        const role = request.user?.role ?? "";
+        return (
+          <span
+            className={cn(
+              "inline-block max-w-[100px] cursor-help truncate rounded-full px-2 py-1 text-xs font-medium capitalize",
+              role === "vendor" && "text-primary",
+              role === "rider" && "text-mid-warning",
+            )}
+            title={role || "N/A"}
+          >
+            {role || "N/A"}
+          </span>
+        );
+      },
     },
     {
       header: "Wallet Balance",
@@ -365,9 +371,16 @@ export const useAdminPayoutRequestColumn = (
     },
     {
       header: "Date & Time",
-      accessorKey: "dateTime",
+      accessorKey: "date",
       render: (_, request: PayoutRequest) => {
-        const date = new Date(request.dateTime);
+        const rawDate = request.date;
+        const date = rawDate ? new Date(rawDate) : null;
+        const isValidDate = date instanceof Date && !Number.isNaN(date.getTime());
+
+        if (!isValidDate) {
+          return <span className="text-xs">N/A</span>;
+        }
+
         return (
           <div>
             <span className="text-xs">{formatDate(date, locale as Locale)}</span> |{" "}
@@ -380,7 +393,8 @@ export const useAdminPayoutRequestColumn = (
       header: "Action",
       accessorKey: "payoutAction",
       render: (_: unknown, request: PayoutRequest) => {
-        const disabled = request.status !== "pending";
+        const status = request.status;
+        const disabled = status !== "pending";
 
         return (
           <div className="flex items-center gap-4">

@@ -2,7 +2,7 @@
 
 declare global {
   /** Withdrawal transaction status */
-  type WithdrawalStatus = "approved" | "pending" | "processing" | "failed" | "completed";
+  type WithdrawalStatus = "approved" | "pending" | "processing" | "failed" | "completed" | "rejected";
 
   /** Bank information for withdrawal */
   interface Bank {
@@ -29,6 +29,10 @@ declare global {
     date: string;
     status: WithdrawalStatus;
     bank: Bank;
+
+    store: {
+      name: string;
+    };
   }
 
   /** Withdrawal transaction data (legacy) */

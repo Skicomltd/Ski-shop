@@ -48,11 +48,11 @@ export const useWithdrawalHistoryColumns = (): TableColumnDefinition<WithdrawalT
       render: (_, transaction: WithdrawalTransaction) => (
         <span
           className={cn(
-            "rounded-full px-2 py-1 !text-sm capitalize",
+            "rounded-full px-4 py-1 !text-sm capitalize",
             transaction.status === "approved" && "bg-low-success text-mid-success",
             transaction.status === "pending" && "bg-yellow-100 text-yellow-600",
             transaction.status === "processing" && "bg-blue-100 text-blue-600",
-            transaction.status === "failed" && "bg-red-100 text-red-600",
+            transaction.status === "rejected" && "bg-low-danger text-mid-danger",
           )}
         >
           {transaction.status}

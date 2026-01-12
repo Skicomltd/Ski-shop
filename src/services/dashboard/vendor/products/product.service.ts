@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EditProductFormData } from "@/app/[locale]/(dashboard-pages)/_components/forms/edit-product-form";
 import { HttpAdapter } from "@/lib/http/http-adapter";
 import { tryCatchWrapper } from "@/lib/tools/tryCatchFunction";
@@ -83,56 +84,55 @@ export class DashboardProductService {
   }
 
   async editProduct(id: string, data: EditProductFormData) {
-    const headers = { "Content-Type": "multipart/form-data" };
+    const headers = { "Content-Type": "application/json" };
 
-    // Create FormData for multipart upload
-    const formData = new FormData();
+    // Create JSON payload
+    const payload: Record<string, any> = {};
 
     // Append text fields if they exist
-    if (data.name !== undefined) formData.append("name", data.name);
-    if (data.price !== undefined) formData.append("price", data.price.toString());
-    if (data.stockCount !== undefined) formData.append("stockCount", data.stockCount.toString());
-    if (data.description !== undefined) formData.append("description", data.description);
-    if (data.status !== undefined) formData.append("status", data.status);
-    // if (data.weight !== undefined) formData.append("weight", data.weight.toString());
-    // if (data.fragile !== undefined) formData.append("fragile", data.fragile.toString());
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.price !== undefined) payload.price = data.price;
+    if (data.stockCount !== undefined) payload.stockCount = data.stockCount;
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.status !== undefined) payload.status = data.status;
 
     if (data.discountPrice !== undefined && data.discountPrice !== null) {
-      formData.append("discountPrice", data.discountPrice.toString());
-    }
-
-    // Images handling for update:
-    // - Append mode (original images < 5): send ONLY the new files under "images"
-    // - Replace mode (original images = 5): send ONLY the new files under "images" AND a parallel "replaceIndices[]"
-    if (data?.images && data.images.length > 0) {
-      // collect only File entries from the mixed array
-      const files: File[] = [];
-      for (const entry of data.images as unknown as Array<{ file?: File }>) {
-        const f = entry?.file;
-        if (f instanceof File) files.push(f);
-      }
-
-      // append files to form-data
-      for (const f of files) {
-        formData.append("images", f);
-      }
-
-      // if replaceIndices provided, append them to satisfy backend constraint
-      const indices = (data as unknown as { replaceIndices?: number[] }).replaceIndices;
-      if (Array.isArray(indices) && indices.length > 0) {
-        const count = Math.min(files.length, indices.length);
-        for (let index = 0; index < count; index++) {
-          formData.append("replaceIndices[]", String(indices[index]));
-        }
-      }
+      payload.discountPrice = data.discountPrice;
     }
 
     return tryCatchWrapper(async () => {
-      const response = await this.http.patch<ProductApiResponse>(`/products/${id}`, formData, headers);
+      const response = await this.http.patch<ProductApiResponse>(`/products/${id}`, payload, headers);
       if (response?.status === 200) {
         return response.data;
       }
       throw new Error("Failed to edit product");
+    });
+  }
+
+  async editProductImages(id: string, data: { image: File; url: string }) {
+    const headers = { "Content-Type": "multipart/form-data" };
+    const formData = new FormData();
+
+    // Append image file and url string
+    formData.append(`image`, data.image);
+    formData.append(`url`, data.url);
+
+    return tryCatchWrapper(async () => {
+      const response = await this.http.patch<ProductApiResponse>(`/products/${id}/images`, formData, headers);
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to edit product images");
+    });
+  }
+
+  async deleteProductImage(id: string, url: string) {
+    return tryCatchWrapper(async () => {
+      const response = await this.http.delete<ProductApiResponse>(`/products/${id}/images`, { url });
+      if (response?.status === 200) {
+        return response.data;
+      }
+      throw new Error("Failed to delete product image");
     });
   }
 
