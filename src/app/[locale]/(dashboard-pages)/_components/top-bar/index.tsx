@@ -94,7 +94,7 @@ export default function TopBar({ className = "" }: TopBarProperties) {
 
   return (
     <>
-      <header className={`bg-background sticky top-0 flex items-center justify-between ${className}`}>
+      <header className={`bg-background sticky top-0 z-50 flex items-center justify-between ${className}`}>
         <div className="relative hidden min-w-0 flex-1 md:block">
           <SidebarTrigger className="text-primary size-9" />
           {/* <SearchInput

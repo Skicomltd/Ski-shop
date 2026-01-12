@@ -117,8 +117,8 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
                     <Badge
                       className={cn(
                         `text-[10px] capitalize lg:text-xs`,
-                        isPending && "bg-[#C5A83C]",
-                        order.status === "paid" && "bg-[#008000]",
+                        isPending && "bg-low-warning text-white",
+                        order.status === "paid" && deliveryStatus === "delivered" && "bg-low-success text-mid-success",
                         isDelivered && "bg-mid-success",
                       )}
                     >
@@ -173,8 +173,8 @@ export const ProductOrderDetail = ({ order }: ProductOrderDetailProperties) => {
         <div className="mt-8 space-y-3 rounded-lg border p-4">
           <p className={`text-sm`}>Placed On {formatDate(order.createdAt)}</p>
           <div className="flex items-center gap-2">
-            {anyPendingDelivery && <Badge className="bg-[#C5A83C] text-xs">Pending delivery</Badge>}
-            {order.status === "paid" && <Badge className="bg-[#008000] text-xs">Paid</Badge>}
+            {anyPendingDelivery && <Badge className="bg-low-warning text-xs text-white">Pending delivery</Badge>}
+            {order.status === "paid" && <Badge className="bg-low-success text-mid-success text-xs">Paid</Badge>}
             {allDelivered && <Badge className="bg-mid-success text-xs">Delivered</Badge>}
           </div>
 

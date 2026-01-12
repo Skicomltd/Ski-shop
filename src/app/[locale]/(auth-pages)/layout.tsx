@@ -53,9 +53,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex flex-1 flex-col lg:justify-center">
+        <div className="hide-scrollbar flex flex-1 flex-col overflow-y-auto lg:justify-center">
           <div className={`mx-auto w-full max-w-md p-4 py-6 sm:max-w-lg lg:py-8`}>
-            <div className={`mb-6 hidden lg:block`}>
+            <div className={`hidden lg:block`}>
               <div className="bg-primary/10 mx-auto w-fit rounded-lg p-2 dark:bg-white">
                 <Logo width={120} height={40} className="text-primary !w-[100px]" />
               </div>

@@ -52,7 +52,7 @@ const Page = () => {
   const { useGetOverview } = useHomeService();
   const { useGetAllOrders } = useDashboardOrderService();
   const { useGetAllUsers } = useUserService();
-  const { useGetPayouts } = usePayoutService();
+  const { useGetAdminWithdrawals } = usePayoutService();
   const { useGetSubscriptions } = useSettingsService();
 
   const orderColumn = useAdminOrderColumn();
@@ -72,7 +72,9 @@ const Page = () => {
   const hasPreviousPage = allOrders?.data?.metadata?.hasPreviousPage || false;
 
   const { data: allUsers } = useGetAllUsers();
-  const { data: payoutsData } = useGetPayouts();
+
+  // Fetch pending withdrawals using the "Find as Admin" endpoint (status=pending)
+  const { data: withdrawalsData } = useGetAdminWithdrawals({ status: "pending" });
   const { data: subscriptionsData } = useGetSubscriptions();
 
   const handleSearchChange = (newSearch: string) => {
@@ -133,7 +135,7 @@ const Page = () => {
           />
           <OverViewCard
             title={"Pending Payouts"}
-            value={payoutsData?.data.metadata.total || "0"}
+            value={withdrawalsData?.data.length || "0"}
             icon={<MdOutlineAddCard className="size-6" />}
             iconClassName="bg-low-danger text-[24px] text-mid-danger"
           />

@@ -11,30 +11,42 @@ import { usePayoutService } from "@/services/dashboard/vendor/payouts";
 import { useCallback, useMemo } from "react";
 
 import { DashboardHeader } from "../../../_components/dashboard-header";
+import { TableSkeleton } from "../../../_components/dashboard-table/_components/table-skeleton";
+
+const PayoutRequestTableSkeleton = () => {
+  return <TableSkeleton />;
+};
 
 const transformAdminWithdrawalsToPayoutRequests = (items: WithdrawalHistoryItem[]): PayoutRequest[] => {
   return items.map((item) => {
     const bank = item.bank;
-    const user = bank?.user;
 
-    const userId = user?.id ?? "";
-    const userName = user?.fullName ?? "Unknown User";
-    const storeName = bank?.bankName || bank?.name || undefined;
     const walletBalance = (item as WithdrawalHistoryItem & { walletBalance?: number }).walletBalance ?? 0;
 
-    const role: PayoutRequest["role"] = "vendor"; // Current withdrawals are vendor-based
+    const bankName = bank.name || bank.bankName || "Unknown Bank";
+    const firstThreeDigits = bank.firstThreeDigits ?? bank.accountNumber?.slice(0, 3) ?? "***";
+    const lastThreeDigits = bank.lastThreeDigits ?? bank.accountNumber?.slice(-3) ?? "***";
 
     return {
       id: item.id,
-      userId,
-      userName,
-      storeName,
-      role,
-      walletBalance,
       amount: item.amount,
-      dateTime: item.date,
-      // Map underlying withdrawal status to admin request status
-      status: item.status === "approved" || item.status === "completed" ? "approved" : "pending",
+      date: item.date,
+      status: item.status,
+      walletBalance,
+      bank: {
+        id: bank.id,
+        name: bankName,
+        firstThreeDigits,
+        lastThreeDigits,
+      },
+      store: {
+        name: item.store.name || "Unknown Store",
+      },
+      user: {
+        // Withdrawals here are vendor-based; role is inferred.
+        role: "vendor",
+      },
+      dateProccess: null,
     };
   });
 };
@@ -44,7 +56,7 @@ export const PayoutRequestTable = () => {
   const { useGetAdminWithdrawals, useInitiateWithdrawalApproval } = usePayoutService();
 
   // Fetch pending withdrawals using the "Find as Admin" endpoint (status=pending)
-  const { data: withdrawalsData, refetch } = useGetAdminWithdrawals({ status: "pending" });
+  const { data: withdrawalsData, refetch, isLoading } = useGetAdminWithdrawals({ status: "pending" });
 
   const { mutate: mutateWithdrawalDecision } = useInitiateWithdrawalApproval();
 
@@ -56,9 +68,9 @@ export const PayoutRequestTable = () => {
     if (!query) return requests;
 
     return requests.filter((request) => {
-      const name = request.userName?.toLowerCase() ?? "";
-      const store = request.storeName?.toLowerCase() ?? "";
-      const role = request.role?.toLowerCase() ?? "";
+      const name = request.store?.name?.toLowerCase() ?? "";
+      const store = request.store?.name?.toLowerCase() ?? "";
+      const role = request.user?.role?.toLowerCase() ?? "";
       return name.includes(query) || store.includes(query) || role.includes(query);
     });
   }, [withdrawalsData, searchQuery]);
@@ -142,7 +154,9 @@ export const PayoutRequestTable = () => {
         }
       />
       <div>
-        {!payoutRequests || payoutRequests.length === 0 ? (
+        {isLoading ? (
+          <PayoutRequestTableSkeleton />
+        ) : !payoutRequests || payoutRequests.length === 0 ? (
           renderEmptyState()
         ) : (
           <DashboardTable

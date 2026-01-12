@@ -42,7 +42,7 @@ const BestSellerLayout = () => {
         subtitle={`The best selling products on Skishop`}
         subtitleClassName={`!text-sm`}
       />
-      <section className={`h-[290px] space-y-4 overflow-auto`}>
+      <section className={`hide-scrollbar h-[290px] space-y-4 overflow-auto`}>
         {isProductsLoading ? (
           <Loading text="Loading best selling products..." className="w-fill h-fit p-20" />
         ) : productData?.data?.items?.length ? (
