@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   },
   /* config options here */
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         hostname: "cdn.dummyjson.com",
